@@ -1,0 +1,17 @@
+export const adType = [
+  { title: 'Car', path: '/car', icon: 'mdi:car' },
+  { title: 'House', path: '/house', icon: 'mdi:home' },
+  { title: 'Job', path: '/job', icon: 'mdi:briefcase' },
+  { title: 'Volunteer', path: '/volunteer', icon: 'mdi:heart' },
+  { title: 'Pet', path: '/pet', icon: 'mdi:paw' },
+  { title: 'Service', path: '/service', icon: 'mdi:tools' },
+  { title: 'Event', path: '/event', icon: 'mdi:calendar' },
+  { title: 'Real Estate', path: '/real-estate', icon: 'mdi:home' },
+  { title: 'Exchange', path: '/exchange', icon: 'mdi:swap-horizontal-bold' },
+  { title: 'Business', path: '/business', icon: 'mdi:business' },
+  { title: 'Education', path: '/education', icon: 'mdi:school' },
+  { title: 'Clothing', path: '/clothing', icon: 'fluent-mdl2:shirt' },
+  { title: 'Household', path: '/household', icon: 'mdi:home' },
+  { title: 'For free', path: '/for-free', icon: 'mdi:coin' },
+  { title: 'Other', path: '/other', icon: 'mdi:account' },
+]
