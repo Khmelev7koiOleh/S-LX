@@ -7,6 +7,19 @@ import AddAnAd from '@/components/icons/AddAnAd.vue'
 import { adType } from '@/data/ad-type'
 import { useClickFunctionStore } from '@/stores/click-function-store'
 import UploadAd from '@/components/UploadAd.vue'
+import { getAllAds } from '../composables/get-ads'
+import AdCard from '../components/AdCard.vue'
+const { ads, loading, error, fetchAds } = getAllAds()
+
+interface adType {
+  id: number
+  title: string
+  description: string
+  price: string
+  discount: string
+  if_discount: boolean
+  type: string
+}
 
 interface Instrument {
   id: number
@@ -15,32 +28,38 @@ interface Instrument {
 const clickStore = useClickFunctionStore() // Access the store
 const instruments = ref<Instrument[] | null>([])
 
+const selectedCategory = ref<adType[] | null>(null)
+
 async function getInstruments() {
   const { data } = await supabase.from('instruments').select()
   instruments.value = data
 }
 
-const addToAds = async () => {
-  const { error, data } = await supabase.from('ads').insert({
-    title: 'test',
-    description: 'test description',
-    price: '300',
-    discount: '30',
-    if_discount: true,
-  })
-  if (error) {
-    console.error('Fehler beim Speichern:', error)
-  } else {
-    console.log('Gespeichert:', data)
-  }
+// const addToAds = async () => {
+//   const { error, data } = await supabase.from('ads').insert({
+//     title: 'test',
+//     description: 'test description',
+//     price: '300',
+//     discount: '30',
+//     if_discount: true,
+//   })
+//   if (error) {
+//     console.error('Fehler beim Speichern:', error)
+//   } else {
+//     console.log('Gespeichert:', data)
+//   }
+// }
+const getValueOf = (ref: string) => {
+  console.log(ref)
+  selectedCategory.value = ads.value.filter((ad: adType) => ad.type === ref)
 }
 function clickFunction() {
   clickStore.toggleClick() // Call the action to toggle isClicked
 }
 onMounted(() => {
   // addToAds()
-  getInstruments()
-  console.log(instruments)
+  // getInstruments()
+  console.log(ads)
 })
 </script>
 
@@ -60,6 +79,7 @@ onMounted(() => {
       >
         <UploadAd />
       </div>
+      <div><AdCard :ads="selectedCategory || []" /></div>
       <div class="w-[95%] min-h-[50vh] mx-auto bg-amber-500 rounded-xl m-4">
         <p class="text-2xl text-gray-800 font-semibold p-6 w-full text-center">
           Sections on the S'LX service
@@ -67,6 +87,7 @@ onMounted(() => {
 
         <ul class="flex flex-wrap items-center gap-12 p-8">
           <li
+            @click="getValueOf(ad.value)"
             v-for="ad in adType"
             :key="ad.title"
             class="flex flex-col items-center justify-center gap-3 bg-amber-500 rounded-full p-4"
@@ -78,9 +99,8 @@ onMounted(() => {
 
       <!-- Anouncement section -->
       <div>
-        <h2 class="text-3xl m-4 w-full text-center p-12">VIP-Announcements</h2>
-
-        <div class="p-40 bg-gray-200 rounded-xl">some announcement</div>
+        <h2 class="text-3xl w-full text-center p-12">VIP-Announcements</h2>
+        <AdCard :ads="ads" />
       </div>
     </div>
   </main>
