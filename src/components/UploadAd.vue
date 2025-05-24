@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, toRefs, onMounted, watchEffect } from 'vue'
+
 import { supabase } from '@/lib/supabaseClient'
 import { useClickFunctionStore } from '@/stores/click-function-store'
+import { useGetUserStore } from '@/stores/current-user-store'
+import { adType } from '@/data/ad-type'
+
+const userStore = useGetUserStore()
+const { user } = toRefs(userStore)
 
 const clickStore = useClickFunctionStore()
 
@@ -10,6 +16,7 @@ const description = ref<string>('')
 const price = ref<string>('')
 const discount = ref<string>('')
 const if_discount = ref<boolean>(false)
+const type = ref<string>('')
 
 const file = ref<File | null>(null)
 const imageUrl = ref<string>('')
@@ -51,7 +58,9 @@ const handleUpload = async () => {
     price: price.value,
     discount: discount.value,
     if_discount: if_discount.value,
+    type: type.value,
     img: imageUrl.value,
+    user_id: user.value.id,
   })
 
   if (insertError) {
@@ -61,10 +70,21 @@ const handleUpload = async () => {
     console.log('Anzeige gespeichert:', insertData)
   }
 }
+
+const typeValue = (ref: string) => {
+  console.log(ref)
+  type.value = ref
+}
+
+// watchEffect(() => {
+//   console.log(type.value)
+// })
 </script>
 
 <template>
-  <div class="p-8 space-y-4 flex flex-col max-w-[80%] mx-auto bg-gray-900 rounded-2xl">
+  <div
+    class="p-8 space-y-2 flex flex-col max-w-[80%] mx-auto bg-gray-900 rounded-2xl h-full overflow-auto"
+  >
     <input
       v-model="title"
       type="text"
@@ -103,6 +123,16 @@ const handleUpload = async () => {
       placeholder="Discount"
       class="w-full p-2 border rounded text-gray-200 placeholder:gray-200"
     />
+    <select
+      v-model="type"
+      @change="typeValue(type)"
+      placeholder="Type"
+      class="w-full p-2 border rounded text-gray-200 placeholder:gray-200"
+    >
+      <option v-for="tp in adType" :key="tp.value" :value="tp.value">
+        {{ tp.title }}
+      </option>
+    </select>
     <div v-if="imageUrl" class="mt-4">
       <p class="text-sm text-gray-600">Bildvorschau:</p>
       <img

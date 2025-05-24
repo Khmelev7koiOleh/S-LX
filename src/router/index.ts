@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+import DynamicId from '../components/DynamicId.vue'
 import HomeView from '../views/HomeView.vue'
 // import AboutView from '../views/AboutView.vue'
 // import ContactView from '../views/ContactView.vue'
@@ -28,6 +29,12 @@ const router = createRouter({
       path: '/contact',
       name: 'contact',
       component: () => import('../views/ContactView.vue'),
+    },
+    {
+      path: '/ad/:id', // dynamic route
+      name: 'AdDetail',
+      component: DynamicId,
+      props: true,
     },
   ],
 })
