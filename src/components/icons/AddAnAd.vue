@@ -1,9 +1,7 @@
 <template>
-  <div class="flex items-center m-4">
-    <button
-      @click="handleClick"
-      class="bg-green-500 rounded-md px-6 py-2.5 text-white font-semibold"
-    >
+  <div @click="handleClick" class="bg-green-500 flex gap-2 items-center rounded-md px-4 py-1.5">
+    <Icon icon="mdi:plus" width="34" height="34" class="rounded-full text-white" />
+    <button class="text-white font-semibold">
       {{ props.title }}
     </button>
   </div>
@@ -11,6 +9,8 @@
 
 <script setup lang="ts">
 import { defineProps } from 'vue'
+import { Icon } from '@iconify/vue'
+
 interface Title {
   title: string
 }

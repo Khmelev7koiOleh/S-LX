@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
 import { supabase } from '../lib/supabaseClient'
-
-import { ref, onMounted, computed, watch } from 'vue'
+import { useFilterStore } from '@/stores/filter-store'
+import { ref, onMounted, computed, watch, toRefs } from 'vue'
 import { RouterLink } from 'vue-router'
 
 import { adType } from '@/data/ad-type'
 
+const filterStore = useFilterStore()
+
+const { selectedCategory } = toRefs(filterStore)
+
 const ads = ref<any[]>([])
 const searchQuery = ref<string>('')
-const selectedCategory = ref('')
+
 const onFilterOpen = ref<boolean>(false)
 
 const filterCreatedAt = ref<boolean>(false)
