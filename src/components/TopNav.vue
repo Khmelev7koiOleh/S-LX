@@ -20,7 +20,7 @@ const handleSignOut = () => {
   <div class="w-full flex justify-around bg-green-900 p-2">
     <RouterLink :to="{ name: 'home' }" class="flex items-center justify-center gap-3">
       <div class="flex items-center gap-1">
-        <p class="text-6xl font-stretch-50% text-white">S 03</p>
+        <p class="text-6xl font-stretch-50% text-white">S</p>
 
         <p class="text-4xl font-stretch-50% text-white">'LX</p>
       </div>
@@ -45,10 +45,10 @@ const handleSignOut = () => {
         <button @click="handleSignOut()">Sign Out</button>
       </div>
 
-      <div class="flex flex-col items-center justify-center">
+      <RouterLink :to="{ name: 'profile' }" class="flex flex-col items-center justify-center">
         <img :src="user.img" alt="" class="w-10 h-10 rounded-full" />
         <p class="text-white">{{ user.name }}</p>
-      </div>
+      </RouterLink>
     </div>
   </div>
 </template>

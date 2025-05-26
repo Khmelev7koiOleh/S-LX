@@ -1,0 +1,66 @@
+<script setup lang="ts">
+import { ref, toRefs, onMounted } from 'vue'
+import { RouterLink, RouterView, useRouter } from 'vue-router'
+import { useGetUserStore } from '@/stores/current-user-store'
+const userStore = useGetUserStore()
+const { user } = toRefs(userStore)
+const router = useRouter()
+
+const usersData = ref<any>([
+  { name: 'Ads', path: '/profile/my-profile-ads' },
+  { name: 'Chats', path: '/profile/my-profile-chats' },
+
+  { name: 'Profile', path: '/profile/my-profile-profile' },
+  { name: 'Ratings', path: '/profile/my-profile-ratings' },
+  { name: 'Settings', path: '/profile/my-profile-settings' },
+])
+const currentProfileTap = ref('Profile')
+const getValue = (val: string) => {
+  currentProfileTap.value = val
+}
+// const profileProfileClick = () => {
+//   currentProfileTap.value = 'Profile'
+
+// }
+onMounted(() => {
+  currentProfileTap.value = 'Profile'
+  router.push('/profile/my-profile-profile')
+})
+</script>
+<template>
+  <div class="bg-gray-300">
+    <div class="w-full text-3xl text-gray-800 flex justify-center pb-10">
+      <div class="px-4 py-2">{{ currentProfileTap }}</div>
+    </div>
+    <div class="flex flex-col gap-5">
+      <div class="w-full flex justify-around bg-gray-300">
+        <div v-for="user in usersData" :key="user.name">
+          <RouterLink
+            :to="`${user.path}`"
+            @click="getValue(user.name)"
+            v-slot="{ isActive, navigate }"
+          >
+            <button
+              :class="[
+                'px-4 py-2 ',
+                isActive ? 'border-b-2 border-gray-500 text-gray-900 text-lg font-semibold' : '',
+              ]"
+              @click="navigate"
+            >
+              {{ user.name }}
+            </button>
+          </RouterLink>
+        </div>
+      </div>
+      <div class="w-full flex justify-center items-center">
+        <div class="w-full">
+          <RouterView name="main" />
+        </div>
+      </div>
+    </div>
+
+    <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+  </div>
+</template>
+
+<style scoped></style>
