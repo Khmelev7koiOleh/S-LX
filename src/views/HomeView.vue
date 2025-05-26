@@ -78,7 +78,7 @@ const getValueOf = (ref: string) => {
 }
 
 function clickFunction() {
-  clickStore.toggleClick() // Call the action to toggle isClicked
+  clickStore.isClicked = !clickStore.isClicked // Call the action to toggle isClicked
 }
 
 const randomReducedAds = computed(() => {
@@ -139,7 +139,7 @@ onMounted(() => {
       >
         <UploadAd />
       </div>
-
+      <div></div>
       <!-- <div class="flex"> -->
       <!-- <div v-for="ad in selectedCategory" :key="ad.id">
           <AdCard
