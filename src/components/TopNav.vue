@@ -1,3 +1,21 @@
+<script setup lang="ts">
+import { Icon } from '@iconify/vue'
+import { defineProps } from 'vue'
+import { toRefs } from 'vue'
+import { useRouter } from 'vue-router'
+
+import { useGetUserStore } from '@/stores/current-user-store'
+const userStore = useGetUserStore()
+const { user } = toRefs(userStore)
+const props = defineProps(['data'])
+
+const { data } = toRefs(props)
+const router = useRouter()
+const handleSignOut = () => {
+  userStore.signOut(router)
+}
+</script>
+
 <template>
   <div class="w-full flex justify-around bg-green-900 p-2">
     <RouterLink :to="{ name: 'home' }" class="flex items-center justify-center gap-3">
@@ -27,30 +45,12 @@
         <button @click="handleSignOut()">Sign Out</button>
       </div>
 
-      <div class="flex flex-col items-center justify-center">
+      <RouterLink :to="{ name: 'profile' }" class="flex flex-col items-center justify-center">
         <img :src="user.img" alt="" class="w-10 h-10 rounded-full" />
         <p class="text-white">{{ user.name }}</p>
-      </div>
+      </RouterLink>
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { Icon } from '@iconify/vue'
-import { defineProps } from 'vue'
-import { toRefs } from 'vue'
-import { useRouter } from 'vue-router'
-
-import { useGetUserStore } from '@/stores/current-user-store'
-const userStore = useGetUserStore()
-const { user } = toRefs(userStore)
-const props = defineProps(['data'])
-
-const { data } = toRefs(props)
-const router = useRouter()
-const handleSignOut = () => {
-  userStore.signOut(router)
-}
-</script>
 
 <style scoped></style>
