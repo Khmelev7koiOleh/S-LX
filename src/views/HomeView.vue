@@ -12,6 +12,10 @@ import { getAllAds } from '../composables/get-ads'
 import AdCard from '../components/AdCard.vue'
 import { useRouter } from 'vue-router'
 import { useFilterStore } from '../stores/filter-store'
+import AdvertisementBanner from '@/components/AdvertisementBanner.vue'
+import AdvertisementLine from '@/components/AdvertisementLine.vue'
+import PopularSomethigComponent from '@/components/PopularSomethigComponent.vue'
+import { title } from 'process'
 
 const router = useRouter()
 const { ads } = getAllAds()
@@ -71,6 +75,43 @@ const filteredAds = computed(() => {
 //     console.log('Gespeichert:', data)
 //   }
 // }
+const PopularComponentData = ref([
+  {
+    img: 'https://www.olx.ua/app/static/media/olx_category.f0c6831ac.svg',
+    title: "Sections on the S'LX",
+    data: adType,
+  },
+  {
+    img: 'https://www.olx.ua/app/static/media/observed_search.17aec4d21.svg',
+    title: 'Popular queries',
+    data: adType,
+  },
+])
+
+const lorem = ref([
+  {
+    text: 'Lorinctio est ipsam et esse quos',
+  },
+  {
+    text: 'Lorinctio est ipsam et esse quos',
+  },
+  {
+    text: 'Lorinctio est ipsam et esse quos',
+  },
+  {
+    text: 'Lorinctio est ipsam et esse quos',
+  },
+  {
+    text: 'Lorinctio est ipsam et esse quos',
+  },
+  {
+    text: 'Lorinctio est ipsam et esse quos',
+  },
+  {
+    text: 'Lorinctio est ipsam et esse quos',
+  },
+])
+
 const getValueOf = (ref: string) => {
   console.log(ref)
   selectedCategory.value = ref
@@ -82,7 +123,7 @@ function clickFunction() {
 }
 
 const randomReducedAds = computed(() => {
-  return ads.value.slice(0, 8).sort(() => Math.random() - 0.5)
+  return ads.value.slice(0, 12).sort(() => Math.random() - 0.5)
 })
 onMounted(() => {
   // addToAds()
@@ -172,7 +213,7 @@ onMounted(() => {
       <!-- Anouncement section -->
       <div>
         <h2 class="text-3xl w-full text-center p-12">VIP-Announcements</h2>
-        <ul class="w-full grid grid-cols-4 gap-4 p-4">
+        <ul class="w-full grid grid-cols-4 gap-4 p-20">
           <li v-for="ad in randomReducedAds" :key="ad.id">
             <RouterLink :to="`/ad/${ad.id}`">
               <AdCard
@@ -189,9 +230,38 @@ onMounted(() => {
           </li>
         </ul>
       </div>
+
+      <div>
+        <AdvertisementLine />
+        <AdvertisementBanner />
+        <div class="w-full flex flex-wrap">
+          <div v-for="shard in PopularComponentData" :key="shard.title" class="w-1/2 flex">
+            <PopularSomethigComponent :img="shard.img" :title="shard.title" :data="shard.data" />
+          </div>
+          <!-- <div class="max-w-1/2">
+            <PopularSomethigComponent />
+          </div> -->
+        </div>
+      </div>
     </div>
+    <div class="w-full border-b border-b-gray-800"></div>
   </main>
   <footer>
-    <div class="bg-gray-800 p-4 text-center text-white">Copyright &copy; 2025</div>
+    <div class="text-center text-2xl">Footer</div>
+    <div class="w-full p-8">
+      <div class="flex justify-start gap-8">
+        <div>
+          <div class="w-full" v-for="l in lorem" :key="l.text">
+            {{ l.text }}
+          </div>
+        </div>
+        <div>
+          <div class="w-full" v-for="l in lorem" :key="l.text">
+            {{ l.text }}
+          </div>
+        </div>
+      </div>
+      <div class="bg-white p-4 text-center text-white">Copyright &copy; 2025</div>
+    </div>
   </footer>
 </template>
