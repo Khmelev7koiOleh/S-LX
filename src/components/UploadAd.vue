@@ -61,12 +61,13 @@ const handleUpload = async () => {
     type: type.value,
     img: imageUrl.value,
     user_id: user.value.id,
+    user_name: user.value.email,
   })
 
   if (insertError) {
     console.error('Fehler beim Speichern:', insertError.message)
   } else {
-    clickStore.toggleClick()
+    clickStore.isClicked = !clickStore.isClicked
     console.log('Anzeige gespeichert:', insertData)
   }
 }

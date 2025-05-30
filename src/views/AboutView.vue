@@ -161,6 +161,7 @@ watch(searchQuery, (newQuery) => {
               <p>{{ ad.title }}</p>
               <p>{{ ad.description }}</p>
               <p>{{ ad.price }} €.</p>
+              <p>{{ ad.user_name }}</p>
             </div>
           </RouterLink>
         </div>

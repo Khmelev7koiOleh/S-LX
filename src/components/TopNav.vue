@@ -1,8 +1,19 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
 import { defineProps } from 'vue'
-import { toRefs } from 'vue'
+import { ref, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
+import { Button } from './ui/button'
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 import { useGetUserStore } from '@/stores/current-user-store'
 const userStore = useGetUserStore()
@@ -11,6 +22,7 @@ const props = defineProps(['data'])
 
 const { data } = toRefs(props)
 const router = useRouter()
+// const onPanelOpen = ref<boolean>(false)
 const handleSignOut = () => {
   userStore.signOut(router)
 }
@@ -35,20 +47,63 @@ const handleSignOut = () => {
     <div class="flex items-center gap-3">
       <div v-for="item in data" :key="item.url">
         <RouterLink :to="item.path">
-          <div class="w-full flex items-center p-2 gap-1 bg-gray-800 text-white rounded-lg">
+          <Button class="w-full flex items-center p-2 gap-1 text-white rounded-lg">
             <Icon :icon="item.icon" width="24" height="24" />{{ item.title }}
-          </div>
+          </Button>
         </RouterLink>
       </div>
 
-      <div class="flex px-2 py-1 items-center bg-sky-500 text-white rounded-lg">
-        <button @click="handleSignOut()">Sign Out</button>
-      </div>
+      <div class="w-full relative">
+        <!-- <div>
+            <Button class="flex gap-4" @click="onPanelOpen = !onPanelOpen">
+              <Icon icon="mdi:account" width="24" height="24" class="text-white" />
+              <div class="flex items-center">
+                <div class="text-white">Your Profile</div>
+                <Icon
+                  icon="mdi:chevron-down"
+                  :class="[
+                    'text-white transition-transform duration-200',
+                    onPanelOpen ? 'rotate-x-180' : 'rotate-0',
+                  ]"
+                  width="24"
+                  height="24"
+                />
+              </div>
+            </Button>
+          </div> -->
 
-      <RouterLink :to="{ name: 'profile' }" class="flex flex-col items-center justify-center">
-        <img :src="user.img" alt="" class="w-10 h-10 rounded-full" />
-        <p class="text-white">{{ user.name }}</p>
-      </RouterLink>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            ><Button
+              ><Icon icon="mdi:account" width="24" height="24" class="text-white" /> Profile</Button
+            ></DropdownMenuTrigger
+          >
+          <DropdownMenuContent>
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <RouterLink :to="{ name: 'profile' }" class="flex items-center justify-start gap-2">
+                <Avatar>
+                  <AvatarImage :src="user.img" alt="@unovue" />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+
+                <p class="text-black">{{ user.name }}</p>
+              </RouterLink>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <div class="w-full flex justify-center items-center">
+                <Button @click="handleSignOut()">
+                  <Icon icon="mdi:sign-out" width="24" height="24" class="text-white" /> Sign
+                  Out</Button
+                >
+              </div></DropdownMenuItem
+            >
+            <!-- <DropdownMenuItem>Team</DropdownMenuItem>
+            <DropdownMenuItem>Subscription</DropdownMenuItem> -->
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
   </div>
 </template>
