@@ -8,4 +8,6 @@ export interface AdsType {
   if_discount: boolean
   created_at?: string
   type: string
+  user_id: string
+  user_name: string
 }

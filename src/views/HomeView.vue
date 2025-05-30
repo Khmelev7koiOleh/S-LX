@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, toRefs } from 'vue'
 import { Icon } from '@iconify/vue'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 import { supabase } from '../lib/supabaseClient'
 import Search from '@/components/icons/Search.vue'
 import AddAnAd from '@/components/icons/AddAnAd.vue'
@@ -233,15 +239,17 @@ onMounted(() => {
 
       <div>
         <AdvertisementLine />
-        <AdvertisementBanner />
+
         <div class="w-full flex flex-wrap">
           <div v-for="shard in PopularComponentData" :key="shard.title" class="w-1/2 flex">
             <PopularSomethigComponent :img="shard.img" :title="shard.title" :data="shard.data" />
           </div>
+
           <!-- <div class="max-w-1/2">
             <PopularSomethigComponent />
           </div> -->
         </div>
+        <AdvertisementBanner />
       </div>
     </div>
     <div class="w-full border-b border-b-gray-800"></div>
@@ -249,17 +257,20 @@ onMounted(() => {
   <footer>
     <div class="text-center text-2xl">Footer</div>
     <div class="w-full p-8">
-      <div class="flex justify-start gap-8">
-        <div>
-          <div class="w-full" v-for="l in lorem" :key="l.text">
-            {{ l.text }}
-          </div>
-        </div>
-        <div>
-          <div class="w-full" v-for="l in lorem" :key="l.text">
-            {{ l.text }}
-          </div>
-        </div>
+      <div class="flex justify-start items-start gap-8 h-[300px]">
+        <Accordion type="single" collapsible>
+          <AccordionItem value="item-1">
+            <AccordionTrigger>Is it accessible?</AccordionTrigger>
+            <AccordionContent v-for="l in lorem" :key="l.text"> {{ l.text }} </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+
+        <Accordion type="single" collapsible>
+          <AccordionItem value="item-1">
+            <AccordionTrigger>Is it accessible2?</AccordionTrigger>
+            <AccordionContent v-for="l in lorem" :key="l.text"> {{ l.text }} </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
       <div class="bg-white p-4 text-center text-white">Copyright &copy; 2025</div>
     </div>
