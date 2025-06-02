@@ -22,6 +22,10 @@ import AdvertisementBanner from '@/components/AdvertisementBanner.vue'
 import AdvertisementLine from '@/components/AdvertisementLine.vue'
 import PopularSomethigComponent from '@/components/PopularSomethigComponent.vue'
 import { title } from 'process'
+import { useGetUserStore } from '../stores/current-user-store'
+
+const userStore = useGetUserStore()
+const { user } = toRefs(userStore)
 
 const router = useRouter()
 const { ads } = getAllAds()
@@ -131,6 +135,7 @@ function clickFunction() {
 const randomReducedAds = computed(() => {
   return ads.value.slice(0, 12).sort(() => Math.random() - 0.5)
 })
+
 onMounted(() => {
   // addToAds()
   // getInstruments()
@@ -231,6 +236,7 @@ onMounted(() => {
                 :type="ad.type"
                 :size="'150px'"
                 :horisontal="true"
+                :col="true"
               />
             </RouterLink>
           </li>

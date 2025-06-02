@@ -6,16 +6,20 @@ import { supabase } from '@/lib/supabaseClient'
 import type { AdsType } from '@/types/ads-type'
 import Button from './ui/button/Button.vue'
 import { useGetUserStore } from '@/stores/current-user-store'
-import { text } from 'stream/consumers'
+import ChatMessageComponent from './ChatMessageComponent.vue'
 
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
-// const message = ref('lol check')
+const message = ref('')
 // const room = ref('general')
 const route = useRoute()
 const ad = ref<AdsType | null>(null)
 const chat = ref<any | null>(null)
-const theMessage = ref('')
+const theMessage = ref<{ msg: string }[]>([])
+const currentRoom = ref<any[] | null>(null)
+const onCurrentRoomOpen = ref<boolean>(false)
+const klasse = ref<any[] | null>([])
+const klasseNew = ref<any[] | null>([])
 
 // async function sendMessage(user: AdsType, message: string, room = 'general') {
 //   const { data, error } = await supabase.from('chat').insert([
@@ -33,14 +37,21 @@ const theMessage = ref('')
 // }
 
 async function getOrCreateConversation(user_1, user_2) {
-  // Prüfen, ob bereits ein Chat existiert (in beliebiger Reihenfolge)
+  const sorted = [user_1, user_2].sort() // sorts alphabetically
+  const room_id = `${sorted[0]}_${sorted[1]}`
+  // console.log(`${user_2 + '_' + user_1}`)
+  // console.log(`${user_1 + '_' + user_2}`)
+
+  console.log('room_id', room_id)
+
   const { data: existingConvo, error } = await supabase
     .from('chat')
     .select('*')
-    .or(
-      `and(user1_id.eq.${user_1},user2_id.eq.${user_2}),and(user1_id.eq.${user_2},user2_id.eq.${user_1})`,
-    )
-    .single()
+    // .or(`and(room_id.eq.${user_1 + '_' + user_2}), and(room_id.eq.${user_2 + '_' + user_1})`)
+    .eq('room_id', room_id)
+    .maybeSingle()
+  theMessage.value = existingConvo
+  klasse.value = existingConvo
 
   if (existingConvo) return existingConvo
 
@@ -50,15 +61,17 @@ async function getOrCreateConversation(user_1, user_2) {
     .insert([
       {
         user_name: 'just a name',
-        room_id: user_1 + '_' + user_2,
+        room_id: room_id,
         content: 'text and smth else',
-        participants: [{ participant_1: user_1 }, { participant_2: user_2 }], // [user_1, user_2],
-        check: [{ messages: 'text and smth else' }],
+        participants: [user_1, user_2], // [user_1, user_2],
+        msg: [{ sender_id: user_1, text: message.value, timestamp: new Date().toISOString() }],
+        // msg: [message.value],
       },
     ])
     .select()
     .single()
-
+  console.log('newConvo', newConvo)
+  klasseNew.value = newConvo
   return newConvo
 }
 
@@ -89,7 +102,7 @@ const sendMessageToMessage = async (id: string, message: string) => {
       user_name: 'just a namewfwefwgw',
       content: message,
       room_id: ad.value?.user_id + '_' + user.value.id,
-
+      participants: [{ participant_1: user.value.id }, { participant_2: id }],
       check: [{ messages: message }],
     },
   ])
@@ -103,6 +116,27 @@ const sendMessageToMessage = async (id: string, message: string) => {
 
   // // Beispiel: Nachricht senden
   // await sendMessage(conversation.id, currentUser.id, "Hallo!");
+}
+
+async function createChatRoom(user1_id: string, user2_id: string) {
+  console.log(user1_id, user2_id)
+  const room_id = [user1_id, user2_id].sort().join('_') // Eindeutige ID (z. B. "user1_user2")
+
+  const { data, error } = await supabase
+    .from('chat_rooms')
+    .upsert(
+      {
+        room_id,
+        participant_ids: [user1_id, user2_id],
+        room_topic: ad.value?.title,
+      },
+      { onConflict: 'room_id' },
+    )
+    .select()
+    .single()
+  currentRoom.value = data
+
+  return data
 }
 
 onMounted(async () => {
@@ -149,47 +183,60 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>check if the chat exists , if no create it if yes updade it</div>
-  <div class="flex flex-row justify-center items-center gap-8" v-if="ad">
-    <div class="flex flex-col justify-center items-center gap-4">
-      <div class="w-[500px] h-[350px] overflow-hidden">
-        <img :src="ad.img" alt="" class="w-full h-full object-cover rounded-lg" />
-      </div>
-
-      <div class="flex gap-3">
-        <div class="font-bold">Description:</div>
-        <p>{{ ad.description }}</p>
+  <div class="w-[100vw] h-[100vh] relative">
+    <div
+      v-if="currentRoom && onCurrentRoomOpen"
+      class="w-1/3 h-full absolute right-0 flex flex-col justify-center items-center bg-amber-200"
+    >
+      <div class="w-1/3 h-full fixed bottom-0 right-0 flex flex-col justify-center items-center">
+        <ChatMessageComponent :data="currentRoom" />
       </div>
     </div>
+    <!-- <div>check if the chat exists , if no create it if yes updade it</div> -->
 
-    <div class="flex flex-col justify-center items-center gap-2 bg-gray-200 p-10">
-      <h1>{{ ad.title }}</h1>
-      <p>{{ ad.price }} €</p>
-      <!-- <Button
-        @click="sendMessage(ad, 'the check ', 'general')"
-        class="w-full flex items-center p-2 gap-1 text-white rounded-lg"
-        >Message</Button
-      > -->
+    <!-- <div class="bg-red-400">{{ getOrCreateConversation }}</div> -->
 
-      <Button
+    <div class="flex flex-row justify-center items-center gap-8" v-if="ad">
+      <div class="flex flex-col justify-center items-center gap-4">
+        <div class="w-[500px] h-[350px] overflow-hidden">
+          <img :src="ad.img" alt="" class="w-full h-full object-cover rounded-lg" />
+        </div>
+
+        <div v-for="sm in theMessage" :key="sm">{{ sm }}</div>
+        <div class="flex gap-3">
+          <!-- {{ theMessage }} -->
+          <div class="font-bold">Description:</div>
+          <p>{{ ad.description }}</p>
+        </div>
+      </div>
+
+      <div class="flex flex-col justify-center items-center gap-2 bg-gray-200 p-10">
+        <h1>{{ ad.title }}</h1>
+        <p>{{ ad.price }} €</p>
+        <Button
+          @click="
+            (() => {
+              createChatRoom(user.id, ad.user_id)
+              onCurrentRoomOpen = !onCurrentRoomOpen
+            })()
+          "
+          class="w-full flex items-center p-2 gap-1 text-white rounded-lg cursor-pointer"
+          >Message</Button
+        >
+
+        <!-- <Button
         @click="startChat(user.id, ad.user_id)"
         class="w-full flex items-center p-2 gap-1 text-white rounded-lg"
         >Message</Button
-      >
-      <Button class="w-full flex items-center p-2 gap-1 text-white rounded-lg">Phone number</Button>
+      > -->
+        <Button class="w-full flex items-center p-2 gap-1 text-white rounded-lg"
+          >Phone number</Button
+        >
+      </div>
     </div>
-  </div>
-  <div v-for="message in chat" :key="message.room_id">
-    <div class="bg-fuchsia-900 text-white px-2 py-1 my-1">*{{ message.room_id }}</div>
-  </div>
 
-  <div class="p-20">
-    <input
-      type="text"
-      placeholder="Message"
-      v-model="theMessage"
-      class="border border-red-300"
-      @keydown.enter="sendMessageToMessage(ad.id, theMessage)"
-    />
+    <!-- <RouterLink :to="`/message/${}`" >
+    <ChatMessageComponent />
+  </RouterLink> -->
   </div>
 </template>
