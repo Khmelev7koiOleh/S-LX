@@ -1,53 +1,59 @@
-<template>
-  <div class="text-2xl text-center">Chats</div>
+<script setup lang="ts">
+import { ref, toRefs, onMounted } from 'vue'
+import { supabase } from '@/lib/supabaseClient'
+import { useGetUserStore } from '../stores/current-user-store'
+import ChatMessageComponent from '@/components/ChatMessageComponent.vue'
+import { Icon } from '@iconify/vue'
 
-  <div>
-    <button @click="sendMessage">send</button>
-  </div>
-  <div class="w-full flex flex-wrap gap-4 p-8">
-    <div v-for="chat in chats" :key="chat.id">
-      <div>{{ chat.message }}</div>
+const userStore = useGetUserStore()
+const { user } = toRefs(userStore)
+const messages = ref<any | null>(null)
+
+const chatsIn = ref<any | null>(null)
+const getRoomsCurrentUserIn = async () => {
+  const { data, error } = await supabase
+    .from('chat_rooms')
+    .select('*')
+    .contains('participant_ids', [user.value.id])
+  if (error) {
+    console.error('Error fetching chat rooms:', error)
+    return
+  }
+  console.log(data)
+  chatsIn.value = data
+  return data
+}
+
+const getChatsValue = async (val: any) => {
+  console.log(val)
+  const { data, error } = await supabase.from('messages').select('*').eq('room_id', val)
+  console.log(data)
+  messages.value = data
+  return data
+}
+
+onMounted(() => {
+  getRoomsCurrentUserIn()
+})
+</script>
+
+<template>
+  <div class="text-2xl font-semibold w-full text-center">My all chats</div>
+  <div class="w-full flex flex-col p-2" v-for="(chat, index) in chatsIn" :key="index">
+    <div @click="getChatsValue(chat.room_id)" class="min-w-1/3 max-w-fit flex flex-col gap-4">
+      <div
+        class="flex items-center justify-start gap-2 overflow-hidden bg-green-800 px-2 py-2 text-white font-mono rounded-md"
+      >
+        {{ index }}.
+        <Icon icon="material-symbols:chat" width="24" />
+        <div>{{ chat.room_topic }}</div>
+      </div>
+    </div>
+
+    <div v-if="messages">
+      <ChatMessageComponent :data="chat" />
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { supabase } from '@/lib/supabaseClient'
-
-const chats = ref<any[]>([])
-const realtimeSub = ref<any>(null)
-const getChats = async () => {
-  const { data } = await supabase.from('chats').select('*').order('created_at', { ascending: true })
-  if (data) chats.value = data
-}
-
-const sendMessage = async () => {
-  const { error } = await supabase.from('chats').insert({
-    message: 'hello from Vue!',
-  })
-  if (error) console.error(error)
-}
-
-// let realtimeSub: any
-
-onMounted(async () => {
-  await getChats()
-})
-onMounted(() => {
-  realtimeSub.value = supabase
-    .channel('chats')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'chats' }, (payload) => {
-      console.log(payload)
-      chats.value.push(payload.new)
-    })
-    .subscribe()
-})
-
-onUnmounted(() => {
-  realtimeSub.value.unsubscribe()
-  console.log('unsubscribed')
-})
-</script>
 
 <style scoped></style>

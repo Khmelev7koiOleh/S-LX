@@ -14,9 +14,10 @@ const props = defineProps<{
   type: string
   size?: string
   horisontal?: boolean
+  col?: boolean
 }>()
 
-const { title, description, img, price, id, type, size, horisontal } = toRefs(props)
+const { title, description, img, price, id, type, size, horisontal, col } = toRefs(props)
 
 const ifHorisontal = computed(() => {
   if (horisontal.value) {
@@ -41,15 +42,25 @@ const ifHorisontal = computed(() => {
             : 'w-full h-full flex justify-between items-center gap-2 '
         "
       >
-        <div class="flex gap-3 items-center justify-center rounded-lg bg-gray-0">
+        <div
+          :class="
+            col
+              ? 'flex flex-col gap-3 items-center justify-center rounded-lg bg-gray-0'
+              : 'flex  gap-3 items-center justify-center rounded-lg bg-gray-0'
+          "
+        >
           <div class="w-full overflow-hidden" :style="{ height: size, width: size }">
             <img :src="img" alt="" class="w-full h-full object-cover rounded-t-lg" />
           </div>
-          <p>{{ title }}</p>
+          <p class="w-full flex flex-wrap justify-center items-center break-all">{{ title }}</p>
           <!-- <p>{{ description }}</p> -->
         </div>
 
         <p>{{ price }} €.</p>
+      </div>
+
+      <div>
+        <Icon icon="material-symbols:favorite" class="text-red-600" width="24" height="24" />
       </div>
     </div>
   </div>
