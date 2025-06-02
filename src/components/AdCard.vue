@@ -5,6 +5,11 @@ import { supabase } from '../lib/supabaseClient'
 import { ref, onMounted, computed, watch, toRefs } from 'vue'
 import type { AdsType } from '@/types/ads-type'
 
+import { useGetUserStore } from '../stores/current-user-store'
+import Button from './ui/button/Button.vue'
+const userStore = useGetUserStore()
+const { user } = toRefs(userStore)
+
 const props = defineProps<{
   title: string
   description: string
@@ -26,6 +31,23 @@ const ifHorisontal = computed(() => {
     return false
   }
 })
+const emit = defineEmits(['navigate'])
+
+function goToAd() {
+  emit('navigate', id.value)
+}
+const addToFavorites = async (id: string) => {
+  console.log(id)
+  const { data, error } = await supabase.from('favorites').insert({
+    user_id: user.value.id,
+    ad_id: id,
+    img: img.value,
+  })
+
+  if (error) {
+    console.log(error)
+  }
+}
 
 // const reduceToEight = computed(() => {
 //   return ads.value.slice(0, 8)
@@ -33,7 +55,7 @@ const ifHorisontal = computed(() => {
 </script>
 
 <template>
-  <div class="bg-white flex justify-center items-center">
+  <div @click="goToAd" class="bg-white flex justify-center items-center">
     <div class="w-full h-full flex justify-center items-center px-4 py-1">
       <div
         :class="
@@ -59,9 +81,12 @@ const ifHorisontal = computed(() => {
         <p>{{ price }} €.</p>
       </div>
 
-      <div>
+      <Button
+        class="flex items-center w-10 h-10 text-white rounded-full cursor-pointer"
+        @click.stop="addToFavorites(id)"
+      >
         <Icon icon="material-symbols:favorite" class="text-red-600" width="24" height="24" />
-      </div>
+      </Button>
     </div>
   </div>
 </template>
