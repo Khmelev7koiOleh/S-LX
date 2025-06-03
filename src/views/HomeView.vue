@@ -226,19 +226,18 @@ onMounted(() => {
         <h2 class="text-3xl w-full text-center p-12">VIP-Announcements</h2>
         <ul class="w-full grid grid-cols-4 gap-4 p-20">
           <li v-for="ad in randomReducedAds" :key="ad.id">
-            <RouterLink :to="`/ad/${ad.id}`">
-              <AdCard
-                :title="ad.title"
-                :description="ad.description"
-                :price="ad.price"
-                :id="ad.id"
-                :img="ad.img || ''"
-                :type="ad.type"
-                :size="'150px'"
-                :horisontal="true"
-                :col="true"
-              />
-            </RouterLink>
+            <AdCard
+              :title="ad.title"
+              :description="ad.description"
+              :price="ad.price"
+              :id="ad.id"
+              :img="ad.img || ''"
+              :type="ad.type"
+              :size="'150px'"
+              :horisontal="true"
+              :col="true"
+              @navigate="(id) => router.push(`/ad/${id}`)"
+            />
           </li>
         </ul>
       </div>
