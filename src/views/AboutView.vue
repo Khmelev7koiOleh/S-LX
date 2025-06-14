@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabaseClient'
 import { useFilterStore } from '@/stores/filter-store'
 import { ref, onMounted, computed, watch, toRefs } from 'vue'
 import { RouterLink } from 'vue-router'
+import AdCard from '../components/AdCard.vue'
 
 import { adType } from '@/data/ad-type'
 
@@ -152,17 +153,24 @@ watch(searchQuery, (newQuery) => {
       <div class="grid grid-cols-4 justify-center items-center gap-20">
         <div v-for="ad in filteredItems" :key="ad.id">
           <RouterLink :to="`/ad/${ad.id}`">
-            <div
-              class="min-w-[300px] flex flex-col gap-4 items-center justify-center bg-white rounded-lg bg-gray-0 shadow"
-            >
-              <div class="w-full h-[250px] overflow-hidden">
-                <img :src="ad.img" alt="" class="w-full h-full object-cover rounded-t-lg" />
-              </div>
-              <p>{{ ad.title }}</p>
-              <p>{{ ad.description }}</p>
-              <p>{{ ad.price }} €.</p>
-              <p>{{ ad.user_name }}</p>
-            </div>
+            <AdCard
+              :title="ad.title"
+              :description="ad.description"
+              :price="ad.price"
+              :id="ad.id"
+              :img="ad.img || ''"
+              :type="ad.type"
+              :h_size="'200px'"
+              :size="'300px'"
+              :w_container="'300px'"
+              :h_container="'350px'"
+              :horisontal="true"
+              :col="true"
+              :created_at="ad.created_at"
+              :if_favorite="true"
+              :is_user_name="false"
+              :user_name="ad.user_name"
+            />
           </RouterLink>
         </div>
       </div>

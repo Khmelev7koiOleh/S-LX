@@ -7,7 +7,21 @@ import type { AdsType } from '@/types/ads-type'
 import Button from './ui/button/Button.vue'
 import { useGetUserStore } from '@/stores/current-user-store'
 import ChatMessageComponent from './ChatMessageComponent.vue'
+import AdCard from './AdCard.vue'
+import { Card, CardContent } from '@/components/ui/card'
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel'
+import AddFavoritesButton from './AddFavoritesButton.vue'
 
+interface CurrentRoom {
+  room_id: string
+  // Add other properties of currentRoom here
+}
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
 const message = ref('')
@@ -16,7 +30,7 @@ const route = useRoute()
 const ad = ref<AdsType | null>(null)
 const chat = ref<any | null>(null)
 const theMessage = ref<{ msg: string }[]>([])
-const currentRoom = ref<any[] | null>(null)
+const currentRoom = ref<any | undefined>(null)
 const onCurrentRoomOpen = ref<boolean>(false)
 const klasse = ref<any[] | null>([])
 const klasseNew = ref<any[] | null>([])
@@ -184,11 +198,16 @@ onMounted(async () => {
 
 <template>
   <div class="w-[100vw] h-[100vh] relative">
+    <div v-if="currentRoom" class="bg-black text-white p-4">
+      <RouterLink :to="'/chats/' + currentRoom?.room_id"> to {{ currentRoom.room_id }} </RouterLink>
+    </div>
     <div
       v-if="currentRoom && onCurrentRoomOpen"
-      class="w-1/3 h-full absolute right-0 flex flex-col justify-center items-center bg-amber-200"
+      class="w-1/3 h-full absolute right-0 flex flex-col justify-center items-center"
     >
-      <div class="w-1/3 h-full fixed bottom-0 right-0 flex flex-col justify-center items-center">
+      <div
+        class="w-1/5 h-2/3 fixed bottom-0 right-0 flex flex-col justify-center items-center z-10"
+      >
         <ChatMessageComponent :data="currentRoom" />
       </div>
     </div>
@@ -196,47 +215,100 @@ onMounted(async () => {
 
     <!-- <div class="bg-red-400">{{ getOrCreateConversation }}</div> -->
 
-    <div class="flex flex-row justify-center items-center gap-8" v-if="ad">
-      <div class="flex flex-col justify-center items-center gap-4">
-        <div class="w-[500px] h-[350px] overflow-hidden">
-          <img :src="ad.img" alt="" class="w-full h-full object-cover rounded-lg" />
-        </div>
+    <div class="flex flex-row justify-between items-center gap-8 p-20" v-if="ad">
+      <!-- <AdCard
+        :title="ad.title"
+        :description="ad.description"
+        :price="ad.price"
+        :id="ad.id"
+        :img="ad.img || ''"
+        :user_name="ad.user_name"
+        :type="ad.type"
+        :h_size="'auto'"
+        :size="'500px'"
+        :w_container="'500px'"
+        :h_container="'auto'"
+        :horisontal="true"
+        :col="true"
+        :is_user_name="false"
+        :created_at="ad.created_at || ''"
+        :if_favorite="false"
+      /> -->
 
-        <div v-for="sm in theMessage" :key="sm">{{ sm }}</div>
-        <div class="flex gap-3">
-          <!-- {{ theMessage }} -->
-          <div class="font-bold">Description:</div>
-          <p>{{ ad.description }}</p>
+      <div v-if="ad.img" class="w-full flex flex-col justify-center items-center bg-gray-50">
+        <Carousel class="relative w-full max-w-xl">
+          <CarouselContent>
+            <CarouselItem v-for="(item, index) in ad" :key="index">
+              <div class="p-1">
+                <Card>
+                  <CardContent class="flex aspect-square items-center justify-center p-6">
+                    <img :src="ad.img" alt="" />
+                  </CardContent>
+                </Card>
+              </div>
+            </CarouselItem>
+          </CarouselContent>
+          <CarouselPrevious />
+          <CarouselNext />
+        </Carousel>
+        <div class="flex justify-center items-center gap-2 p-4 bg-gray-200 m-4">
+          <div class="text-xl font-semibold">Description:</div>
+          <div class="px-2">{{ ad.description }}</div>
         </div>
       </div>
 
-      <div class="flex flex-col justify-center items-center gap-2 bg-gray-200 p-10">
-        <h1>{{ ad.title }}</h1>
-        <p>{{ ad.price }} €</p>
-        <Button
-          @click="
-            (() => {
-              createChatRoom(user.id, ad.user_id)
-              onCurrentRoomOpen = !onCurrentRoomOpen
-            })()
-          "
-          class="w-full flex items-center p-2 gap-1 text-white rounded-lg cursor-pointer"
-          >Message</Button
-        >
+      <div class="flex flex-col justify-center items-center gap-4">
+        <div v-for="sm in theMessage" :key="sm.msg">{{ sm }}</div>
+      </div>
 
-        <!-- <Button
-        @click="startChat(user.id, ad.user_id)"
-        class="w-full flex items-center p-2 gap-1 text-white rounded-lg"
-        >Message</Button
-      > -->
-        <Button class="w-full flex items-center p-2 gap-1 text-white rounded-lg"
-          >Phone number</Button
-        >
+      <div class="flex flex-col justify-center items-center gap-4 relative">
+        <div class="w-[300px] flex flex-col justify-center items-center gap-2 bg-gray-200 p-8">
+          <div class="absolute top-2 right-2">
+            <AddFavoritesButton
+              :id="ad.id"
+              :img="ad.img"
+              :title="ad.title"
+              :description="ad.description"
+              :price="ad.price"
+            />
+          </div>
+          <div class="text-lg font-normal">{{ ad.title }}</div>
+          <!-- <RouterLink :to="'/chats/' + ad.user_id"> -->
+          <Button
+            @click="
+              (() => {
+                createChatRoom(user.id, ad.user_id)
+                onCurrentRoomOpen = !onCurrentRoomOpen
+              })()
+            "
+            class="w-full flex items-center p-2 gap-1 text-black bg-white shadow rounded-lg cursor-pointer hover:text-white"
+            >Message</Button
+          >
+          <!-- </RouterLink> -->
+          <Button
+            class="w-full flex items-center p-2 gap-1 text-black bg-white shadow rounded-lg hover:text-white"
+            >Phone number</Button
+          >
+        </div>
+
+        <div class="w-[300px] flex flex-col justify-center items-center gap-2 bg-gray-200 p-2">
+          <div class="text-xl font-semibold">User</div>
+          <!-- <Button
+            @click="
+              (() => {
+                createChatRoom(user.id, ad.user_id)
+                onCurrentRoomOpen = !onCurrentRoomOpen
+              })()
+            "
+            class="w-full flex items-center p-2 gap-1 text-white rounded-lg cursor-pointer"
+            >Message</Button
+          > -->
+
+          <div>{{ ad.user_name }}</div>
+
+          <div>{{ ad.created_at }}</div>
+        </div>
       </div>
     </div>
-
-    <!-- <RouterLink :to="`/message/${}`" >
-    <ChatMessageComponent />
-  </RouterLink> -->
   </div>
 </template>

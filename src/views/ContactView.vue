@@ -1,25 +1,10 @@
-<template>
-  <div>contact</div>
-
-  <div class="w-full flex flex-col gap-4 p-2">
-    <div
-      class="w-full flex flex-col gap-4 bg-green-900 text-white p-4 rounded-lg"
-      v-for="i in favorites"
-      :key="i.id"
-    >
-      <RouterLink :to="`/ad/${i.ad_id}`">
-        <img :src="i.img" alt="" width="50" height="50" />
-        {{ i.user_id }}
-      </RouterLink>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref, toRefs, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient'
 import { useGetUserStore } from '../stores/current-user-store'
+import AdCard from '@/components/AdCard.vue'
+import { Icon } from '@iconify/vue'
 
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
@@ -52,5 +37,45 @@ onMounted(() => {
   getRoomsCurrentUserIn()
 })
 </script>
+
+<template>
+  <div>contact</div>
+
+  <div class="w-full flex justify-center" v-if="favorites?.length === 0">
+    <div class="w-full flex flex-col justify-center items-center gap-4">
+      <p class="text-xl font-light">You have no favorite ads</p>
+      <RouterLink :to="{ name: 'about' }">
+        <div
+          class="flex flex-row items-center gap-2 p-2 shadow-2xl shadow-gray-400 rounded-md bg-gradient-to-r from-gray-500 to-gray-900 text-white"
+        >
+          <Icon icon="radix-icons:arrow-up" width="20" height="20" />
+          <p>See all ads</p>
+        </div></RouterLink
+      >
+    </div>
+  </div>
+
+  <div class="w-full grid grid-cols-5 gap-4 p-2">
+    <div class="w-full flex flex-col gap-4 p-4 rounded-lg" v-for="i in favorites" :key="i.id">
+      <RouterLink :to="`/ad/${i.ad_id}`">
+        <AdCard
+          :title="i.title"
+          :description="i.description"
+          :price="i.price"
+          :id="i.id"
+          :img="i.img"
+          :type="i.type"
+          :size="'200px'"
+          :h_size="'100px'"
+          :horisontal="true"
+          :col="true"
+          :created_at="i.created_at"
+          :if_favorite="true"
+          :user_name="i.user_name"
+        />
+      </RouterLink>
+    </div>
+  </div>
+</template>
 
 <style scoped></style>

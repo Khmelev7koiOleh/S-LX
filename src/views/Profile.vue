@@ -38,15 +38,9 @@ onMounted(() => {
           <RouterLink
             :to="`${user.path}`"
             @click="getValue(user.name)"
-            v-slot="{ isActive, navigate }"
+            active-class="  text-gray-800 text-lg font-semibold  p-2 shadow-sm shadow-gray-400 rounded-md"
           >
-            <button
-              :class="[
-                'px-4 py-2 ',
-                isActive ? 'border-b-2 border-gray-500 text-gray-900 text-lg font-semibold' : '',
-              ]"
-              @click="navigate"
-            >
+            <button>
               {{ user.name }}
             </button>
           </RouterLink>

@@ -61,7 +61,8 @@ const handleUpload = async () => {
     type: type.value,
     img: imageUrl.value,
     user_id: user.value.id,
-    user_name: user.value.email,
+    user_email: user.value.email,
+    user_name: user.value.name,
   })
 
   if (insertError) {
