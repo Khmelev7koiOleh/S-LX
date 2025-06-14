@@ -3,6 +3,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import DynamicId from '../components/DynamicId.vue'
 import ChatMessageComponent from '../components/ChatMessageComponent.vue'
 import HomeView from '../views/HomeView.vue'
+import Check from '../components/Check.vue'
+
 // import AboutView from '../views/AboutView.vue'
 // import ContactView from '../views/ContactView.vue'
 
@@ -85,11 +87,17 @@ const router = createRouter({
       props: true,
     },
     {
-      path: '/message/:id', // dynamic route
-      name: 'message',
-      component: ChatMessageComponent,
+      path: '/chats/:id', // dynamic route
+      name: 'Check',
+      component: Check,
       props: true,
     },
+    // {
+    //   path: '/chats/:id', // dynamic route
+    //   name: 'chat',
+    //   component: ChatMessageComponent,
+    //   props: true,
+    // },
   ],
 })
 

@@ -166,8 +166,13 @@ onMounted(() => {
                   :id="ad.id"
                   :img="ad.img || ''"
                   :type="ad.type"
-                  :size="'50px'"
+                  :h_size="'50px'"
+                  :size="'100px'"
                   :horisontal="false"
+                  :col="false"
+                  :created_at="ad.created_at"
+                  :if_favorite="false"
+                  :user_name="ad.user_name"
                 />
               </RouterLink>
             </li>
@@ -226,18 +231,25 @@ onMounted(() => {
         <h2 class="text-3xl w-full text-center p-12">VIP-Announcements</h2>
         <ul class="w-full grid grid-cols-4 gap-4 p-20">
           <li v-for="ad in randomReducedAds" :key="ad.id">
-            <AdCard
-              :title="ad.title"
-              :description="ad.description"
-              :price="ad.price"
-              :id="ad.id"
-              :img="ad.img || ''"
-              :type="ad.type"
-              :size="'150px'"
-              :horisontal="true"
-              :col="true"
-              @navigate="(id) => router.push(`/ad/${id}`)"
-            />
+            <RouterLink :to="`/ad/${ad.id}`">
+              <AdCard
+                :title="ad.title"
+                :description="ad.description"
+                :price="ad.price"
+                :id="ad.id"
+                :img="ad.img || ''"
+                :type="ad.type"
+                :h_size="'30vh'"
+                :size="'100%'"
+                :container="'w-full'"
+                :horisontal="true"
+                :col="true"
+                :created_at="ad.created_at"
+                :if_favorite="true"
+                :user_name="ad.user_name"
+                @navigate="(id) => router.push(`/ad/${id}`)"
+              />
+            </RouterLink>
           </li>
         </ul>
       </div>

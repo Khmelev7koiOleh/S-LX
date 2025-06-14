@@ -40,18 +40,20 @@ onMounted(() => {
 <template>
   <div class="text-2xl font-semibold w-full text-center">My all chats</div>
   <div class="w-full flex flex-col p-2" v-for="(chat, index) in chatsIn" :key="index">
-    <div @click="getChatsValue(chat.room_id)" class="min-w-1/3 max-w-fit flex flex-col gap-4">
-      <div
-        class="flex items-center justify-start gap-2 overflow-hidden bg-green-800 px-2 py-2 text-white font-mono rounded-md"
-      >
-        {{ index }}.
-        <Icon icon="material-symbols:chat" width="24" />
-        <div>{{ chat.room_topic }}</div>
+    <RouterLink :to="'/chats/' + chat.room_id" class="w-1/3">
+      <div @click="getChatsValue(chat.room_id)" class="overflow-hidden flex flex-col gap-4">
+        <div
+          class="flex items-center justify-start gap-2 bg-green-800 px-2 py-2 text-white font-mono rounded-md"
+        >
+          {{ index }}.
+          <Icon icon="material-symbols:chat" width="24" />
+          <div class="truncate max-w-full">{{ chat.room_topic }}</div>
+        </div>
       </div>
-    </div>
+    </RouterLink>
 
     <div v-if="messages">
-      <ChatMessageComponent :data="chat" />
+      <!-- <ChatMessageComponent :data="chat" /> -->
     </div>
   </div>
 </template>

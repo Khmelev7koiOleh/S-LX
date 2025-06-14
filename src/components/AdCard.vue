@@ -7,6 +7,7 @@ import type { AdsType } from '@/types/ads-type'
 
 import { useGetUserStore } from '../stores/current-user-store'
 import Button from './ui/button/Button.vue'
+import AddFavoritesButton from './AddFavoritesButton.vue'
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
 
@@ -16,13 +17,37 @@ const props = defineProps<{
   img: string
   price: string
   id: string | number
+  user_name: string
+  created_at: string | undefined
   type: string
   size?: string
+  h_size?: string
   horisontal?: boolean
   col?: boolean
+  if_favorite?: boolean
+  is_user_name?: boolean
+  w_container?: string
+  h_container?: string
 }>()
 
-const { title, description, img, price, id, type, size, horisontal, col } = toRefs(props)
+const {
+  title,
+  description,
+  img,
+  price,
+  id,
+  user_name,
+  created_at,
+  type,
+  size,
+  h_size,
+  horisontal,
+  col,
+  if_favorite,
+  is_user_name,
+  w_container,
+  h_container,
+} = toRefs(props)
 
 const ifHorisontal = computed(() => {
   if (horisontal.value) {
@@ -31,11 +56,11 @@ const ifHorisontal = computed(() => {
     return false
   }
 })
-const emit = defineEmits(['navigate'])
+// const emit = defineEmits(['navigate'])
 
-function goToAd() {
-  emit('navigate', id.value)
-}
+// function goToAd() {
+//   emit('navigate', id.value)
+// }
 const addToFavorites = async (id: string) => {
   console.log(id)
   const { data, error } = await supabase.from('favorites').insert({
@@ -55,8 +80,11 @@ const addToFavorites = async (id: string) => {
 </script>
 
 <template>
-  <div @click="goToAd" class="bg-white flex justify-center items-center">
-    <div class="w-full h-full flex justify-center items-center px-4 py-1">
+  <div
+    :class="`flex justify-center items-center shadow rounded-t-md relative cursor-pointer `"
+    :style="{ width: w_container, height: h_container }"
+  >
+    <div class="w-full h-full flex justify-center items-center">
       <div
         :class="
           ifHorisontal
@@ -71,22 +99,54 @@ const addToFavorites = async (id: string) => {
               : 'flex  gap-3 items-center justify-center rounded-lg bg-gray-0'
           "
         >
-          <div class="w-full overflow-hidden" :style="{ height: size, width: size }">
-            <img :src="img" alt="" class="w-full h-full object-cover rounded-t-lg" />
+          <div
+            class="w-full overflow-hidden h-full rounded-t-md"
+            :style="{ width: size, height: h_size }"
+          >
+            <img
+              :src="img"
+              alt=""
+              class="w-full h-full object-cover"
+              :style="{ width: size, height: h_size }"
+            />
           </div>
-          <p class="w-full flex flex-wrap justify-center items-center break-all">{{ title }}</p>
+          <div class="w-full flex justify-between items-center">
+            <p class="w-full flex flex-wrap justify-center items-center break-all px-2">
+              {{ title }}
+            </p>
+
+            <div v-if="if_favorite" class="absolute top-2 right-2">
+              <AddFavoritesButton
+                :title="title"
+                :description="description"
+                :id="id"
+                :img="img"
+                :price="price"
+                :created_at="created_at"
+                :type="type"
+              />
+              <!-- <Button
+                class="flex items-center w-8 h-8 bg-white rounded-full shadow cursor-pointer text-red-600 hover:text-white hover:bg-red-600"
+                @click.stop="addToFavorites(id)"
+              >
+                <Icon icon="material-symbols:favorite" width="20" height="20" />
+              </Button>
+              -->
+            </div>
+          </div>
           <!-- <p>{{ description }}</p> -->
         </div>
 
-        <p>{{ price }} €.</p>
+        <div class="p-4">
+          <p class="w-full flex flex-wrap justify-end items-center break-all">{{ price }} €.</p>
+          <p
+            v-if="is_user_name"
+            class="w-full flex flex-wrap justify-center items-center break-all"
+          >
+            {{ user_name }}
+          </p>
+        </div>
       </div>
-
-      <Button
-        class="flex items-center w-10 h-10 text-white rounded-full cursor-pointer"
-        @click.stop="addToFavorites(id)"
-      >
-        <Icon icon="material-symbols:favorite" class="text-red-600" width="24" height="24" />
-      </Button>
     </div>
   </div>
 </template>
