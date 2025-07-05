@@ -36,7 +36,7 @@ const handleUpload = async () => {
     return
   }
 
-  const filePath = `user-${Date.now()}.jpg`
+  const filePath = `user-${Date.now()}+${file.value.name}.jpg`
 
   const { data: uploadData, error: uploadError } = await supabase.storage
     .from('ads')

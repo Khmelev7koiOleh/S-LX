@@ -152,7 +152,7 @@ onMounted(() => {
           <Search v-model="searchQuery" />
           <ul
             v-if="searchQuery"
-            class="w-[48%] h-[40%] fixed mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto"
+            class="w-[48%] h-[40%] fixed mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-2"
           >
             <li v-for="ad in filteredAds" :key="ad.id">
               <!-- <div class="w-full flex justify-center">

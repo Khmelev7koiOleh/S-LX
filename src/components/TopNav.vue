@@ -29,7 +29,7 @@ const handleSignOut = () => {
 </script>
 
 <template>
-  <div class="w-full flex justify-around bg-green-900 p-2">
+  <div class="w-full flex justify-around bg-[#07242f] p-2">
     <RouterLink :to="{ name: 'home' }" class="flex items-center justify-center gap-3">
       <div class="flex items-center gap-1">
         <p class="text-6xl font-stretch-50% text-white">S</p>

@@ -78,7 +78,7 @@ const addToFavorites = async (val: any) => {
 }
 
 const checkFavorites = async (ad_id: string) => {
-  console.log(ad_id)
+  // console.log(ad_id)
   const { data, error } = await supabase
     .from('favorites')
     .select('ad_id')
@@ -86,7 +86,7 @@ const checkFavorites = async (ad_id: string) => {
     .eq('user_id', user.value.id)
     .maybeSingle()
 
-  console.log(data)
+  // console.log(data)
   if (route.name === 'contact') {
     isFavorite.value = true
   } else {

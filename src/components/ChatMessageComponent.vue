@@ -7,6 +7,9 @@ import type { AdsType } from '@/types/ads-type'
 import Button from './ui/button/Button.vue'
 import { useGetUserStore } from '@/stores/current-user-store'
 
+import { useChatStore } from '@/stores/chat-store'
+import { Icon } from '@iconify/vue'
+
 const props = defineProps({
   data: {
     type: Object,
@@ -18,6 +21,7 @@ const { data: roomData } = toRefs(props)
 
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
+const chatStore = useChatStore()
 const message = ref('')
 
 const route = useRoute()
@@ -78,20 +82,31 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="w-full h-full p-4 bg-gray-300 relative">
-    <div class="w-full flex justify-start items-center gap-4 bg-gray-400 p-1">
+  <div class="w-full h-full px-0 bg-gray-300 relative">
+    <div
+      @click="chatStore.onCurrentRoomOpen = !chatStore.onCurrentRoomOpen"
+      class="absolute top-4 left-4"
+    >
+      <Icon icon="material-symbols:close" width="28" class="text-black cursor-pointer" />
+    </div>
+    <!-- <div class="text-red-500">{{ data.participant_ids[1] }}</div> -->
+    <div class="w-full flex justify-center items-center gap-4 bg-gray-400 p-1">
       <!-- some picum pic -->
-      <div>
-        <img
-          src="/public/logo.png"
-          alt=""
-          width="50"
-          height="50"
-          class="border border-black rounded-full"
-        />
-      </div>
-      <!-- {{ finalParsed }} -->
-      <div>{{ data.room_topic }}</div>
+      <RouterLink :to="'/user-profile/' + data.participant_ids[1]">
+        <div class="flex justify-start items-center gap-4 p-1">
+          <div>
+            <img
+              src="/public/logo.png"
+              alt=""
+              width="50"
+              height="50"
+              class="border border-black rounded-full"
+            />
+          </div>
+          <!-- {{ finalParsed }} -->
+          <div>{{ data.room_topic }}</div>
+        </div>
+      </RouterLink>
 
       <!-- <div class="p-4 bg-amber-300">{{ ad?.user_id }}</div> -->
     </div>

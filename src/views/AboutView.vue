@@ -100,16 +100,21 @@ watch(searchQuery, (newQuery) => {
 
 <template>
   <div class="bg-gray-50">
-    <h1 class="text-2xl">About</h1>
+    <h1 class="text-2xl">Xsmth</h1>
     <div class="w-full flex flex-col justify-start items-end gap-2 p-4">
       <!-- <div class="w-full flex justify-end">
       <button class="p-2 bg-fuchsia-500" @click="onFilterOpen = !onFilterOpen">Filter</button>
     </div> -->
       <div class="w-full flex justify-center items-center gap-2">
         <div
-          class="w-[300px] flex justify-between bg-fuchsia-950 text-amber-50 placeholder:text-amber-100 px-2 py-1 rounded-lg"
+          class="w-[300px] flex justify-between text-gray-900 placeholder:text-amber-100 px-2 py-1 rounded-lg shadow shadow-gray-400"
         >
-          <Icon icon="mdi:magnify" width="24" height="24" class="text-white" />
+          <Icon
+            icon="mdi:magnify"
+            width="24"
+            height="24"
+            :class="searchQuery.length ? 'text-blue-400' : 'text-gray-900'"
+          />
           <input
             placeholder="Search"
             type="text"
@@ -122,27 +127,39 @@ watch(searchQuery, (newQuery) => {
           />
         </div>
 
-        <select v-model="selectedCategory" class="bg-fuchsia-950 text-gray-300 max-w-[300px] px-2">
+        <select
+          v-model="selectedCategory"
+          class="shadow shadow-gray-400 text-gray-900 max-w-[300px] p-1 rounded-lg hover:bg-gray-200 cursor-pointer"
+        >
           <option disabled value="">Select type</option>
           <option v-for="type in adType" :key="type.value" :value="type.value">
             {{ type.title }}
           </option>
         </select>
-        <div
-          class="w-[300px] flex justify-center bg-fuchsia-950 text-amber-50 placeholder:text-amber-100"
-        >
-          <button class="text-center" @click="toggleCreatedAtSort">Date</button>
+        <div>
+          <button
+            class="w-[300px] flex justify-center shadow shadow-gray-400 text-gray-900 placeholder:text-amber-100 hover:bg-gray-200 cursor-pointer"
+            @click="toggleCreatedAtSort"
+          >
+            Date
+          </button>
         </div>
-        <div
-          class="w-[300px] flex justify-center bg-fuchsia-950 text-amber-50 placeholder:text-amber-100"
-        >
-          <button class="" @click="togglePriceSort">Price</button>
+        <div>
+          <button
+            class="w-[300px] flex justify-center shadow shadow-gray-400 text-gray-900 placeholder:text-amber-100 hover:bg-gray-200 cursor-pointer"
+            @click="togglePriceSort"
+          >
+            Price
+          </button>
         </div>
 
-        <div
-          class="w-[300px] flex justify-center bg-fuchsia-950 text-amber-50 placeholder:text-amber-100"
-        >
-          <button class="" @click="filterRemove">Remove Filter</button>
+        <div>
+          <button
+            class="w-[300px] flex justify-center shadow shadow-gray-400 text-gray-900 placeholder:text-amber-100 hover:bg-gray-200 cursor-pointer"
+            @click="filterRemove"
+          >
+            Remove Filter
+          </button>
         </div>
 
         <!-- <button @click="filteredAdsByPriceTwo()">click</button> -->
