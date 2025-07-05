@@ -4,6 +4,7 @@ import DynamicId from '../components/DynamicId.vue'
 import ChatMessageComponent from '../components/ChatMessageComponent.vue'
 import HomeView from '../views/HomeView.vue'
 import Check from '../components/Check.vue'
+import UserProfile from '../components/user-profile/UserProfile.vue'
 
 // import AboutView from '../views/AboutView.vue'
 // import ContactView from '../views/ContactView.vue'
@@ -92,6 +93,13 @@ const router = createRouter({
       component: Check,
       props: true,
     },
+    {
+      path: '/user-profile/:id', // dynamic route
+      name: 'UserProfile',
+      component: UserProfile,
+      props: true,
+    },
+
     // {
     //   path: '/chats/:id', // dynamic route
     //   name: 'chat',

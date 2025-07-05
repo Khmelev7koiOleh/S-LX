@@ -17,6 +17,10 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel'
 import AddFavoritesButton from './AddFavoritesButton.vue'
+import UserProfile from './user-profile/UserProfile.vue'
+import { useChatStore } from '@/stores/chat-store'
+
+const chatStore = useChatStore()
 
 interface CurrentRoom {
   room_id: string
@@ -31,7 +35,7 @@ const ad = ref<AdsType | null>(null)
 const chat = ref<any | null>(null)
 const theMessage = ref<{ msg: string }[]>([])
 const currentRoom = ref<any | undefined>(null)
-const onCurrentRoomOpen = ref<boolean>(false)
+// const onCurrentRoomOpen = ref<boolean>(false)
 const klasse = ref<any[] | null>([])
 const klasseNew = ref<any[] | null>([])
 
@@ -198,11 +202,11 @@ onMounted(async () => {
 
 <template>
   <div class="w-[100vw] h-[100vh] relative">
-    <div v-if="currentRoom" class="bg-black text-white p-4">
+    <!-- <div v-if="currentRoom" class="bg-black text-white p-4">
       <RouterLink :to="'/chats/' + currentRoom?.room_id"> to {{ currentRoom.room_id }} </RouterLink>
-    </div>
+    </div> -->
     <div
-      v-if="currentRoom && onCurrentRoomOpen"
+      v-if="currentRoom && chatStore.onCurrentRoomOpen"
       class="w-1/3 h-full absolute right-0 flex flex-col justify-center items-center"
     >
       <div
@@ -278,7 +282,7 @@ onMounted(async () => {
             @click="
               (() => {
                 createChatRoom(user.id, ad.user_id)
-                onCurrentRoomOpen = !onCurrentRoomOpen
+                chatStore.onCurrentRoomOpen = !chatStore.onCurrentRoomOpen
               })()
             "
             class="w-full flex items-center p-2 gap-1 text-black bg-white shadow rounded-lg cursor-pointer hover:text-white"
@@ -303,8 +307,12 @@ onMounted(async () => {
             class="w-full flex items-center p-2 gap-1 text-white rounded-lg cursor-pointer"
             >Message</Button
           > -->
-
-          <div>{{ ad.user_name }}</div>
+          <RouterLink :to="'/user-profile/' + ad.user_id">
+            <div class="flex justify-center items-center">
+              <img :src="ad.img" alt="" class="w-10 h-10 rounded-full" />
+              <div class="text-xl px-4 py-1">{{ ad.user_name }}</div>
+            </div>
+          </RouterLink>
 
           <div>{{ ad.created_at }}</div>
         </div>

@@ -3,7 +3,7 @@ export interface AdsType {
   title: string
   description: string
   img?: string
-  price: string
+  price: number
   discount: string
   if_discount: boolean
   created_at?: string
