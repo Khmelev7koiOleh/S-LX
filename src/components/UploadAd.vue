@@ -55,19 +55,18 @@ const handleUpload = async () => {
 
     imageUrls.value.push(publicData.publicUrl)
   }
-
-  // Save all image URLs into the `img` field as an array
-  const { error: insertError, data: insertData } = await supabase.from('ads').insert({
+  const newAd: any = {
     title: title.value,
     description: description.value,
     price: price.value,
-    discount: discount.value,
-    if_discount: if_discount.value,
     type: type.value,
-    img: imageUrls.value, // must be saved as text[] or json in your Supabase table
+    img: imageUrls.value,
     user_id: user.value.id,
-  })
-
+    ...(discount.value && { discount: discount.value }),
+    ...(if_discount.value && { if_discount: if_discount.value }),
+  }
+  // Save all image URLs into the `img` field as an array
+  const { error: insertError, data: insertData } = await supabase.from('ads').insert(newAd)
   if (insertError) {
     console.error('Fehler beim Speichern:', insertError.message)
   } else {

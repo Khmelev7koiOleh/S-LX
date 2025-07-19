@@ -160,7 +160,7 @@ const computedDiscount = computed(() => {
         <div
           class="w-full flex flex-col justify-center items-center gap-2 absolute bottom-0 right-0"
         >
-          <div class="w-full flex justify-center items-center p-0 bg-red-400">
+          <div v-if="if_discount" class="w-full flex justify-center items-center p-0 bg-red-400">
             <p class="text-md font-semibold text-white">-{{ computedDiscount }}%</p>
           </div>
           <div class="w-full flex justify-center items-center gap-4 pb-2">
