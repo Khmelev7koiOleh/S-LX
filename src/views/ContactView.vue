@@ -39,7 +39,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>contact</div>
+  <div class="">Favorites</div>
 
   <div class="w-full flex justify-center" v-if="favorites?.length === 0">
     <div class="w-full flex flex-col justify-center items-center gap-4">
@@ -55,7 +55,7 @@ onMounted(() => {
     </div>
   </div>
 
-  <div class="w-full grid grid-cols-5 gap-4 p-2">
+  <div class="w-full grid grid-cols-4 gap-4 p-2">
     <div class="w-full flex flex-col gap-4 p-4 rounded-lg" v-for="i in favorites" :key="i.id">
       <RouterLink :to="`/ad/${i.ad_id}`">
         <AdCard
@@ -63,10 +63,12 @@ onMounted(() => {
           :description="i.description"
           :price="i.price"
           :id="i.id"
-          :img="i.img"
+          :img="i.img[0]"
           :type="i.type"
-          :size="'200px'"
-          :h_size="'100px'"
+          :size="'300px'"
+          :h_size="'250px'"
+          :w_container="'300px'"
+          :h_container="'350px'"
           :horisontal="true"
           :col="true"
           :created_at="i.created_at"

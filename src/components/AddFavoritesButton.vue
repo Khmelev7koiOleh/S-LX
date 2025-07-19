@@ -87,7 +87,7 @@ const checkFavorites = async (ad_id: string) => {
     .maybeSingle()
 
   // console.log(data)
-  if (route.name === 'contact') {
+  if (route.name === 'favorites') {
     isFavorite.value = true
   } else {
     isFavorite.value = !!data

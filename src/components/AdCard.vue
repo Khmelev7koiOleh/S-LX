@@ -19,6 +19,8 @@ const props = defineProps<{
   id: string | number
   user_name: string
   created_at: string | undefined
+  if_discount: boolean
+  discount: string
   type: string
   size?: string
   h_size?: string
@@ -38,6 +40,8 @@ const {
   id,
   user_name,
   created_at,
+  if_discount,
+  discount,
   type,
   size,
   h_size,
@@ -61,6 +65,7 @@ const ifHorisontal = computed(() => {
 // function goToAd() {
 //   emit('navigate', id.value)
 // }
+
 const addToFavorites = async (id: string) => {
   console.log(id)
   const { data, error } = await supabase.from('favorites').insert({
@@ -73,7 +78,19 @@ const addToFavorites = async (id: string) => {
     console.log(error)
   }
 }
+// const computeDiscount = computed(() => {
+//   return Math.floor(price.value / discount.value)
+// })
 
+const computedDiscount = computed(() => {
+  const original = parseFloat(price.value)
+  const discounted = parseFloat(discount.value)
+
+  if (!original || !discounted || original <= discounted) return 0
+
+  const percent = ((original - discounted) / original) * 100
+  return Math.round(percent) // round to nearest integer
+})
 // const reduceToEight = computed(() => {
 //   return ads.value.slice(0, 8)
 // })
@@ -81,7 +98,7 @@ const addToFavorites = async (id: string) => {
 
 <template>
   <div
-    :class="`flex justify-center items-center shadow rounded-t-md relative cursor-pointer `"
+    :class="` flex justify-center items-center shadow rounded-t-md relative cursor-pointer `"
     :style="{ width: w_container, height: h_container }"
   >
     <div class="w-full h-full flex justify-center items-center">
@@ -110,11 +127,15 @@ const addToFavorites = async (id: string) => {
               :style="{ width: size, height: h_size }"
             />
           </div>
-          <div class="w-full flex justify-between items-center">
-            <p class="w-full flex flex-wrap justify-center items-center break-all px-2">
+          <div class="w-full flex flex-col justify-between items-center gap-2">
+            <p
+              class="w-full flex flex-wrap justify-center items-center break-all text-md font-semibold px-2"
+            >
               {{ title }}
             </p>
-
+            <p class="w-full self-center break-words line-clamp-2 px-2 text-sm font-light">
+              {{ description }}
+            </p>
             <div v-if="if_favorite" class="absolute top-2 right-2">
               <AddFavoritesButton
                 :title="title"
@@ -136,15 +157,19 @@ const addToFavorites = async (id: string) => {
           </div>
           <!-- <p>{{ description }}</p> -->
         </div>
+        <div
+          class="w-full flex flex-col justify-center items-center gap-2 absolute bottom-0 right-0"
+        >
+          <div class="w-full flex justify-center items-center p-0 bg-red-400">
+            <p class="text-md font-semibold text-white">-{{ computedDiscount }}%</p>
+          </div>
+          <div class="w-full flex justify-center items-center gap-4 pb-2">
+            <p :class="if_discount ? 'line-through text-md text-red-500' : 'text-md '">
+              {{ price }} €.
+            </p>
 
-        <div class="p-4">
-          <p class="w-full flex flex-wrap justify-end items-center break-all">{{ price }} €.</p>
-          <p
-            v-if="is_user_name"
-            class="w-full flex flex-wrap justify-center items-center break-all"
-          >
-            {{ user_name }}
-          </p>
+            <p v-if="if_discount" class="text-md">{{ discount }} €.</p>
+          </div>
         </div>
       </div>
     </div>

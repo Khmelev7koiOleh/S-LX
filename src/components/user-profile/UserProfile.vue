@@ -5,8 +5,18 @@ import { useGetUserStore } from '@/stores/current-user-store'
 import type { UserType } from '@/types/user-type'
 
 import { Icon } from '@iconify/vue'
-import ReusableUserProfile from './ReusableUserProfile.vue'
+// import ReusableUserProfile from './ReusableUserProfile.vue'
 import AdCard from '../AdCard.vue'
+import { RouterLink, useRouter } from 'vue-router'
+
+import { useChatStore } from '@/stores/chat-store'
+import Button from '../ui/button/Button.vue'
+
+const chatStore = useChatStore()
+
+const chat = chatStore.currentChat // Always available
+
+const router = useRouter()
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
 
@@ -14,7 +24,7 @@ const getUser = supabase.auth.getUser()
 const description = ref<string>('')
 const location = ref<string>('')
 const tel = ref<string>('')
-
+const currentRoom = ref<any | undefined>(null)
 const imageUrl = ref<string>('')
 const file = ref<File | null>(null)
 const info = ref<UserType>({
@@ -50,7 +60,44 @@ const getAds = async () => {
     console.log(info, 'dataw')
   }
 }
+const goToChat = (chat: any) => {
+  console.log(chat)
+  // chatStore.setCurrentChat(chat) // Store the chat
+  router.push(`/chats/${chat.room_id}`) // Navigate
+}
+async function createChatRoom(user1_id: string, user2_id: string, room_topic: string) {
+  console.log(user1_id, user2_id)
+  const room_id = [user1_id, user2_id].sort().join('_') // Eindeutige ID (z. B. "user1_user2")
+  const { data: dataCheck, error } = await supabase
+    .from('chat_rooms')
+    .select('*')
+    .eq('room_id', room_id)
+    .maybeSingle()
+  if (dataCheck) {
+    console.log(dataCheck)
+    goToChat(dataCheck)
+  } else {
+    const { data, error } = await supabase
+      .from('chat_rooms')
+      .upsert(
+        {
+          room_id,
+          participant_ids: [user1_id, user2_id],
+          room_topic: dataCheck ? dataCheck.room_topic : info.value.name,
+        },
+        { onConflict: 'room_id' },
+      )
+      .select()
+      .single()
+    currentRoom.value = data
+    if (data) {
+      goToChat(data)
+    }
 
+    return data
+  }
+  return dataCheck
+}
 onMounted(async () => {
   const { data, error } = await supabase.from('user').select('*').eq('id', id?.value)
   if (data && data.length > 0) {
@@ -109,6 +156,7 @@ onMounted(async () => {
   </div> -->
 
   <!-- <div>{{ data }}</div> -->
+
   <div class="min-w-[100vw] w-full min-h-[100vh] h-full bg-gray-50 p-10">
     <div class="w-full h-full flex justify-center items-center gap-10">
       <div class="">
@@ -121,11 +169,19 @@ onMounted(async () => {
               height="150"
               alt=""
             />
+            <!-- <div>{{ user.id }}</div> -->
           </div>
           <div class="flex flex-col justify-center items-start gap-2">
             <div class="text-xl text-gray-800 font-mono">{{ info.name }}</div>
             <div class="text-md text-gray-800 font-mono">{{ info.email }}</div>
+            <!-- <div class="text-md text-gray-800 font-mono">{{ info }}</div> -->
           </div>
+        </div>
+        <div class="w-full flex justify-end items-center p-4">
+          <Button @click="createChatRoom(user.id, info.id, chat.room_topic)" class="">
+            <div class="text-md text-gray-300 font-mono">Chat with {{ info.name }}</div>
+            <Icon icon="material-symbols:chat" width="24" height="24" />
+          </Button>
         </div>
       </div>
 

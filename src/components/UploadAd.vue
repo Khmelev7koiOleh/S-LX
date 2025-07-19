@@ -17,41 +17,46 @@ const price = ref<string>('')
 const discount = ref<string>('')
 const if_discount = ref<boolean>(false)
 const type = ref<string>('')
-
-const file = ref<File | null>(null)
+const files = ref<File[]>([])
+// const file = ref<File | null>(null)
 const imageUrl = ref<string>('')
 
 // Bild auswählen
 const onFileChange = (e: Event) => {
   const target = e.target as HTMLInputElement
-  if (target.files && target.files[0]) {
-    file.value = target.files[0]
+  if (target.files) {
+    files.value = Array.from(target.files)
   }
 }
-
+const imageUrls = ref<string[]>([])
 // Bild hochladen und Eintrag speichern
+
 const handleUpload = async () => {
-  if (!file.value) {
-    console.error('Bitte wähle ein Bild aus.')
+  if (!files.value.length) {
+    console.error('Bitte wähle mindestens ein Bild aus.')
     return
   }
 
-  const filePath = `user-${Date.now()}+${file.value.name}.jpg`
+  imageUrls.value = []
 
-  const { data: uploadData, error: uploadError } = await supabase.storage
-    .from('ads')
-    .upload(filePath, file.value)
+  for (const file of files.value) {
+    const filePath = `user-${Date.now()}-${file.name}`
 
-  if (uploadError) {
-    console.error('Upload fehlgeschlagen:', uploadError.message)
-    return
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('ads')
+      .upload(filePath, file)
+
+    if (uploadError) {
+      console.error(`Fehler beim Hochladen von ${file.name}:`, uploadError.message)
+      continue
+    }
+
+    const { data: publicData } = supabase.storage.from('ads').getPublicUrl(filePath)
+
+    imageUrls.value.push(publicData.publicUrl)
   }
 
-  const { data: publicData } = supabase.storage.from('ads').getPublicUrl(filePath)
-
-  imageUrl.value = publicData.publicUrl
-
-  // Nach erfolgreichem Upload: Daten speichern
+  // Save all image URLs into the `img` field as an array
   const { error: insertError, data: insertData } = await supabase.from('ads').insert({
     title: title.value,
     description: description.value,
@@ -59,10 +64,8 @@ const handleUpload = async () => {
     discount: discount.value,
     if_discount: if_discount.value,
     type: type.value,
-    img: imageUrl.value,
+    img: imageUrls.value, // must be saved as text[] or json in your Supabase table
     user_id: user.value.id,
-    user_email: user.value.email,
-    user_name: user.value.name,
   })
 
   if (insertError) {
@@ -72,6 +75,40 @@ const handleUpload = async () => {
     console.log('Anzeige gespeichert:', insertData)
   }
 }
+
+// const filePath = `user-${Date.now()}+${file.value.name}.jpg`
+
+// const { data: uploadData, error: uploadError } = await supabase.storage
+//   .from('ads')
+//   .upload(filePath, file.value)
+
+// if (uploadError) {
+//   console.error('Upload fehlgeschlagen:', uploadError.message)
+//   return
+// }
+
+// const { data: publicData } = supabase.storage.from('ads').getPublicUrl(filePath)
+
+// imageUrl.value = publicData.publicUrl
+
+// // Nach erfolgreichem Upload: Daten speichern
+// const { error: insertError, data: insertData } = await supabase.from('ads').insert({
+//   title: title.value,
+//   description: description.value,
+//   price: price.value,
+//   discount: discount.value,
+//   if_discount: if_discount.value,
+//   type: type.value,
+//   img: imageUrl.value,
+//   user_id: user.value.id,
+// })
+
+// if (insertError) {
+//   console.error('Fehler beim Speichern:', insertError.message)
+// } else {
+//   clickStore.isClicked = !clickStore.isClicked
+//   console.log('Anzeige gespeichert:', insertData)
+// }
 
 const typeValue = (ref: string) => {
   console.log(ref)
@@ -143,7 +180,7 @@ const typeValue = (ref: string) => {
         class="w-48 h-auto mt-2 rounded text-gray-200 placeholder:gray-200"
       />
     </div>
-    <input type="file" @change="onFileChange" class="text-gray-200 placeholder:gray-200" />
+    <input type="file" multiple @change="onFileChange" class="text-gray-200 placeholder:gray-200" />
 
     <button
       @click="handleUpload"

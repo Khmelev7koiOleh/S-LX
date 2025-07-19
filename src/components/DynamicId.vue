@@ -1,7 +1,7 @@
 <!-- src/views/AdDetail.vue -->
 <script setup lang="ts">
 import { onMounted, ref, toRefs } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient'
 import type { AdsType } from '@/types/ads-type'
 import Button from './ui/button/Button.vue'
@@ -16,9 +16,12 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel'
+import Autoplay from 'embla-carousel-autoplay'
 import AddFavoritesButton from './AddFavoritesButton.vue'
 import UserProfile from './user-profile/UserProfile.vue'
 import { useChatStore } from '@/stores/chat-store'
+import { Icon } from '@iconify/vue'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
 const chatStore = useChatStore()
 
@@ -30,29 +33,17 @@ const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
 const message = ref('')
 // const room = ref('general')
+const router = useRouter()
 const route = useRoute()
 const ad = ref<AdsType | null>(null)
+const userData = ref<any | null>(null)
 const chat = ref<any | null>(null)
 const theMessage = ref<{ msg: string }[]>([])
 const currentRoom = ref<any | undefined>(null)
 // const onCurrentRoomOpen = ref<boolean>(false)
 const klasse = ref<any[] | null>([])
 const klasseNew = ref<any[] | null>([])
-
-// async function sendMessage(user: AdsType, message: string, room = 'general') {
-//   const { data, error } = await supabase.from('chat').insert([
-//     {
-//       user_id: user.id,
-//       user_name: user.user_name,
-//       content: message,
-//       room_id: room,
-//       usere_1: user.id,
-//       usere_2: user.user_id,
-//     },
-//   ])
-//   console.log('data', data)
-//   if (error) console.error('Error sending message:', error)
-// }
+const adImg = ref<string[] | null>([])
 
 async function getOrCreateConversation(user_1, user_2) {
   const sorted = [user_1, user_2].sort() // sorts alphabetically
@@ -156,6 +147,22 @@ async function createChatRoom(user1_id: string, user2_id: string) {
 
   return data
 }
+const getUser = async () => {
+  const { data, error } = await supabase.from('user').select('*').eq('id', ad?.value?.user_id)
+  if (data && data.length > 0) {
+    userData.value = data[0]
+  } else {
+    // Handle the case where no data is found
+    console.log('No user data found')
+  }
+}
+const deleteAd = async (id: string) => {
+  const { error } = await supabase.from('ads').delete().eq('id', id)
+  if (error) console.log(error)
+  else {
+    router.push({ name: 'about' })
+  }
+}
 
 onMounted(async () => {
   await getChat()
@@ -163,7 +170,10 @@ onMounted(async () => {
 
   if (!error) {
     ad.value = data
+    userData.value = data
   }
+  await getUser()
+  adImg.value = ad.value?.img ? [ad.value?.img] : null
 })
 
 // // Nachrichten abonnieren
@@ -202,6 +212,20 @@ onMounted(async () => {
 
 <template>
   <div class="w-[100vw] h-[100vh] relative">
+    <Button v-if="user?.id === ad?.user_id" class="absolute top-8 right-8 bg-gray-900 rounded-md">
+      <!-- Delete this ad
+      <Icon icon="mdi:trash-can" class="w-[20px] h-[20px] text-red-500" /> -->
+      <ConfirmDialog
+        message="Are you sure you want to delete this ad?"
+        confirmText="Delete"
+        cancelText="Cancel"
+        item="ad"
+        icon="mdi:dots-vertical"
+        @confirm="() => deleteAd(ad.id)"
+        @cancel="handleCancel"
+      />
+    </Button>
+
     <!-- <div v-if="currentRoom" class="bg-black text-white p-4">
       <RouterLink :to="'/chats/' + currentRoom?.room_id"> to {{ currentRoom.room_id }} </RouterLink>
     </div> -->
@@ -240,13 +264,24 @@ onMounted(async () => {
       /> -->
 
       <div v-if="ad.img" class="w-full flex flex-col justify-center items-center bg-gray-50">
-        <Carousel class="relative w-full max-w-xl">
+        <Carousel
+          :opts="{
+            align: 'start',
+            loop: true,
+          }"
+          :plugins="[
+            Autoplay({
+              delay: 2000,
+            }),
+          ]"
+          class="relative w-full max-w-xl"
+        >
           <CarouselContent>
-            <CarouselItem v-for="(item, index) in ad" :key="index">
+            <CarouselItem v-for="(item, index) in ad.img" :key="index">
               <div class="p-1">
                 <Card>
                   <CardContent class="flex aspect-square items-center justify-center p-6">
-                    <img :src="ad.img" alt="" />
+                    <img :src="item" alt="" />
                   </CardContent>
                 </Card>
               </div>
@@ -307,10 +342,27 @@ onMounted(async () => {
             class="w-full flex items-center p-2 gap-1 text-white rounded-lg cursor-pointer"
             >Message</Button
           > -->
-          <RouterLink :to="'/user-profile/' + ad.user_id">
-            <div class="flex justify-center items-center">
-              <img :src="ad.img" alt="" class="w-10 h-10 rounded-full" />
-              <div class="text-xl px-4 py-1">{{ ad.user_name }}</div>
+          <RouterLink :to="'/user-profile/' + userData.id">
+            <div class="w-full flex flex-col justify-center items-start">
+              <div class="flex justify-center items-center">
+                <img :src="userData.img" alt="" class="w-10 h-10 rounded-full" />
+
+                <!-- <img :src="ad.img" alt="" class="w-10 h-10 rounded-full" /> -->
+                <!-- <div class="text-xl px-4 py-1">{{ ad.user_name }}</div> -->
+
+                <div class="text-xl px-4 py-1">{{ userData.name }}</div>
+              </div>
+              <div class="w-full flex justify-start items-center gap-2">
+                <div class="text-lg font-semibold">Rating:</div>
+                <div class="w-full flex justify-start items-center gap-2">
+                  <div>4.5/5</div>
+                  <Icon icon="material-symbols:star" width="24" height="24" />
+                  <Icon icon="material-symbols:star" width="24" height="24" />
+                  <Icon icon="material-symbols:star" width="24" height="24" />
+                  <Icon icon="material-symbols:star" width="24" height="24" />
+                  <Icon icon="material-symbols:star-half" width="24" height="24" />
+                </div>
+              </div>
             </div>
           </RouterLink>
 
