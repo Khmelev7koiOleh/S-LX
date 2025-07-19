@@ -100,8 +100,8 @@ watch(searchQuery, (newQuery) => {
 
 <template>
   <div class="bg-gray-50">
-    <h1 class="text-2xl">Xsmth</h1>
-    <div class="w-full flex flex-col justify-start items-end gap-2 p-4">
+    <!-- <h1 class="text-2xl px-4 py-2">All ads</h1> -->
+    <div class="w-full flex flex-col justify-start items-end gap-2 px-4 py-12">
       <!-- <div class="w-full flex justify-end">
       <button class="p-2 bg-fuchsia-500" @click="onFilterOpen = !onFilterOpen">Filter</button>
     </div> -->
@@ -175,7 +175,9 @@ watch(searchQuery, (newQuery) => {
               :description="ad.description"
               :price="ad.price"
               :id="ad.id"
-              :img="ad.img || ''"
+              :img="ad.img[0] || ''"
+              :if_discount="ad.if_discount"
+              :discount="ad.discount"
               :type="ad.type"
               :h_size="'200px'"
               :size="'300px'"

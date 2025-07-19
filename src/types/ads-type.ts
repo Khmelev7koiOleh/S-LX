@@ -9,5 +9,4 @@ export interface AdsType {
   created_at?: string
   type: string
   user_id: string
-  user_name: string
 }
