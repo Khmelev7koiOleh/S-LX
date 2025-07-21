@@ -60,9 +60,10 @@ const getAds = async () => {
     console.log(info, 'dataw')
   }
 }
+
 const goToChat = (chat: any) => {
   console.log(chat)
-  // chatStore.setCurrentChat(chat) // Store the chat
+  chatStore.currentChat = chat // Store the chat
   router.push(`/chats/${chat.room_id}`) // Navigate
 }
 async function createChatRoom(user1_id: string, user2_id: string, room_topic: string) {
@@ -74,6 +75,7 @@ async function createChatRoom(user1_id: string, user2_id: string, room_topic: st
     .eq('room_id', room_id)
     .maybeSingle()
   if (dataCheck) {
+    console.log(user.value)
     console.log(dataCheck)
     goToChat(dataCheck)
   } else {
@@ -90,6 +92,7 @@ async function createChatRoom(user1_id: string, user2_id: string, room_topic: st
       .select()
       .single()
     currentRoom.value = data
+    console.log(data)
     if (data) {
       goToChat(data)
     }
@@ -177,6 +180,11 @@ onMounted(async () => {
             <!-- <div class="text-md text-gray-800 font-mono">{{ info }}</div> -->
           </div>
         </div>
+        <!-- {{ user.id }}
+        <br />
+        {{ info.id }}
+        <br />
+        {{ chat.room_topic }} -->
         <div class="w-full flex justify-end items-center p-4">
           <Button @click="createChatRoom(user.id, info.id, chat.room_topic)" class="">
             <div class="text-md text-gray-300 font-mono">Chat with {{ info.name }}</div>
@@ -233,13 +241,15 @@ onMounted(async () => {
             :description="ad.description"
             :price="ad.price"
             :id="ad.id"
-            :img="ad.img || ''"
+            :img="ad.img[0] || ''"
             :user_name="ad.user_name"
             :type="ad.type"
-            :size="'200px'"
-            :h_size="'100px'"
-            :w_container="'200px'"
-            :h_container="'auto'"
+            :if_discount="ad.if_discount"
+            :discount="ad.discount"
+            :h_size="'200px'"
+            :size="'300px'"
+            :w_container="'300px'"
+            :h_container="'350px'"
             :horisontal="true"
             :col="true"
             :is_user_name="false"
