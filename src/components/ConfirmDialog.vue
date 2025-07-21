@@ -71,15 +71,25 @@ const cancel = () => {
 
     <div
       v-if="isOpen"
-      class="absolute top-full right-8 w-fitt bg-white shadow rounded-md px-4 py-2 z-50"
+      class="absolute top-full right-8 w-fit bg-white shadow rounded-md px-4 py-2 z-50"
     >
-      <div v-if="!isConfirming" class="text-center">
-        <button @click="askConfirmation" class="text-red-600 font-semibold w-full">
+      <div v-if="!isConfirming" class="text-center transition-all transform duration-1000">
+        <button
+          @click="askConfirmation"
+          class="text-red-600 font-semibold w-full transition-all transform duration-1000"
+        >
           Delete this {{ item }}
         </button>
       </div>
 
-      <div v-else class="flex flex-col items-center space-y-4">
+      <div
+        v-else
+        :class="
+          isConfirming
+            ? 'w-[300px] transition-all transform duration-1000  flex flex-col items-center space-y-4'
+            : 'w-[100px] transition-all transform duration-1000  flex flex-col items-center space-y-4'
+        "
+      >
         <p class="text-sm text-black text-center">
           {{ message || 'Are you sure you want to perform this action?' }}
         </p>

@@ -20,8 +20,9 @@ const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
 
 const route = useRoute()
-const othreUser = ref(null)
 const id = route.params.id
+const othreUser = ref(null)
+
 const messages = ref<any>([])
 const message = ref('')
 const errorMessage = ref('')
@@ -198,7 +199,8 @@ const getRoom = async () => {
 
 const otherUserId = computed(() => chat.participant_ids.find((id) => id !== user.value.id))
 
-const getUser = async (id) => {
+const getUser = async (id: string) => {
+  console.log(id)
   const { data, error } = await supabase.from('user').select('*').eq('user_id', id).maybeSingle()
 
   othreUser.value = data
@@ -236,6 +238,7 @@ function subscribeToRoom(room_id: string, callback: (newMessage: any) => void) {
 }
 onMounted(() => {
   console.log(chat, 'chat')
+  console.log('id:', id)
   subscribeToRoom(id, (payload) => {
     const { eventType, new: newMessage, old: oldMessage } = payload
 
@@ -254,10 +257,10 @@ onMounted(() => {
       messages.value = messages.value.filter((msg) => msg.id !== oldMessage.id)
     }
   })
-
+  getUser(otherUserId.value)
   getMessages()
   getRoom()
-  getUser(otherUserId.value)
+
   scrollToBottom()
 })
 </script>
@@ -324,7 +327,7 @@ onMounted(() => {
           </div>
         </div>
       </RouterLink>
-      <Button class="absolute top-8 right-8 bg-transparent hover:bg-transparent rounded-md">
+      <Button class="absolute top-center right-1 bg-transparent hover:bg-transparent rounded-md">
         <!-- Delete this ad
       <Icon icon="mdi:trash-can" class="w-[20px] h-[20px] text-red-500" /> -->
         <ConfirmDialog
