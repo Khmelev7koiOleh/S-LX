@@ -30,6 +30,10 @@ const props = defineProps<{
   is_user_name?: boolean
   w_container?: string
   h_container?: string
+  schrink?: boolean
+  start?: boolean
+  center?: boolean
+  end?: boolean
 }>()
 
 const {
@@ -51,6 +55,10 @@ const {
   is_user_name,
   w_container,
   h_container,
+  schrink,
+  start,
+  center,
+  end,
 } = toRefs(props)
 
 const ifHorisontal = computed(() => {
@@ -91,6 +99,13 @@ const computedDiscount = computed(() => {
   const percent = ((original - discounted) / original) * 100
   return Math.round(percent) // round to nearest integer
 })
+
+const justifyComputed = computed(() => {
+  if (start.value) return 'justify-start'
+  if (center.value) return 'justify-center'
+  if (end.value) return 'justify-end'
+  return 'justify-center'
+})
 // const reduceToEight = computed(() => {
 //   return ads.value.slice(0, 8)
 // })
@@ -117,7 +132,7 @@ const computedDiscount = computed(() => {
           "
         >
           <div
-            class="w-full overflow-hidden h-full rounded-t-md"
+            class="min-w-[5rem] bg-amber-500 object-cover overflow-hidden h-full rounded-t-sm"
             :style="{ width: size, height: h_size }"
           >
             <img
@@ -129,15 +144,21 @@ const computedDiscount = computed(() => {
           </div>
           <div class="w-full flex flex-col justify-between items-center gap-2">
             <p
-              class="w-full flex flex-wrap justify-center items-center break-all text-md font-semibold px-2"
+              class="w-full flex flex-wrap justify-start items-center break-all text-md font-semibold px-2"
             >
               {{ title }}
             </p>
-            <p class="w-full self-center break-words line-clamp-2 px-2 text-sm font-light">
+            <p
+              :class="
+                schrink
+                  ? ' w-[80%] self-start  break-words  px-2 text-sm font-light line-clamp-1'
+                  : ' w-full self-center break-words line-clamp-2 px-2 text-sm font-light'
+              "
+            >
               {{ description }}
             </p>
             <div v-if="if_favorite" class="absolute top-2 right-2">
-              <AddFavoritesButton
+              <AddFavxoritesButton
                 :title="title"
                 :description="description"
                 :id="id"
@@ -163,7 +184,7 @@ const computedDiscount = computed(() => {
           <div v-if="if_discount" class="w-full flex justify-center items-center p-0 bg-red-400">
             <p class="text-md font-semibold text-white">-{{ computedDiscount }}%</p>
           </div>
-          <div class="w-full flex justify-center items-center gap-4 pb-2">
+          <div :class="['w-full flex items-center gap-4 px-4 py-1', justifyComputed]">
             <p :class="if_discount ? 'line-through text-md text-red-500' : 'text-md '">
               {{ price }} €.
             </p>

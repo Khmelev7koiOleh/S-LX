@@ -1,6 +1,6 @@
 <!-- src/views/AdDetail.vue -->
 <script setup lang="ts">
-import { onMounted, ref, toRefs } from 'vue'
+import { onMounted, ref, toRefs, computed, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient'
 import type { AdsType } from '@/types/ads-type'
@@ -44,19 +44,20 @@ const currentRoom = ref<any | undefined>(null)
 const klasse = ref<any[] | null>([])
 const klasseNew = ref<any[] | null>([])
 const adImg = ref<string[] | null>([])
+const rating = ref<Number>(0)
+const onPhoneNumberShow = ref<boolean>(false)
+let ratingSubscription: any = null
 
 async function getOrCreateConversation(user_1, user_2) {
   const sorted = [user_1, user_2].sort() // sorts alphabetically
   const room_id = `${sorted[0]}_${sorted[1]}`
-  // console.log(`${user_2 + '_' + user_1}`)
-  // console.log(`${user_1 + '_' + user_2}`)
 
   console.log('room_id', room_id)
 
   const { data: existingConvo, error } = await supabase
     .from('chat')
     .select('*')
-    // .or(`and(room_id.eq.${user_1 + '_' + user_2}), and(room_id.eq.${user_2 + '_' + user_1})`)
+
     .eq('room_id', room_id)
     .maybeSingle()
   theMessage.value = existingConvo
@@ -89,20 +90,6 @@ const getChat = async () => {
   if (data) chat.value = data
 }
 
-const startChat = async (currentUser: string, otherUser: string) => {
-  console.log(currentUser, otherUser)
-  // Chat-Raum erstellen/laden
-  const conversation = await getOrCreateConversation(currentUser, otherUser)
-
-  // // Nachrichten abonnieren
-  // subscribeToConversation(conversation.id, (newMessage) => {
-  //   console.log("Neue Nachricht:", newMessage);
-  // });
-
-  // // Beispiel: Nachricht senden
-  // await sendMessage(conversation.id, currentUser.id, "Hallo!");
-}
-
 const sendMessageToMessage = async (id: string, message: string) => {
   console.log(id, message)
 
@@ -117,20 +104,11 @@ const sendMessageToMessage = async (id: string, message: string) => {
   ])
   console.log('data', data)
   if (error) console.error('Error sending message:', error)
-  // Chat-Raum erstellen/laden
-  // // Nachrichten abonnieren
-  // subscribeToConversation(conversation.id, (newMessage) => {
-  //   console.log("Neue Nachricht:", newMessage);
-  // });
-
-  // // Beispiel: Nachricht senden
-  // await sendMessage(conversation.id, currentUser.id, "Hallo!");
 }
 
 async function createChatRoom(user1_id: string, user2_id: string) {
   console.log(user1_id, user2_id)
-  const room_id = [user1_id, user2_id].sort().join('_') // Eindeutige ID (z. B. "user1_user2")
-
+  const room_id = [user1_id, user2_id].sort().join('_')
   const { data, error } = await supabase
     .from('chat_rooms')
     .upsert(
@@ -143,6 +121,7 @@ async function createChatRoom(user1_id: string, user2_id: string) {
     )
     .select()
     .single()
+
   currentRoom.value = data
 
   return data
@@ -164,6 +143,81 @@ const deleteAd = async (id: string) => {
   }
 }
 
+const getAverageRating = async (targetUserId: any) => {
+  console.log('getAverageRating', targetUserId)
+
+  const { data, error } = await supabase
+    .from('ratings')
+    .select('*')
+    .eq('target_user_id', targetUserId)
+  if (data) {
+    rating.value = data.reduce((acc, rating) => acc + rating.rating, 0) / data.length
+  } else {
+    console.log(error)
+  }
+}
+const computedStars = computed(() => {
+  const stars = []
+  const fullStars = Math.floor(rating.value)
+  const hasHalfStar = rating.value % 1 >= 0.25 && rating.value % 1 <= 0.75
+  const totalStars = 5
+  for (let i = 1; i <= totalStars; i++) {
+    if (i <= fullStars) {
+      stars.push('material-symbols:star')
+    } else if (i === fullStars + 1 && hasHalfStar) {
+      stars.push('material-symbols:star-half')
+    } else {
+      stars.push('material-symbols:star-outline')
+    }
+  }
+
+  return stars
+})
+const computedRating = computed(() => {
+  if (!rating.value) return 'This user has not been rated yet'
+  return rating.value.toFixed(1) + ' / 5'
+})
+
+const transformTime = computed(() => {
+  if (ad.value?.created_at) {
+    const date = new Date(ad.value.created_at)
+    const formattedDate = date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    })
+    return formattedDate
+  } else {
+    return 'Unknown date'
+  }
+})
+const subscribeToRatings = (targetUserId: any) => {
+  ratingSubscription = supabase
+    .channel('ratings-channel')
+    .on(
+      'postgres_changes',
+      {
+        event: '*', // or 'INSERT' | 'UPDATE' | 'DELETE'
+        schema: 'public',
+        table: 'ratings',
+        filter: `target_user_id=eq.${targetUserId}`,
+      },
+      (payload) => {
+        console.log('Realtime change:', payload)
+        getAverageRating(targetUserId)
+      },
+    )
+    .subscribe()
+}
+const unsubscribeFromRatings = async () => {
+  if (ratingSubscription) {
+    await supabase.removeChannel(ratingSubscription)
+  }
+}
+
 onMounted(async () => {
   await getChat()
   const { data, error } = await supabase.from('ads').select('*').eq('id', route.params.id).single()
@@ -174,47 +228,16 @@ onMounted(async () => {
   }
   await getUser()
   adImg.value = ad.value?.img ? [ad.value?.img] : null
+  subscribeToRatings(ad.value?.user_id)
+  subscribeToRatings(ad.value?.user_id)
+
+  getAverageRating(ad.value?.user_id)
 })
-
-// // Nachrichten abonnieren
-// function subscribeToMessages(room, callback) {
-//   return supabase
-//     .channel('messages')
-//     .on(
-//       'postgres_changes',
-//       {
-//         event: 'INSERT',
-//         schema: 'public',
-//         table: 'messages',
-//         filter: `room_id=eq.${room}`,
-//       },
-//       (payload) => callback(payload.new),
-//     )
-//     .subscribe()
-// }
-
-// // Beispiel-Nutzung
-// const exampleUser = { id: '123', username: 'max' }
-
-// // Auf neue Nachrichten hören
-// subscribeToMessages('general', (message) => {
-//   console.log('Neue Nachricht:', message)
-// })
-
-// // Nachricht senden
-// sendMessage(exampleUser, 'Hallo Welt!')
-
-// // const startChat = (val: string) => {
-// //   console.log('start chat with', val)
-// //   console.log('my id is', user.value.id)
-// // }
 </script>
 
 <template>
   <div class="w-[100vw] h-[100vh] relative">
     <Button v-if="user?.id === ad?.user_id" class="absolute top-8 right-8 bg-gray-900 rounded-md">
-      <!-- Delete this ad
-      <Icon icon="mdi:trash-can" class="w-[20px] h-[20px] text-red-500" /> -->
       <ConfirmDialog
         message="Are you sure you want to delete this ad?"
         confirmText="Delete"
@@ -226,44 +249,22 @@ onMounted(async () => {
       />
     </Button>
 
-    <!-- <div v-if="currentRoom" class="bg-black text-white p-4">
-      <RouterLink :to="'/chats/' + currentRoom?.room_id"> to {{ currentRoom.room_id }} </RouterLink>
-    </div> -->
     <div
       v-if="currentRoom && chatStore.onCurrentRoomOpen"
       class="w-1/3 h-full absolute right-0 flex flex-col justify-center items-center"
     >
       <div
-        class="w-1/5 h-2/3 fixed bottom-0 right-0 flex flex-col justify-center items-center z-10"
+        class="w-[30%] h-2/3 fixed bottom-0 right-0 flex flex-col justify-center items-center z-10"
       >
-        <ChatMessageComponent :data="currentRoom" />
+        <ChatMessageComponent :data="currentRoom" :userData="userData" />
       </div>
     </div>
-    <!-- <div>check if the chat exists , if no create it if yes updade it</div> -->
 
-    <!-- <div class="bg-red-400">{{ getOrCreateConversation }}</div> -->
-
-    <div class="flex flex-row justify-between items-center gap-8 p-20" v-if="ad">
-      <!-- <AdCard
-        :title="ad.title"
-        :description="ad.description"
-        :price="ad.price"
-        :id="ad.id"
-        :img="ad.img || ''"
-        :user_name="ad.user_name"
-        :type="ad.type"
-        :h_size="'auto'"
-        :size="'500px'"
-        :w_container="'500px'"
-        :h_container="'auto'"
-        :horisontal="true"
-        :col="true"
-        :is_user_name="false"
-        :created_at="ad.created_at || ''"
-        :if_favorite="false"
-      /> -->
-
-      <div v-if="ad.img" class="w-full flex flex-col justify-center items-center bg-gray-50">
+    <div
+      class="w-full flex flex-row justify-center items-center gap-8 px-[10vw] py-[5vh]"
+      v-if="ad"
+    >
+      <div v-if="ad.img" class="w-full flex flex-col justify-center items-center">
         <Carousel
           :opts="{
             align: 'start',
@@ -280,8 +281,10 @@ onMounted(async () => {
             <CarouselItem v-for="(item, index) in ad.img" :key="index">
               <div class="p-1">
                 <Card>
-                  <CardContent class="flex aspect-square items-center justify-center p-6">
-                    <img :src="item" alt="" />
+                  <CardContent
+                    class="max-h-[600px] flex aspect-square items-center justify-center p-10"
+                  >
+                    <img :src="item" alt="" class="object-cover" />
                   </CardContent>
                 </Card>
               </div>
@@ -301,7 +304,7 @@ onMounted(async () => {
       </div>
 
       <div class="flex flex-col justify-center items-center gap-4 relative">
-        <div class="w-[300px] flex flex-col justify-center items-center gap-2 bg-gray-200 p-8">
+        <div class="w-[300px] flex flex-col justify-center items-center gap-2 bg-white shadow p-8">
           <div class="absolute top-2 right-2">
             <AddFavoritesButton
               :id="ad.id"
@@ -309,6 +312,8 @@ onMounted(async () => {
               :title="ad.title"
               :description="ad.description"
               :price="ad.price"
+              :if_discount="ad.if_discount"
+              :discount="ad.discount"
             />
           </div>
           <div class="text-lg font-normal">{{ ad.title }}</div>
@@ -316,8 +321,8 @@ onMounted(async () => {
           <Button
             @click="
               (() => {
+                chatStore.onCurrentRoomOpen = true
                 createChatRoom(user.id, ad.user_id)
-                chatStore.onCurrentRoomOpen = !chatStore.onCurrentRoomOpen
               })()
             "
             class="w-full flex items-center p-2 gap-1 text-black bg-white shadow rounded-lg cursor-pointer hover:text-white"
@@ -325,48 +330,61 @@ onMounted(async () => {
           >
           <!-- </RouterLink> -->
           <Button
-            class="w-full flex items-center p-2 gap-1 text-black bg-white shadow rounded-lg hover:text-white"
-            >Phone number</Button
-          >
+            @click="onPhoneNumberShow = !onPhoneNumberShow"
+            class="w-full p-2 gap-1 text-black bg-white shadow rounded-lg hover:text-white"
+            ><div v-if="!onPhoneNumberShow">Phone number</div>
+            <div v-else class="w-full break-words whitespace-normal">
+              <div v-if="userData.tel">{{ userData.tel }}</div>
+              <div v-else class="text-sm font-light break-words">
+                This user has not provided a phone number
+              </div>
+            </div>
+          </Button>
         </div>
 
-        <div class="w-[300px] flex flex-col justify-center items-center gap-2 bg-gray-200 p-2">
+        <div class="w-[300px] flex flex-col justify-center items-center gap-2 bg-white shadow p-2">
           <div class="text-xl font-semibold">User</div>
-          <!-- <Button
-            @click="
-              (() => {
-                createChatRoom(user.id, ad.user_id)
-                onCurrentRoomOpen = !onCurrentRoomOpen
-              })()
-            "
-            class="w-full flex items-center p-2 gap-1 text-white rounded-lg cursor-pointer"
-            >Message</Button
-          > -->
+
           <RouterLink :to="'/user-profile/' + userData.id">
             <div class="w-full flex flex-col justify-center items-start">
               <div class="flex justify-center items-center">
                 <img :src="userData.img" alt="" class="w-10 h-10 rounded-full" />
 
-                <!-- <img :src="ad.img" alt="" class="w-10 h-10 rounded-full" /> -->
-                <!-- <div class="text-xl px-4 py-1">{{ ad.user_name }}</div> -->
-
                 <div class="text-xl px-4 py-1">{{ userData.name }}</div>
               </div>
               <div class="w-full flex justify-start items-center gap-2">
-                <div class="text-lg font-semibold">Rating:</div>
-                <div class="w-full flex justify-start items-center gap-2">
-                  <div>4.5/5</div>
-                  <Icon icon="material-symbols:star" width="24" height="24" />
-                  <Icon icon="material-symbols:star" width="24" height="24" />
-                  <Icon icon="material-symbols:star" width="24" height="24" />
-                  <Icon icon="material-symbols:star" width="24" height="24" />
-                  <Icon icon="material-symbols:star-half" width="24" height="24" />
+                <div
+                  :class="
+                    computedRating == 'This user has not been rated yet'
+                      ? 'w-full flex flex-col  justify-start items-center gap-2'
+                      : 'w-full flex  justify-start items-center gap-2'
+                  "
+                >
+                  <div
+                    :class="
+                      computedRating == 'This user has not been rated yet'
+                        ? 'text-gray-800 text-md font-semibold'
+                        : 'text-gray-800'
+                    "
+                  >
+                    {{ computedRating }}
+                  </div>
+                  <div class="flex justify-start items-center">
+                    <Icon
+                      v-for="(icon, i) in computedStars"
+                      :key="i"
+                      :icon="icon"
+                      width="24"
+                      height="24"
+                      class="text-yellow-400"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </RouterLink>
 
-          <div>{{ ad.created_at }}</div>
+          <div>{{ transformTime }}</div>
         </div>
       </div>
     </div>

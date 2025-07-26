@@ -1,12 +1,12 @@
 <!-- src/views/AdDetail.vue -->
 <script setup lang="ts">
 import { onMounted, ref, toRefs } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient'
 import type { AdsType } from '@/types/ads-type'
 import Button from './ui/button/Button.vue'
 import { useGetUserStore } from '@/stores/current-user-store'
-
+import EmojiMessageComponent from './EmojiMessageComponent.vue'
 import { useChatStore } from '@/stores/chat-store'
 import { Icon } from '@iconify/vue'
 
@@ -15,18 +15,27 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  userData: {
+    type: Object,
+    required: true,
+  },
 })
 
-const { data: roomData } = toRefs(props)
+const { data: roomData, userData: userData } = toRefs(props)
 
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
 const chatStore = useChatStore()
 const message = ref('')
-
+const router = useRouter()
 const route = useRoute()
 const ad = ref<AdsType | null>(null)
 
+const goToChat = (chat: any) => {
+  console.log(chat)
+  chatStore.currentChat = chat // Store the chat
+  router.push(`/chats/${chat.room_id}`) // Navigate
+}
 async function sendMessage(room_id: string, sender_id: string, text: string) {
   console.log(room_id, sender_id, text)
   const { error } = await supabase.from('messages').insert([
@@ -56,7 +65,7 @@ function subscribeToRoom(room_id: string, callback: (newMessage: any) => void) {
     .on(
       'postgres_changes',
       {
-        event: 'INSERT',
+        event: '*',
         schema: 'public',
         table: 'messages',
         filter: `room_id=eq.${room_id}`,
@@ -82,45 +91,55 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="w-full h-full px-0 bg-gray-300 relative">
+  <div class="w-full h-full px-0 bg-gray-100 relative">
     <div
       @click="chatStore.onCurrentRoomOpen = !chatStore.onCurrentRoomOpen"
       class="absolute top-4 left-4"
     >
-      <Icon icon="material-symbols:close" width="28" class="text-black cursor-pointer" />
+      <Icon icon="material-symbols:arrow-back" width="28" class="text-white cursor-pointer" />
+    </div>
+    <div @click="goToChat(roomData)" class="absolute top-4 right-4">
+      <Icon icon="bx:expand" width="28" class="text-white cursor-pointer" />
     </div>
     <!-- <div class="text-red-500">{{ data.participant_ids[1] }}</div> -->
-    <div class="w-full flex justify-center items-center gap-4 bg-gray-400 p-1">
+    <div class="w-full flex justify-center items-center gap-4 bg-gray-900 p-1">
       <!-- some picum pic -->
       <RouterLink :to="'/user-profile/' + data.participant_ids[1]">
-        <div class="flex justify-start items-center gap-4 p-1">
+        <div class="flex justify-start items-center gap-4 px-2 drop-shadow-[1px_4px_4px_white]">
           <div>
             <img
-              src="/public/logo.png"
+              :src="userData?.img"
               alt=""
               width="50"
               height="50"
-              class="border border-black rounded-full"
+              class="w-[50px] h-[50px] border border-black rounded-full"
             />
           </div>
           <!-- {{ finalParsed }} -->
-          <div>{{ data.room_topic }}</div>
+          <div class="text-white">{{ userData.name }}</div>
         </div>
       </RouterLink>
 
       <!-- <div class="p-4 bg-amber-300">{{ ad?.user_id }}</div> -->
     </div>
     <!-- {{ data }} -->
-    <div class="w-full p-20">
+    <div class="w-full h-[80%] flex flex-col gap-4 p-10 overflow-auto">
       <div v-for="item in data.msg" :key="item">
         {{ item.text }}
       </div>
-      <div class="w-full p-6" v-for="item in theMessages" :key="item">
+      <div
+        :class="
+          item.sender_id === user.id ? 'w-full flex justify-end  ' : 'w-full flex justify-start'
+        "
+        class="w-fit h-fit flex justify-end items-center"
+        v-for="item in theMessages"
+        :key="item"
+      >
         <div
           :class="
             item.sender_id === user.id
-              ? 'text-right  bg-green-500 p-2 rounded-lg'
-              : 'text-left bg-gray-400 p-2 rounded-lg'
+              ? 'text-right  bg-green-700 text-gray-300  rounded-lg w-fit flex flex-wrap justify-end  max-w-[60vw] relative px-4 '
+              : 'text-left bg-gray-600 text-gray-300  rounded-lg w-fit flex justify-start  max-w-[60vw] px-4'
           "
         >
           {{ item.content }}
@@ -130,17 +149,25 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-    <div class="w-full absolute bottom-0 left-0">
-      <div class="w-full flex justify-center items-center p-1 bg-gray-500">
-        <input type="text" placeholder="Message" v-model="message" class="border border-red-300" />
-      </div>
+    <div class="w-full absolute bottom-0 left-0 bg-white shadow">
+      <div class="w-full flex justify-start items-center gap-2 p-1 px-2">
+        <div class=""><EmojiMessageComponent v-model="message" /></div>
+        <textarea
+          @keydown.enter="sendMessage(data.room_id, user.id, message)"
+          type="text"
+          :rows="message.length > 30 ? 3 : 1"
+          placeholder="Message"
+          v-model="message"
+          class="w-[70%] shadow py-1 resize-none placeholder-black text-black rounded-md px-4"
+        ></textarea>
 
-      <div class="w-full flex justify-end items-center p-1 bg-gray-500">
         <Button
+          v-if="message.length > 0"
+          :disabled="message.length <= 0"
           @click="sendMessage(data.room_id, user.id, message)"
-          class="w-full flex items-center p-2 gap-1 text-white rounded-lg"
-          >Send</Button
-        >
+          class="w-[40px] h-[40px] flex items-center text-white rounded-full p-3 absolute bottom-2 right-4"
+          ><Icon icon="mdi:send" width="24" height="24"
+        /></Button>
       </div>
     </div>
   </div>

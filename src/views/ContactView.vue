@@ -65,8 +65,8 @@ onMounted(() => {
           :id="i.id"
           :img="i.img[0]"
           :type="i.type"
+          :h_size="'200px'"
           :size="'300px'"
-          :h_size="'250px'"
           :w_container="'300px'"
           :h_container="'350px'"
           :horisontal="true"
@@ -74,6 +74,8 @@ onMounted(() => {
           :created_at="i.created_at"
           :if_favorite="true"
           :user_name="i.user_name"
+          :if_discount="i.if_discount"
+          :discount="i.discount"
         />
       </RouterLink>
     </div>
