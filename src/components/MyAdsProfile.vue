@@ -38,7 +38,7 @@ onMounted(() => {
             :description="ad.description"
             :price="ad.price"
             :id="ad.id"
-            :img="ad.img || ''"
+            :img="ad.img[0] || ''"
             :user_name="ad.user_name"
             :type="ad.type"
             :size="'300px'"
@@ -50,6 +50,8 @@ onMounted(() => {
             :is_user_name="false"
             :created_at="ad.created_at || ''"
             :if_favorite="false"
+            :if_discount="ad.if_discount"
+            :discount="ad.discount"
           />
         </RouterLink>
       </div>

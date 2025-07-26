@@ -344,7 +344,7 @@ onMounted(() => {
 
     <div
       id="messages-container"
-      class="w-full overflow-y-auto h-[80vh] px-20 pb-[10%] z-10 transition-all transform duration-1000"
+      class="w-full overflow-y-auto h-[80vh] px-20 py-[5%] pb-[10%] z-10 transition-all transform duration-1000"
     >
       <div class="w-full p-4 relative" v-for="item in messages" :key="item.id">
         <div

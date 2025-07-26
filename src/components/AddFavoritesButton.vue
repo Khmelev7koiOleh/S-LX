@@ -25,6 +25,8 @@ const props = defineProps<{
   horisontal?: boolean
   col?: boolean
   if_favorite?: boolean
+  if_discount?: boolean
+  discount?: string
 }>()
 
 const {
@@ -40,6 +42,8 @@ const {
   horisontal,
   col,
   if_favorite,
+  if_discount,
+  discount,
 } = toRefs(props)
 
 const addToFavorites = async (val: any) => {
@@ -68,6 +72,8 @@ const addToFavorites = async (val: any) => {
       title: val.title,
       description: val.description,
       price: val.price,
+      if_discount: val.if_discount,
+      discount: val.discount,
     })
     if (!errorCreate) {
       isFavorite.value = true

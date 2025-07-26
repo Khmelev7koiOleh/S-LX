@@ -11,6 +11,7 @@ import { RouterLink, useRouter } from 'vue-router'
 
 import { useChatStore } from '@/stores/chat-store'
 import Button from '../ui/button/Button.vue'
+import ReusableUserProfile from '@/components/ReusableUserProfile.vue'
 
 const chatStore = useChatStore()
 
@@ -221,149 +222,17 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <!-- <div class="bg-fuchsia-400">{{ user.id }}</div>
-  <div>{{ id }}</div>
-  <div class="bg-blue-400">{{ info }}</div>
-  <div class="bg-red-400"></div>
-
-  <div class="w-full flex justify-start items-start relative">
-    <div class="w-1/2 flex justify-center items-center bg-amber-500">
-      <div>
-        <img
-          :src="info.img"
-          alt=""
-          width="50"
-          height="50"
-          class="border border-black w-[150px] h-[150px] rounded-full"
-        />
-      </div>
-    </div>
-    <div class="text-black w-1/2 p-4">
-      <div class="flex flex-col justify-start items-start gap-8">
-        <div class="flex justify-start items-center gap-2">
-          <div class="text-md font-semibold text-gray-600">Main information</div>
-          <Icon icon="mdi:eye" width="20" height="20" />
-        </div>
-        <div class="flex flex-col gap-4 px-4">
-          <div class="flex flex-col gap-2">
-            <p class="text-gray-800 text-sm font-extralight">Description</p>
-            <p v-if="info.description == ''" class="px-4">there is no description</p>
-            <p v-else class="px-4">{{ info.description }}</p>
-          </div>
-          <div class="flex flex-col gap-4">
-            <p class="text-gray-800 text-sm font-extralight">Location</p>
-            <p v-if="info.location == ''" class="px-4">there is no location</p>
-            <p v-else class="px-4">{{ info.location }}</p>
-          </div>
-          <div class="flex flex-col gap-4">
-            <p class="text-gray-800 text-sm font-extralight">Tel</p>
-            <p v-if="info.tel == ''" class="px-4">there is no tel</p>
-            <p v-else class="px-4">{{ info.tel }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div> -->
-
-  <!-- <div>{{ data }}</div> -->
-
   <div class="min-w-[100vw] w-full min-h-[100vh] h-full bg-gray-50 p-10">
     <div class="w-full h-full flex justify-center items-center gap-10">
-      <div class="">
-        <div class="flex justify-center items-center gap-4">
-          <div class="">
-            <img
-              :src="info.img"
-              class="rounded-full object-cover w-[150px] h-[150px]"
-              width="150"
-              height="150"
-              alt=""
-            />
-            <!-- <div>{{ user.id }}</div> -->
-          </div>
-          <div class="flex flex-col justify-center items-start gap-2">
-            <div class="text-xl text-gray-800 font-mono">{{ info.name }}</div>
-            <div class="text-md text-gray-800 font-mono">{{ info.email }}</div>
-
-            <div class="w-full flex justify-start items-center gap-2">
-              <!-- <div class="text-lg font-semibold">Rating:</div> -->
-              <div
-                :class="
-                  computedRating == 'This user has not been rated yet'
-                    ? 'w-full flex flex-col  justify-start items-center gap-2'
-                    : 'w-full flex  justify-start items-center gap-2'
-                "
-              >
-                <div
-                  :class="
-                    computedRating == 'This user has not been rated yet'
-                      ? 'text-gray-800 text-md font-semibold'
-                      : 'text-gray-800'
-                  "
-                >
-                  {{ computedRating }}
-                </div>
-                <div class="flex justify-start items-center">
-                  <Icon
-                    v-for="(icon, i) in computedStars"
-                    @click="rateUser(info.id, user.id, i + 1)"
-                    :key="i"
-                    :icon="icon"
-                    width="24"
-                    height="24"
-                    class="text-yellow-400"
-                  />
-                </div>
-              </div>
-            </div>
-            <!-- :icon="i > rating ? 'mdi:star-outline' : 'mdi:star'" -->
-            <!-- <div class="text-md text-gray-800 font-mono">{{ info }}</div> -->
-          </div>
-        </div>
-        <!-- {{ user.id }}
-        <br />
-        {{ info.id }}
-        <br />
-        {{ chat.room_topic }} -->
-        <div class="w-full flex justify-end items-center p-4">
-          <Button @click="createChatRoom(user.id, info.id, chat.room_topic)" class="">
-            <div class="text-md text-gray-300 font-mono">Chat with {{ info.name }}</div>
-            <Icon icon="material-symbols:chat" width="24" height="24" />
-          </Button>
-        </div>
-      </div>
-
-      <div class="flex justify-center items-start relative">
-        <div v-if="info" class="text-black p-4">
-          <div class="flex flex-col justify-start items-start gap-8">
-            <div class="flex justify-start items-center gap-2">
-              <div class="text-md font-semibold text-gray-600">Main information</div>
-              <Icon icon="mdi:eye" width="20" height="20" />
-            </div>
-            <div class="flex flex-col gap-4 px-4">
-              <div class="flex justify-start items-center gap-2">
-                <p class="text-gray-800">Description:</p>
-                <p v-if="info.description == null" class="px-4 text-sm font-extralight">
-                  there is no description
-                </p>
-                <p v-else class="px-4 text-sm font-extralight">{{ info.description }}</p>
-              </div>
-              <div class="flex justify-start items-center gap-4">
-                <p class="text-gray-800">Location:</p>
-                <p v-if="info.location == null" class="px-4 text-sm font-extralight">
-                  there is no location
-                </p>
-                <p v-else class="px-4 text-sm font-extralight">{{ info.location }}</p>
-              </div>
-              <div class="flex justify-start items-center gap-4">
-                <p class="text-gray-800">Tel:</p>
-                <p v-if="info.tel == null" class="px-4 text-sm font-extralight">there is no tel</p>
-                <p v-else class="px-4 text-sm font-extralight">{{ info.tel }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ReusableUserProfile
+        v-if="info.user_id"
+        :data="info"
+        :start="false"
+        :center="true"
+        :end="false"
+        :bg="'bg-gray-50'"
+        :router-on="false"
+      />
     </div>
     <div class="w-full border"></div>
     <!-- <div class="p-20">
@@ -371,7 +240,7 @@ onUnmounted(() => {
     </div> -->
 
     <div class="w-full flex justify-center items-center p-4">
-      <div class="text-xl text-gray-800 font-mono border-b">{{ info.name }} ads</div>
+      <div class="text-xl text-gray-800 font-mono border-b">{{ info.name }}'s ads</div>
     </div>
     <div class="p-10 w-full flex flex-wrap justify-start items-center gap-8">
       <div v-for="ad in ads" :key="ad.id">
