@@ -182,7 +182,7 @@ const computedStars = computed(() => {
 })
 const computedRating = computed(() => {
   if (!rating.value) return 'This user has not been rated yet'
-  return rating.value.toFixed(1) + ' / 5'
+  return rating.value.toFixed(1) + ' / 5.0'
 })
 
 const justifyComputed = computed(() => {

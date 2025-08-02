@@ -53,7 +53,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+    <div class="p-40" />
   </div>
 </template>
 

@@ -152,7 +152,7 @@ const justifyComputed = computed(() => {
               :class="
                 schrink
                   ? ' w-[80%] self-start  break-words  px-2 text-sm font-light line-clamp-1'
-                  : ' w-full self-center break-words line-clamp-2 px-2 text-sm font-light'
+                  : ' w-full self-center break-words line-clamp-1 px-2 text-sm font-light'
               "
             >
               {{ description }}

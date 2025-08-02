@@ -17,6 +17,7 @@ import { Icon } from '@iconify/vue'
 import UserProfile from './user-profile/UserProfile.vue'
 import ReusableUserProfile from './ReusableUserProfile.vue'
 import { start } from 'repl'
+import { styleText } from 'util'
 
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
@@ -80,8 +81,10 @@ const computedStars = computed(() => {
   return stars
 })
 const computedRating = computed(() => {
-  if (!rating.value) return 'This user has not been rated yet'
-  return rating.value.toFixed(1) + ' / 5'
+  console.log('computedRating', rating.value)
+  if (rating.value === 0 || undefined || null) return ''
+  if (rating.value) return rating.value.toFixed(1) + ' / 5'
+  else if (!rating.value) return 'You have not been rated yet'
 })
 let ratingSubscription: any = null
 const subscribeToRatings = (targetUserId: string) => {
@@ -130,16 +133,14 @@ onUnmounted(() => {
 
 <template>
   <div class="w-full flex flex-col mx-auto px-4">
-    <div class="w-full flex flex-col gap-4 justify-center items-center p-4">
-      <p class="text-sm font-light underline">Ratings and Reviews of you</p>
-    </div>
+    <div class="w-full flex flex-col gap-4 justify-center items-center p-4"></div>
     <div class="w-full flex justify-center items-center">
       <div class="w-full flex justify-center items-center gap-2 bg-amber-400 p-4 rounded-sm">
         <!-- <div class="text-lg font-semibold">Rating:</div> -->
         <div
           :class="
             computedRating == 'This user has not been rated yet'
-              ? 'w-full flex flex-col  justify-center items-center gap-6'
+              ? 'w-full flex  justify-center items-center gap-6'
               : 'w-full flex  justify-center items-center gap-6'
           "
         >
@@ -148,19 +149,26 @@ onUnmounted(() => {
               icon="game-icons:fluffy-wing"
               width="74"
               height="74"
-              class="text-amber-300 animate-bounce"
+              class="text-amber-200 animate-bounce"
             />
           </div>
           <div
-            class="flex flex-row justify-center items-center gap-4 shadow-2xl shadow-white p-2 rounded-2xl"
+            class="flex flex-row justify-center items-center gap-4 bg-white shadow-[0px_0px_40px_20px] shadow-white p-2 rounded-2xl"
           >
             <div class="flex flex-col">
-              <div class="flex justify-center items-center gap-4">
+              <div
+                :class="
+                  computedRating == 'You have not been rated yet'
+                    ? 'flex flex-col justify-center items-center'
+                    : 'flex justify-center items-center '
+                "
+                class="flex justify-center items-center gap-4"
+              >
                 <div
                   :class="
-                    computedRating == 'This user has not been rated yet'
-                      ? 'text-gray-600 text-2xl font-semibold'
-                      : 'text-gray-600 text-xl '
+                    computedRating == 'You have not been rated yet'
+                      ? ' text-amber-400 text-2xl font-semibold'
+                      : ' text-amber-400 text-xl '
                   "
                 >
                   {{ computedRating }}
@@ -184,16 +192,17 @@ onUnmounted(() => {
               icon="game-icons:fluffy-wing"
               width="74"
               height="74"
-              class="text-amber-300 animate-bounce"
+              class="text-amber-200 animate-bounce"
             />
           </div>
         </div>
       </div>
     </div>
-    <br />
-    <div class="w-full h-full bg-green-400 rounded-sm">
+    <div class="text-sm self-center font-light text-gray-600 underline p-2">
+      Users that rated you
+    </div>
+    <div class="w-full rounded-sm">
       <div class="w-full flex flex-col justify-center items-center">
-        <div class="text-sm font-light text-gray-600 underline p-2">Users that rated you</div>
         <div class="w-full flex flex-col gap-4 justify-center items-center p-4">
           <div v-for="user in info" :key="user" class="w-full">
             <ReusableUserProfile

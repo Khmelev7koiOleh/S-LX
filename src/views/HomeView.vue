@@ -23,6 +23,9 @@ import AdvertisementLine from '@/components/AdvertisementLine.vue'
 import PopularSomethigComponent from '@/components/PopularSomethigComponent.vue'
 import { title } from 'process'
 import { useGetUserStore } from '../stores/current-user-store'
+import { useWindowSize } from '@/composables/useWindowSize'
+
+const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
 
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
@@ -146,6 +149,14 @@ onMounted(() => {
 
 <template>
   <main class="bg-gray-100">
+    <div class="p-4">
+      <p>Width: {{ width }}px</p>
+      <p>Height: {{ height }}px</p>
+
+      <p v-if="isPhone">You're on a phone 📱</p>
+      <p v-else-if="isTablet">You're on a tablet 💻</p>
+      <p v-else-if="isLaptop">You're on a laptop 💻</p>
+    </div>
     <div class="w-[100%]">
       <div class="flex items-center justify-around p-8">
         <div class="relative w-1/2 bg-amber-200">
@@ -233,7 +244,13 @@ onMounted(() => {
       <!-- Anouncement section -->
       <div>
         <h2 class="text-3xl w-full text-center p-12">VIP-Announcements</h2>
-        <ul class="w-full grid grid-cols-4 gap-4 p-20">
+        <ul
+          :class="
+            isPhone
+              ? ' w-full grid grid-cols-2 justify-center items-center gap-8 p-4'
+              : ' w-full grid grid-cols-4 gap-4 p-20'
+          "
+        >
           <li v-for="ad in randomReducedAds" :key="ad.id">
             <RouterLink :to="`/ad/${ad.id}`">
               <AdCard
@@ -245,10 +262,10 @@ onMounted(() => {
                 :if_discount="ad.if_discount"
                 :discount="ad.discount"
                 :type="ad.type"
-                :h_size="'200px'"
-                :size="'300px'"
-                :w_container="'300px'"
-                :h_container="'350px'"
+                :h_size="isPhone ? '120px' : '200px'"
+                :size="isPhone ? '180px' : '300px'"
+                :w_container="isPhone ? '180px' : '300px'"
+                :h_container="isPhone ? '250px' : '350px'"
                 :horisontal="true"
                 :col="true"
                 :created_at="ad.created_at"
