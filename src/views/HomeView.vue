@@ -24,6 +24,15 @@ import PopularSomethigComponent from '@/components/PopularSomethigComponent.vue'
 import { title } from 'process'
 import { useGetUserStore } from '../stores/current-user-store'
 import { useWindowSize } from '@/composables/useWindowSize'
+import { Card, CardContent } from '@/components/ui/card'
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel'
+import Autoplay from 'embla-carousel-autoplay'
 
 const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
 
@@ -149,21 +158,31 @@ onMounted(() => {
 
 <template>
   <main class="bg-gray-100">
-    <div class="p-4">
+    <!-- <div class="p-4">
       <p>Width: {{ width }}px</p>
       <p>Height: {{ height }}px</p>
 
       <p v-if="isPhone">You're on a phone 📱</p>
       <p v-else-if="isTablet">You're on a tablet 💻</p>
       <p v-else-if="isLaptop">You're on a laptop 💻</p>
-    </div>
+    </div> -->
     <div class="w-[100%]">
-      <div class="flex items-center justify-around p-8">
-        <div class="relative w-1/2 bg-amber-200">
+      <div
+        :class="
+          isPhone
+            ? ' flex flex-col items-center justify-around gap-8 p-8'
+            : 'flex flex-row items-center justify-around p-8'
+        "
+      >
+        <div :class="isPhone ? 'w-full relative  bg-amber-200' : 'relative w-1/2 bg-amber-200'">
           <Search v-model="searchQuery" />
           <ul
             v-if="searchQuery"
-            class="w-[48%] h-[40%] fixed mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-2 z-10"
+            :class="
+              isPhone
+                ? ' w-[58%] h-[40%] fixed mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-2 z-10'
+                : ' w-[48%] h-[40%] fixed mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-2 z-10'
+            "
           >
             <li v-for="ad in filteredAds" :key="ad.id">
               <!-- <div class="w-full flex justify-center">
@@ -224,21 +243,78 @@ onMounted(() => {
           />
         </div> -->
       <!-- </div> -->
-      <div class="w-[95%] min-h-[50vh] mx-auto bg-amber-500 rounded-xl m-4">
-        <p class="text-2xl text-gray-800 font-semibold p-6 w-full text-center">
+      <div
+        :class="
+          isPhone
+            ? 'w-[95%] min-h-[50vh] mx-auto flex flex-col justify-center items-center  m-4'
+            : 'w-[95%] min-h-[50vh] mx-auto bg-amber-500 rounded-xl m-4'
+        "
+      >
+        <p class="text-2xl text-gray-800 font-semibold pb-12 pt-4 w-full text-center">
           Sections on the S'LX service
         </p>
 
-        <ul class="flex flex-wrap items-center gap-12 p-8">
-          <li
-            @click="getValueOf(ad.value)"
-            v-for="ad in adType"
-            :key="ad.title"
-            class="flex flex-col items-center justify-center gap-3 bg-amber-500 rounded-full p-4"
-          >
-            <Icon :icon="ad.icon" width="34" height="34" />{{ ad.title }}
+        <ul
+          v-if="isLaptop"
+          :class="
+            isPhone
+              ? 'w-full    p-0'
+              : 'w-full flex flex-wrap justify-start items-center gap-12 p-8'
+          "
+        >
+          <li @click="getValueOf(ad.value)" v-for="ad in adType" :key="ad.title">
+            <div
+              class="flex flex-col items-center justify-center gap-3 bg-amber-500 rounded-full p-4"
+            >
+              <Icon :icon="ad.icon" width="34" height="34" />{{ ad.title }}
+            </div>
           </li>
         </ul>
+        <Carousel
+          v-if="isPhone"
+          :opts="{
+            align: 'start',
+            loop: true,
+          }"
+          :plugins="[
+            Autoplay({
+              delay: 2000,
+            }),
+          ]"
+          class="relative w-full"
+        >
+          <div class="p-2">
+            <div class="absolute bottom-full right-[20%]">
+              <CarouselPrevious />
+              <CarouselNext />
+            </div>
+          </div>
+          <CarouselContent>
+            <CarouselItem
+              @click="getValueOf(ad.value)"
+              v-for="ad in adType"
+              :key="ad.title"
+              :class="
+                isPhone
+                  ? 'basis-1/3 flex flex-col items-center justify-center gap-3 p-4'
+                  : 'flex flex-col items-center justify-center gap-3 bg-amber-500 rounded-full p-4'
+              "
+            >
+              <div class="p-1">
+                <Card class="bg-transparent border-none shadow-none">
+                  <CardContent
+                    class="w-[100px] flex flex-col aspect-square items-center justify-center gap-3 p-1"
+                  >
+                    <div class="shadow p-2 rounded-full">
+                      <Icon :icon="ad.icon" width="34" height="34" />
+                    </div>
+                    {{ ad.title }}
+                  </CardContent>
+                </Card>
+              </div>
+            </CarouselItem>
+          </CarouselContent>
+        </Carousel>
       </div>
 
       <!-- Anouncement section -->

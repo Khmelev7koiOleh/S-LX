@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
 import { ref, watch } from 'vue'
+import { useWindowSize } from '@/composables/useWindowSize'
+
+const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
 
 const props = defineProps<{
   modelValue: string
