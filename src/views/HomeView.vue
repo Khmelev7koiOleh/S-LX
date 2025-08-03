@@ -52,16 +52,10 @@ interface adType {
   type: string
 }
 
-// interface Instrument {
-//   id: number
-//   name: string
-// }
 const filterStore = useFilterStore()
 
 const { selectedCategory } = toRefs(filterStore)
 const clickStore = useClickFunctionStore() // Access the store
-
-// const instruments = ref<Instrument[] | null>([])
 
 const searchQuery = ref<string>('')
 
@@ -74,29 +68,9 @@ const filteredAds = computed(() => {
     )
   } else {
     return []
-    // Return an empty array instead of an empty string
   }
 })
 
-// async function getInstruments() {
-//   const { data } = await supabase.from('instruments').select()
-//   instruments.value = data
-// }
-
-// const addToAds = async () => {
-//   const { error, data } = await supabase.from('ads').insert({
-//     title: 'test',
-//     description: 'test description',
-//     price: '300',
-//     discount: '30',
-//     if_discount: true,
-//   })
-//   if (error) {
-//     console.error('Fehler beim Speichern:', error)
-//   } else {
-//     console.log('Gespeichert:', data)
-//   }
-// }
 const PopularComponentData = ref([
   {
     img: 'https://www.olx.ua/app/static/media/olx_category.f0c6831ac.svg',
@@ -149,23 +123,12 @@ const randomReducedAds = computed(() => {
 })
 
 onMounted(() => {
-  // addToAds()
-  // getInstruments()
-
   console.log(ads)
 })
 </script>
 
 <template>
   <main class="bg-gray-100">
-    <!-- <div class="p-4">
-      <p>Width: {{ width }}px</p>
-      <p>Height: {{ height }}px</p>
-
-      <p v-if="isPhone">You're on a phone 📱</p>
-      <p v-else-if="isTablet">You're on a tablet 💻</p>
-      <p v-else-if="isLaptop">You're on a laptop 💻</p>
-    </div> -->
     <div class="w-[100%]">
       <div
         :class="
@@ -185,9 +148,6 @@ onMounted(() => {
             "
           >
             <li v-for="ad in filteredAds" :key="ad.id">
-              <!-- <div class="w-full flex justify-center">
-              <div class="border-b w-2/2"></div>
-            </div> -->
               <RouterLink :to="`/ad/${ad.id}`">
                 <AdCard
                   :title="ad.title"
@@ -230,19 +190,7 @@ onMounted(() => {
       >
         <UploadAd />
       </div>
-      <div></div>
-      <!-- <div class="flex"> -->
-      <!-- <div v-for="ad in selectedCategory" :key="ad.id">
-          <AdCard
-            :title="ad.title"
-            :description="ad.description"
-            :price="ad.price"
-            :id="ad.id"
-            :img="ad.img || ''"
-            :type="ad.type"
-          />
-        </div> -->
-      <!-- </div> -->
+
       <div
         :class="
           isPhone
@@ -361,10 +309,6 @@ onMounted(() => {
           <div v-for="shard in PopularComponentData" :key="shard.title" class="w-1/2 flex">
             <PopularSomethigComponent :img="shard.img" :title="shard.title" :data="shard.data" />
           </div>
-
-          <!-- <div class="max-w-1/2">
-            <PopularSomethigComponent />
-          </div> -->
         </div>
         <AdvertisementBanner />
       </div>
@@ -393,3 +337,4 @@ onMounted(() => {
     </div>
   </footer>
 </template>
+<style scoped></style>
