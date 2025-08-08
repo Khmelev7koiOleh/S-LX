@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref, toRefs } from 'vue'
 import { signUp } from '@/composables/sign-up'
 import { signIn } from '@/composables/sign-in'
 import { useGetUserStore } from '@/stores/current-user-store'
@@ -8,6 +8,7 @@ import { useRouter } from 'vue-router'
 import Button from '@/components/ui/button/Button.vue'
 
 const userStore = useGetUserStore()
+const { backendError } = toRefs(userStore)
 const name = ref('')
 const email = ref('')
 const password = ref('')
@@ -23,6 +24,7 @@ const handleSignIn = () => {
   userStore.signIn(email.value, password.value, router)
 }
 const handleSignSwitch = (val: string) => {
+  backendError.value = []
   if (val === 'sign-up') {
     isSignUp.value = true
     isSignIn.value = false
@@ -40,6 +42,9 @@ const handleLogin = () => {
     handleSignIn()
   }
 }
+onMounted(() => {
+  backendError.value = []
+})
 </script>
 <template>
   <div class="w-[100vw] h-[100vh] flex justify-center items-center bg-gray-100">
@@ -75,6 +80,7 @@ const handleLogin = () => {
 
       <div class="w-full h-full flex flex-col justify-center items-center gap-4 shadow rounded-xl">
         <div class="w-[70%] flex flex-col gap-6 items-center justify-center absolute bottom-1/3">
+          <div class="text-red-400 text-xl" v-if="backendError.length">{{ backendError }}</div>
           <input
             v-if="isSignUp"
             v-model="name"

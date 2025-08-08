@@ -7,22 +7,23 @@ import { Icon } from '@iconify/vue'
 // Props
 const props = defineProps<{
   modelValue: string
+  showPicker?: boolean
 }>()
 
 // Emits
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
-}>()
-const showPicker = ref(false)
+const emit = defineEmits(['update:modelValue', 'update:showPicker'])
+const togglePicker = () => {
+  emit('update:showPicker', !props.showPicker)
+}
+
 const onEmojiClick = (emoji: any) => {
   const newMessage = props.modelValue + emoji.i
   emit('update:modelValue', newMessage)
-  showPicker.value = false
 }
 </script>
 <template>
   <div>
-    <button @click="showPicker = !showPicker" class="px-2 py-1 rounded cursor-pointer">
+    <button @click="togglePicker()" class="px-2 py-1 rounded cursor-pointer">
       <Icon
         icon="proicons:emoji-laughter"
         width="30"
@@ -31,7 +32,7 @@ const onEmojiClick = (emoji: any) => {
       />
     </button>
 
-    <div v-if="showPicker" class="absolute bottom-full mb-2 left-0 z-50">
+    <div v-if="props.showPicker" class="absolute bottom-full mb-2 left-0 z-50">
       <EmojiPicker @select="onEmojiClick" />
     </div>
   </div>

@@ -1,6 +1,6 @@
 export const navLinks = [
-  { title: 'Home', path: '/', icon: 'mdi:home' },
-  { title: 'Chats', path: '/chats', icon: 'quill:chat' },
-  { title: 'About', path: '/about', icon: 'mdi:magnify' },
-  { title: 'Favorites', path: '/favorites', icon: 'mdi:heart-outline' },
+  { title: 'Home', path: '/', icon: 'mdi:home-outline', icon_hover: 'mdi:home' },
+  { title: 'Chats', path: '/chats', icon: 'mdi:chat-outline', icon_hover: 'mdi:chat' },
+  { title: 'About', path: '/about', icon: 'mdi:magnify', icon_hover: 'dashicons:search' },
+  { title: 'Favorites', path: '/favorites', icon: 'mdi:heart-outline', icon_hover: 'mdi:heart' },
 ]

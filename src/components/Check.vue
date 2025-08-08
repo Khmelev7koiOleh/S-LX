@@ -39,7 +39,8 @@ const error = ref<string>('')
 const fullSize = ref<boolean>(false)
 const fullSizeVal = ref<string>('')
 const chatContainer = ref<HTMLElement | null>(null)
-const showPicker = ref(false)
+const showPickerMessage = ref(false)
+const showPickerImg = ref(false)
 const onRoomSettingsOpen = ref<boolean>(false)
 const onDeleteRoomConfirmation = ref<boolean>(false)
 
@@ -96,6 +97,7 @@ const sendMessage = async (room_id, sender_id, text) => {
   } else {
     message.value = ''
     errorMessage.value = ''
+    showPickerMessage.value = false
   }
 }
 const onIsEditPanelOpen = (message: string) => {
@@ -281,7 +283,13 @@ onMounted(() => {
           </div>
           <img v-if="fileUrl" :src="fileUrl" alt="Selected image" class="w-50 h-50 object-cover" />
           <div class="flex justify-center items-center gap-4 relative">
-            <div class=""><EmojiMessageComponent v-model="picDescription" /></div>
+            <div class="">
+              <EmojiMessageComponent
+                v-model="picDescription"
+                :showPicker="showPickerImg"
+                @update:showPicker="(val: boolean) => (showPickerImg = val)"
+              />
+            </div>
             <textarea
               @keydown.enter="file !== null ? sendPhoto(id, user.id, file, picDescription) : null"
               type="text"
@@ -292,7 +300,7 @@ onMounted(() => {
             ></textarea>
 
             <div class="w-[40px] h-[40px]">
-              <div v-if="picDescription.length > 0" class="flex justify-center items-center">
+              <div class="flex justify-center items-center">
                 <Button
                   :disabled="!fileUrl"
                   @click="
@@ -313,13 +321,13 @@ onMounted(() => {
       <RouterLink :to="'/user-profile/' + otherUserId">
         <!-- some picum pic -->
         <div class="flex justify-start items-center gap-4 px-8 py-1">
-          <div>
+          <div class="w-[50px] h-[50px]">
             <img
               :src="othreUser?.img"
               alt=""
               width="50"
               height="50"
-              class="border border-black w-[50px] h-[50px] rounded-full"
+              class="border border-black w-[50px] h-[50px] object-cover rounded-full"
             />
           </div>
           <div>
@@ -331,12 +339,12 @@ onMounted(() => {
         <!-- Delete this ad
       <Icon icon="mdi:trash-can" class="w-[20px] h-[20px] text-red-500" /> -->
         <ConfirmDialog
-          message="Are you sure you want to delete this ad?"
+          message="Are you sure you want to delete this chat?"
           confirmText="Delete"
           cancelText="Cancel"
-          item="ad"
+          item="chat"
           icon="mdi:dots-vertical"
-          @confirm="() => deleteRoom(id)"
+          @confirm="() => deleteRoom(id as string)"
           @cancel="handleCancel"
         />
       </Button>
@@ -431,8 +439,8 @@ onMounted(() => {
                 <div
                   :class="
                     fullSize && item.id == fullSizeVal
-                      ? ' w-[100vh] h-[100vh] flex justify-center items-center   '
-                      : ' w-full h-fit flex justify-end items-center break-words '
+                      ? ' w-[100vh] h-[100vh] flex justify-center items-center bg-black  '
+                      : ' w-full h-fit flex justify-end items-center break-words  bg-black '
                   "
                 >
                   <img
@@ -441,7 +449,7 @@ onMounted(() => {
                     alt=""
                     :class="
                       fullSize && item.id == fullSizeVal
-                        ? ' min-w-[60%] min-h-[60%] w-fit h-fit max-w-[80vw] max-h-[80vh] object-cover flex justify-center items-center relative rounded-sm '
+                        ? ' min-w-[60%] min-h-[60%] w-fit h-fit max-w-[80vw] max-h-[80vh] object-cover flex justify-center items-center relative rounded-sm  '
                         : 'min-w-[500px] min-h-[500px]  w-fit h-fit max-w-[500px] max-h-[500px] object-cover flex justify-center items-center rounded-sm break-words '
                     "
                   />
@@ -462,9 +470,9 @@ onMounted(() => {
               <div
                 v-if="!fullSize || item.id !== fullSizeVal"
                 :class="
-                  item.pic !== null
-                    ? ' px-6 py-1 w-fit max-w-[500px] break-words'
-                    : 'px-6 py-1 w-fit max-w-[800px] break-words'
+                  item.pic !== null && item.sender_id === user.id
+                    ? ' px-6 w-fit max-w-[500px] break-words self-end  rounded-sm'
+                    : 'px-6 py-1 w-fit max-w-[800px] break-words  self-start rounded-sm'
                 "
               >
                 {{ item.content }}
@@ -494,7 +502,14 @@ onMounted(() => {
             class="w-[34px] h-[34px] text-black cursor-pointer"
           />
         </div>
-        <div class=""><EmojiMessageComponent v-model="message" /></div>
+
+        <div class="">
+          <EmojiMessageComponent
+            :showPicker="showPickerMessage"
+            v-model="message"
+            @update:showPicker="(val: boolean) => (showPickerMessage = val)"
+          />
+        </div>
 
         <textarea
           @keydown.enter="sendMessage(id, user.id, message)"

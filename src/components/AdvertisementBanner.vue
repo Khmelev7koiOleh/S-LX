@@ -4,7 +4,13 @@
       <div>
         <img src="/public/logo.png" alt="" width="150" height="150" />
       </div>
-      <p class="max-w-[55%] font-cursive text-center text-sm font-normal">
+      <p
+        :class="
+          isPhone
+            ? 'max-w-[100%] font-cursive text-center text-sm font-normal'
+            : 'max-w-[50%] font-cursive text-center text-md font-normal'
+        "
+      >
         All online classifieds in Ukraine on S'LX - here you will find what you are looking for! By
         clicking on the Post a Classifieds button, you can post an ad on any topic quickly and
         easily. With S'LX, you can buy or sell almost anything from hand to hand.
@@ -24,6 +30,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
+import { useWindowSize } from '@/composables/useWindowSize'
+
+const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
 
 const mediaIcons = ref([
   {

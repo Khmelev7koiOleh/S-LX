@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, toRefs } from 'vue'
+import { ref, onMounted, computed, toRefs, handleError } from 'vue'
 import { Icon } from '@iconify/vue'
 import {
   Accordion,
@@ -34,11 +34,13 @@ import {
 } from '@/components/ui/carousel'
 import Autoplay from 'embla-carousel-autoplay'
 
+import { useGetAdCategory } from '../composables/get-ad-category'
+
 const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
 
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
-
+const { getValueOf } = useGetAdCategory()
 const router = useRouter()
 const { ads } = getAllAds()
 
@@ -108,12 +110,6 @@ const lorem = ref([
   },
 ])
 
-const getValueOf = (ref: string) => {
-  console.log(ref)
-  selectedCategory.value = ref
-  router.push(`/about/`)
-}
-
 function clickFunction() {
   clickStore.isClicked = !clickStore.isClicked // Call the action to toggle isClicked
 }
@@ -121,7 +117,9 @@ function clickFunction() {
 const randomReducedAds = computed(() => {
   return ads.value.slice(0, 12).sort(() => Math.random() - 0.5)
 })
-
+const handleCategory = (category: string) => {
+  getValueOf(category)
+}
 onMounted(() => {
   console.log(ads)
 })
@@ -143,8 +141,8 @@ onMounted(() => {
             v-if="searchQuery"
             :class="
               isPhone
-                ? ' w-[58%] h-[40%] fixed mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-2 z-10'
-                : ' w-[48%] h-[40%] fixed mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-2 z-10'
+                ? ' w-[100%] h-[29vh] absolute mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-2 z-10'
+                : ' w-[100%] h-[29vh] absolute mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-2 z-10'
             "
           >
             <li v-for="ad in filteredAds" :key="ad.id">
@@ -156,7 +154,7 @@ onMounted(() => {
                   :id="ad.id"
                   :img="ad.img[0] || ''"
                   :type="ad.type"
-                  :h_size="'50px'"
+                  :h_size="'70px'"
                   :size="'100px'"
                   :horisontal="false"
                   :col="false"
@@ -184,8 +182,8 @@ onMounted(() => {
       <div
         :class="
           clickStore.isClicked
-            ? 'fixed top-1/3 right-0 translate-0 transition-all duration-500 ease-in-out'
-            : 'fixed top-1/3 right-0 translate-x-full transition-all duration-500 easy-in-out'
+            ? 'absolute top-[25%] right-0 translate-0 transition-all duration-500 ease-in-out z-10'
+            : 'absolute top-[25%] right-0 translate-x-full transition-all duration-500 easy-in-out z-10'
         "
       >
         <UploadAd />
@@ -210,7 +208,7 @@ onMounted(() => {
               : 'w-full flex flex-wrap justify-start items-center gap-12 p-8'
           "
         >
-          <li @click="getValueOf(ad.value)" v-for="ad in adType" :key="ad.title">
+          <li @click="handleCategory(ad.value)" v-for="ad in adType" :key="ad.title">
             <div
               class="flex flex-col items-center justify-center gap-3 bg-amber-500 rounded-full p-4"
             >
@@ -295,7 +293,7 @@ onMounted(() => {
                 :created_at="ad.created_at"
                 :if_favorite="true"
                 :user_name="ad.user_name"
-                @navigate="(id) => router.push(`/ad/${id}`)"
+                @navigate="(id: string) => router.push(`/ad/${id}`)"
               />
             </RouterLink>
           </li>

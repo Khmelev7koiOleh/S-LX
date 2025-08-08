@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ref, toRefs, onMounted, watchEffect } from 'vue'
+import { ref, toRefs, onMounted, watch, computed } from 'vue'
 
 import { supabase } from '@/lib/supabaseClient'
 import { useClickFunctionStore } from '@/stores/click-function-store'
 import { useGetUserStore } from '@/stores/current-user-store'
 import { adType } from '@/data/ad-type'
+import { Icon } from '@iconify/vue'
+import { Button } from '@/components/ui/button'
 
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
@@ -20,7 +22,8 @@ const type = ref<string>('')
 const files = ref<File[]>([])
 // const file = ref<File | null>(null)
 const imageUrl = ref<string>('')
-
+const uploadError = ref<string>('')
+const fileInputRef = ref<HTMLInputElement | null>(null)
 // Bild auswählen
 const onFileChange = (e: Event) => {
   const target = e.target as HTMLInputElement
@@ -70,6 +73,7 @@ const handleUpload = async () => {
   if (insertError) {
     console.error('Fehler beim Speichern:', insertError.message)
   } else {
+    // reset()
     clickStore.isClicked = !clickStore.isClicked
     console.log('Anzeige gespeichert:', insertData)
   }
@@ -108,21 +112,53 @@ const handleUpload = async () => {
 //   clickStore.isClicked = !clickStore.isClicked
 //   console.log('Anzeige gespeichert:', insertData)
 // }
-
-const typeValue = (ref: string) => {
-  console.log(ref)
-  type.value = ref
+const disabledComputed = computed(() => {
+  if (title.value && description.value && price.value && type.value && files.value.length) {
+    return true
+  } else {
+    return false
+  }
+})
+const reset = () => {
+  title.value = ''
+  description.value = ''
+  price.value = ''
+  discount.value = ''
+  if_discount.value = false
+  type.value = ''
+  files.value = []
+  imageUrl.value = ''
+  uploadError.value = ''
+  if (fileInputRef.value) {
+    fileInputRef.value.value = ''
+  }
+}
+const closeAndReset = () => {
+  clickStore.isClicked = !clickStore.isClicked
+  reset()
 }
 
-// watchEffect(() => {
-//   console.log(type.value)
-// })
+const typeValue = (ref: string) => {
+  type.value = ref
+}
+watch(if_discount, () => {
+  if (if_discount.value === false) {
+    discount.value = ''
+  }
+})
 </script>
 
 <template>
   <div
-    class="p-8 space-y-2 flex flex-col max-w-[80%] mx-auto bg-gray-900 rounded-2xl h-full overflow-auto"
+    class="p-8 space-y-2 flex flex-col max-w-[80%] mx-auto bg-gray-900 rounded-2xl h-full overflow-auto relative"
   >
+    <button
+      @click="closeAndReset()"
+      class="absolute top-4 left-4 text-gray-200 placeholder:gray-200"
+    >
+      <Icon icon="material-symbols:arrow-back" width="24" height="24" />
+    </button>
+    <br />
     <input
       v-model="title"
       type="text"
@@ -130,12 +166,14 @@ const typeValue = (ref: string) => {
       class="w-full p-2 border rounded text-gray-200 placeholder:gray-200"
     />
 
-    <input
+    <textarea
       v-model="description"
+      :rows="description.length > 30 ? 3 : 1"
       type="text"
       placeholder="Description"
       class="w-full p-2 border rounded text-gray-200 placeholder:gray-200"
-    />
+    >
+    </textarea>
 
     <input
       v-model="price"
@@ -145,7 +183,7 @@ const typeValue = (ref: string) => {
     />
 
     <div class="flex gap-2">
-      <p class="text-gray-200 placeholder:gray-200">If Discount</p>
+      <p class="text-gray-200 placeholder:gray-200">Add Discount</p>
 
       <input
         v-model="if_discount"
@@ -156,9 +194,10 @@ const typeValue = (ref: string) => {
     </div>
 
     <input
+      v-if="if_discount"
       v-model="discount"
       type="text"
-      placeholder="Discount"
+      placeholder="Discount price"
       class="w-full p-2 border rounded text-gray-200 placeholder:gray-200"
     />
     <select
@@ -167,6 +206,7 @@ const typeValue = (ref: string) => {
       placeholder="Type"
       class="w-full p-2 border rounded text-gray-200 placeholder:gray-200"
     >
+      <option disabled value="">Select type</option>
       <option v-for="tp in adType" :key="tp.value" :value="tp.value">
         {{ tp.title }}
       </option>
@@ -179,11 +219,25 @@ const typeValue = (ref: string) => {
         class="w-48 h-auto mt-2 rounded text-gray-200 placeholder:gray-200"
       />
     </div>
-    <input type="file" multiple @change="onFileChange" class="text-gray-200 placeholder:gray-200" />
-
+    <input
+      ref="fileInputRef"
+      type="file"
+      multiple
+      @change="onFileChange"
+      class="text-gray-200 placeholder:gray-200"
+    />
+    <div v-if="uploadError !== '' && !disabledComputed" class="text-center text-md text-red-400">
+      {{ uploadError }}
+    </div>
     <button
-      @click="handleUpload"
-      class="bg-blue-500 px-4 py-2 rounded text-gray-200 placeholder:gray-200"
+      type="submit"
+      :disabled="!disabledComputed"
+      @click="[handleUpload(), (uploadError = 'All fields are required')]"
+      :class="
+        disabledComputed
+          ? 'bg-blue-500 px-4 py-2 rounded text-gray-200 placeholder:gray-200 cursor-pointer'
+          : 'bg-gray-500 px-4 py-2 rounded text-gray-200 placeholder:gray-200'
+      "
     >
       Upload & Save
     </button>

@@ -30,6 +30,7 @@ const message = ref('')
 const router = useRouter()
 const route = useRoute()
 const ad = ref<AdsType | null>(null)
+const showPicker = ref<boolean>(false)
 
 const goToChat = (chat: any) => {
   console.log(chat)
@@ -45,7 +46,7 @@ async function sendMessage(room_id: string, sender_id: string, text: string) {
       content: text,
     },
   ])
-
+  showPicker.value = false
   if (error) console.error('Nachricht konnte nicht gesendet werden:', error)
 }
 const theMessages = ref<any[] | null>(null)
@@ -151,7 +152,14 @@ onMounted(async () => {
     </div>
     <div class="w-full absolute bottom-0 left-0 bg-white shadow">
       <div class="w-full flex justify-start items-center gap-2 p-1 px-2">
-        <div class=""><EmojiMessageComponent v-model="message" /></div>
+        <div class="">
+          <EmojiMessageComponent
+            v-model="message"
+            :showPicker="showPicker"
+            @update:showPicker="(val: boolean) => (showPicker = val)"
+          />
+        </div>
+
         <textarea
           @keydown.enter="sendMessage(data.room_id, user.id, message)"
           type="text"

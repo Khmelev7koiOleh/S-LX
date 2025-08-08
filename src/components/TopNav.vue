@@ -18,7 +18,9 @@ import {
 import { useGetUserStore } from '@/stores/current-user-store'
 
 import { useWindowSize } from '@/composables/useWindowSize'
-
+import { useMenuOpenStore } from '@/stores/menu-open-store'
+const menuOpenStore = useMenuOpenStore()
+const { onMenuOpen } = toRefs(menuOpenStore)
 const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
@@ -26,24 +28,18 @@ const props = defineProps(['data'])
 
 const { data } = toRefs(props)
 const router = useRouter()
+const isHovered = ref<string | null | boolean>(null)
+// add store for onMenuOpen
 
-// add store for onMenuOpen
-// add store for onMenuOpen
-// add store for onMenuOpen
-// add store for onMenuOpen
-// add store for onMenuOpen
-// add store for onMenuOpen
-// add store for onMenuOpen
-// add store for onMenuOpen
-const onMenuOpen = ref<boolean>(false)
 const handleSignOut = () => {
   userStore.signOut(router)
+  onMenuOpen.value = false
 }
 const burgerMenuComputed = computed(() => {
   if (!isPhone.value) {
     return 'flex flex-row items-center gap-3'
   } else if (isPhone.value && onMenuOpen.value) {
-    return 'w-[100vw] h-[100vh] fixed  flex flex-col justify-start items-center gap-3 bg-gray-900 z-10 py-[20%]'
+    return 'w-[100vw] h-[100vh] fixed  flex flex-col justify-start items-center gap-10 bg-gray-900 z-10 py-[20%] '
   } else if (isPhone.value && !onMenuOpen.value) {
     return 'hidden'
   }
@@ -58,6 +54,7 @@ watch(onMenuOpen, (val) => {
 </script>
 
 <template>
+  <!-- add numbers to the favorite and chats (how many chats and favorited ads are there) -->
   <div class="w-full flex justify-around bg-[#07242f]">
     <RouterLink :to="{ name: 'home' }" class="flex items-center justify-center gap-3">
       <div class="flex items-center gap-1">
@@ -96,10 +93,22 @@ watch(onMenuOpen, (val) => {
           class="text-white"
         />
       </div>
-      <div v-for="item in data" :key="item.url">
+      <div
+        v-for="item in data"
+        :key="item.url"
+        class="w-full flex flex-col justify-center items-center"
+        @mouseenter="isHovered = item.title"
+        @mouseleave="isHovered = null"
+      >
         <RouterLink @click="onMenuOpen = false" :to="item.path">
-          <Button class="w-full flex items-center p-2 gap-1 text-white rounded-lg">
-            <Icon :icon="item.icon" width="24" height="24" />{{ item.title }}
+          <Button
+            class="w-full flex items-center p-2 gap-1 text-white rounded-lg hover:shadow-sm hover:shadow-white"
+          >
+            <Icon
+              :icon="isHovered === item.title ? item.icon_hover : item.icon"
+              width="24"
+              height="24"
+            />{{ item.title }}
           </Button>
         </RouterLink>
       </div>
@@ -114,14 +123,27 @@ watch(onMenuOpen, (val) => {
         <DropdownMenu>
           <DropdownMenuTrigger
             ><Button
-              ><Icon icon="mdi:account" width="24" height="24" class="text-white" /> Profile</Button
+              @mouseenter="isHovered = true"
+              @mouseleave="isHovered = false"
+              class="hover:shadow-sm hover:shadow-white"
+              ><Icon
+                :icon="isHovered === true ? 'mdi:account' : 'mdi:account-outline'"
+                width="24"
+                height="24"
+                class="text-white"
+              />
+              Profile</Button
             ></DropdownMenuTrigger
           >
           <DropdownMenuContent>
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <RouterLink :to="{ name: 'profile' }" class="flex items-center justify-start gap-2">
+              <RouterLink
+                @click="onMenuOpen = false"
+                :to="{ name: 'profile' }"
+                class="flex items-center justify-start gap-2"
+              >
                 <Avatar>
                   <AvatarImage :src="user.img" alt="@unovue" />
                   <AvatarFallback>CN</AvatarFallback>

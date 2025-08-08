@@ -348,7 +348,13 @@ onMounted(async () => {
           <RouterLink :to="'/user-profile/' + userData.id">
             <div class="w-full flex flex-col justify-center items-start">
               <div class="flex justify-center items-center">
-                <img :src="userData.img" alt="" class="w-10 h-10 rounded-full" />
+                <img
+                  :src="userData.img"
+                  alt=""
+                  width="12"
+                  height="12"
+                  class="w-12 h-12 object-cover rounded-full"
+                />
 
                 <div class="text-xl px-4 py-1">{{ userData.name }}</div>
               </div>

@@ -15,7 +15,7 @@ const props = defineProps<{
   title: string
   description: string
   img: string
-  price: string
+  price: number
   id: string | number
   user_name: string
   created_at: string | undefined

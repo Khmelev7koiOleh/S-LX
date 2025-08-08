@@ -16,10 +16,13 @@ export const useGetUserStore = defineStore(
       tel: '',
     })
 
+    const backendError = ref<string[]>([])
+
     const signOut = async (router: any) => {
       // signout
       const { error } = await supabase.auth.signOut()
       if (error) {
+        backendError.value = [error.message]
         console.error('signout failed:', error.message)
       } else {
         user.value = {
@@ -60,6 +63,7 @@ export const useGetUserStore = defineStore(
       })
 
       if (error) {
+        backendError.value = [error.message]
         console.error('Login failed:', error.message)
       } else {
         const currentUser = await supabase.auth.getUser()
@@ -86,6 +90,7 @@ export const useGetUserStore = defineStore(
       })
 
       if (error) {
+        backendError.value = [error.message]
         console.error('Login failed:', error.message)
       } else {
         const currentUser = await supabase.auth.getUser()
@@ -130,7 +135,7 @@ export const useGetUserStore = defineStore(
         router.push('/')
       }
     }
-    return { user, signIn, signUp, signOut }
+    return { user, signIn, signUp, signOut, backendError }
   },
   { persist: true },
 )

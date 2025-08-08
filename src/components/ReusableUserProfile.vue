@@ -295,8 +295,10 @@ onUnmounted(() => {
                  one
                  -->
                 <div class="flex justify-start items-center">
+                  <!-- not i + 1 -->
                   <Icon
                     v-for="(icon, i) in computedStars"
+                    @click="rateUser(info.id, user.id, i + 1)"
                     :key="i"
                     :icon="icon"
                     width="24"
