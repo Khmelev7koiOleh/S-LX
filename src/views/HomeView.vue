@@ -180,6 +180,7 @@ onMounted(() => {
       </div>
 
       <div
+        v-if="clickStore.isClicked"
         :class="
           clickStore.isClicked
             ? 'absolute top-[25%] right-0 translate-0 transition-all duration-500 ease-in-out z-10'
@@ -267,7 +268,11 @@ onMounted(() => {
       <div>
         <h2 class="text-3xl w-full text-center p-12">VIP-Announcements</h2>
         <ul
-          class="w-full grid sm:justify-center sm:items-center md:grid-cols-4 sm:gap-8 md:gap-4 sm-p-4 md:p-20"
+          :class="
+            isPhone
+              ? ' w-full grid grid-cols-2 justify-center items-center gap-8 p-4'
+              : ' w-full grid grid-cols-4 gap-4 p-20'
+          "
         >
           <li v-for="ad in randomReducedAds" :key="ad.id">
             <RouterLink :to="`/ad/${ad.id}`">
