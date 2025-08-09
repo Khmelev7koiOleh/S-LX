@@ -142,7 +142,7 @@ onMounted(() => {
             :class="
               isPhone
                 ? ' w-[100%] h-[29vh] absolute mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-2 z-10'
-                : ' w-[100%] h-[29vh] absolute mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-2 z-10'
+                : ' w-[100%] h-[29vh] absolute mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-2 z-10 '
             "
           >
             <li v-for="ad in filteredAds" :key="ad.id">
@@ -270,8 +270,8 @@ onMounted(() => {
         <ul
           :class="
             isPhone
-              ? ' w-full grid grid-cols-2 justify-center items-center gap-8 p-4'
-              : ' w-full grid grid-cols-4 gap-4 p-20'
+              ? ' w-full grid grid-cols-2 justify-center items-center gap-4 mx-auto p-2 '
+              : ' w-full grid grid-cols-4 gap-4 p-20 justify-center items-center'
           "
         >
           <li v-for="ad in randomReducedAds" :key="ad.id">

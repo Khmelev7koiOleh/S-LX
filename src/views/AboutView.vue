@@ -8,87 +8,99 @@ import AdCard from '../components/AdCard.vue'
 
 import { adType } from '@/data/ad-type'
 
+import { useWindowSize } from '@/composables/useWindowSize'
+import ReusableFilterComponent from '@/components/reusable/ReusableFilterComponent.vue'
+import type { AdsType } from '@/types/ads-type'
+
+const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
+
 const filterStore = useFilterStore()
 
 const { selectedCategory } = toRefs(filterStore)
 
 const ads = ref<any[]>([])
 const searchQuery = ref<string>('')
+const filteredAds = ref<any[]>([])
+// const onFilterOpen = ref<boolean>(false)
 
-const onFilterOpen = ref<boolean>(false)
-
-const filterCreatedAt = ref<boolean>(false)
-const filterPrice = ref<boolean>(false)
+// const filterCreatedAt = ref<boolean>(false)
+// const filterPrice = ref<boolean>(false)
 
 // Fetch data
 const getAds = async () => {
   const { data, error } = await supabase.from('ads').select('*')
   if (!error && data) {
-    ads.value = data.sort((a, b) => {
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    })
-
-    console.log(data)
+    return (ads.value = shuffleArray(data))
   }
 }
-const filteredItems = computed(() => {
-  let result = [...ads.value]
-  if (searchQuery.value.trim()) {
-    const query = searchQuery.value.toLowerCase()
-    result = result.filter(
-      (ad) =>
-        ad.title.toLowerCase().includes(query) || ad.description.toLowerCase().includes(query),
-    )
-  }
-  if (selectedCategory.value) {
-    result = result.filter((ad) => ad.type === selectedCategory.value)
-  }
 
-  if (filterCreatedAt.value) {
-    result = result.sort((a, b) => {
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    })
+// const shuffleArray = (data: any[]) => {
+//   return data.sort(() => Math.random() - 0.5)
+// }
+
+function shuffleArray(array: AdsType[]): AdsType[] {
+  const shuffled = [...array]
+
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
   }
-
-  if (filterPrice.value) {
-    result = result.sort((a, b) => b.price - a.price)
-  }
-
-  return result
-})
-
-const toggleCreatedAtSort = () => {
-  filterCreatedAt.value = !filterCreatedAt.value
-  filterPrice.value = false
+  return shuffled
 }
+// const filteredItems = computed(() => {
+//   let result = [...ads.value]
+//   if (searchQuery.value.trim()) {
+//     const query = searchQuery.value.toLowerCase()
+//     result = result.filter(
+//       (ad) =>
+//         ad.title.toLowerCase().includes(query) || ad.description.toLowerCase().includes(query),
+//     )
+//   }
+//   if (selectedCategory.value) {
+//     result = result.filter((ad) => ad.type === selectedCategory.value)
+//   }
 
-const togglePriceSort = () => {
-  filterPrice.value = !filterPrice.value
-  filterCreatedAt.value = false
-}
+//   if (filterCreatedAt.value) {
+//     result = result.sort((a, b) => {
+//       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+//     })
+//   }
 
-const filterRemove = () => {
-  console.log(filteredItems.value)
+//   if (filterPrice.value) {
+//     result = result.sort((a, b) => b.price - a.price)
+//   }
 
-  searchQuery.value = ''
-  selectedCategory.value = ''
-  filterCreatedAt.value = false
-  filterPrice.value = false
-}
+//   return result
+// })
+
+// const toggleCreatedAtSort = () => {
+//   filterCreatedAt.value = !filterCreatedAt.value
+//   filterPrice.value = false
+// }
+
+// const togglePriceSort = () => {
+//   filterPrice.value = !filterPrice.value
+//   filterCreatedAt.value = false
+// }
+
+// const filterRemove = () => {
+//   console.log(filteredItems.value)
+
+//   searchQuery.value = ''
+//   selectedCategory.value = ''
+//   filterCreatedAt.value = false
+//   filterPrice.value = false
+// }
 
 onMounted(async () => {
   await getAds()
-
-  // mapAds()
 })
 
-watch(searchQuery, (newQuery) => {
-  if (newQuery) {
-  }
-  // else {
-  //   filteredItems.value = ads.value
-  // }
-})
+// watch(searchQuery, (newQuery) => {
+//   if (newQuery) {
+//   }
+
+// })
 // watch(selectedCategory, (newQuery) => {
 //   if (newQuery) {
 //     filteredAdsByCategory(newQuery)
@@ -101,74 +113,23 @@ watch(searchQuery, (newQuery) => {
 <template>
   <div class="bg-gray-50">
     <!-- <h1 class="text-2xl px-4 py-2">All ads</h1> -->
-    <div class="w-full flex flex-col justify-start items-end gap-2 px-4 py-12">
-      <!-- <div class="w-full flex justify-end">
-      <button class="p-2 bg-fuchsia-500" @click="onFilterOpen = !onFilterOpen">Filter</button>
-    </div> -->
-      <div class="w-full flex justify-center items-center gap-2">
-        <div
-          class="w-[300px] flex justify-between text-gray-900 placeholder:text-amber-100 px-2 py-1 rounded-lg shadow shadow-gray-400"
-        >
-          <Icon
-            icon="mdi:magnify"
-            width="24"
-            height="24"
-            :class="searchQuery.length ? 'text-blue-400' : 'text-gray-900'"
-          />
-          <input
-            placeholder="Search"
-            type="text"
-            v-model="searchQuery"
-            :class="
-              onFilterOpen
-                ? ' focus:outline-none focus:ring-0 '
-                : ' focus:outline-none focus:ring-0 '
-            "
-          />
-        </div>
-
-        <select
-          v-model="selectedCategory"
-          class="shadow shadow-gray-400 text-gray-900 max-w-[300px] p-1 rounded-lg hover:bg-gray-200 cursor-pointer"
-        >
-          <option disabled value="">Select type</option>
-          <option v-for="type in adType" :key="type.value" :value="type.value">
-            {{ type.title }}
-          </option>
-        </select>
-        <div>
-          <button
-            class="w-[300px] flex justify-center shadow shadow-gray-400 text-gray-900 placeholder:text-amber-100 hover:bg-gray-200 cursor-pointer"
-            @click="toggleCreatedAtSort"
-          >
-            Date
-          </button>
-        </div>
-        <div>
-          <button
-            class="w-[300px] flex justify-center shadow shadow-gray-400 text-gray-900 placeholder:text-amber-100 hover:bg-gray-200 cursor-pointer"
-            @click="togglePriceSort"
-          >
-            Price
-          </button>
-        </div>
-
-        <div>
-          <button
-            class="w-[300px] flex justify-center shadow shadow-gray-400 text-gray-900 placeholder:text-amber-100 hover:bg-gray-200 cursor-pointer"
-            @click="filterRemove"
-          >
-            Remove Filter
-          </button>
-        </div>
-
-        <!-- <button @click="filteredAdsByPriceTwo()">click</button> -->
-      </div>
+    <div class="w-full px-4 py-8">
+      <ReusableFilterComponent
+        :items="ads"
+        v-model:searchQuery="searchQuery"
+        v-model:selectedCategory="selectedCategory"
+        @update:filteredItems="filteredAds = $event"
+      />
     </div>
-
-    <div class="p-20 w-full">
-      <div class="grid grid-cols-4 justify-center items-center gap-20">
-        <div v-for="ad in filteredItems" :key="ad.id">
+    <div :class="isPhone ? 'p-2 w-full ' : ' w-full px-[5%] '">
+      <div
+        :class="
+          isPhone
+            ? ' w-full grid grid-cols-2 justify-center items-center gap-4 mx-auto '
+            : ' w-full grid grid-cols-4 gap-4  justify-center items-center'
+        "
+      >
+        <div v-for="ad in filteredAds" :key="ad.id">
           <RouterLink :to="`/ad/${ad.id}`">
             <AdCard
               :title="ad.title"
@@ -179,10 +140,10 @@ watch(searchQuery, (newQuery) => {
               :if_discount="ad.if_discount"
               :discount="ad.discount"
               :type="ad.type"
-              :h_size="'200px'"
-              :size="'300px'"
-              :w_container="'300px'"
-              :h_container="'350px'"
+              :h_size="isPhone ? '120px' : '200px'"
+              :size="isPhone ? '180px' : '300px'"
+              :w_container="isPhone ? '180px' : '300px'"
+              :h_container="isPhone ? '250px' : '350px'"
               :horisontal="true"
               :col="true"
               :created_at="ad.created_at"

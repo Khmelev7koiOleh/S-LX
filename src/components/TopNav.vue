@@ -39,7 +39,7 @@ const burgerMenuComputed = computed(() => {
   if (!isPhone.value) {
     return 'flex flex-row items-center gap-3'
   } else if (isPhone.value && onMenuOpen.value) {
-    return 'w-[100vw] h-[100vh] fixed  flex flex-col justify-start items-center gap-10 bg-gray-900 z-10 py-[20%] '
+    return 'w-[100vw] h-[100vh] fixed  flex flex-col justify-start items-center gap-10 bg-gray-900 z-20 py-[20%] '
   } else if (isPhone.value && !onMenuOpen.value) {
     return 'hidden'
   }
