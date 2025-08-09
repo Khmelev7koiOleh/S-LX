@@ -21,7 +21,7 @@ const { user } = toRefs(userStore)
 
 const route = useRoute()
 const id = route.params.id
-const othreUser = ref(null)
+const othreUser = ref<any>(null)
 
 const messages = ref<any>([])
 const message = ref('')
@@ -322,8 +322,13 @@ onMounted(() => {
         <!-- some picum pic -->
         <div class="flex justify-start items-center gap-4 px-8 py-1">
           <div class="w-[50px] h-[50px]">
+            <!-- just an empty avatar if there is no image -->
             <img
-              :src="othreUser?.img"
+              :src="
+                othreUser?.img === null
+                  ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                  : othreUser?.img
+              "
               alt=""
               width="50"
               height="50"
@@ -331,7 +336,10 @@ onMounted(() => {
             />
           </div>
           <div>
-            <h1>{{ othreUser?.name }}</h1>
+            <h1>
+              {{ othreUser?.name }}
+              <p v-if="othreUser?.name === null">Anonymous</p>
+            </h1>
           </div>
         </div>
       </RouterLink>
