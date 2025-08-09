@@ -3,7 +3,7 @@ import ChatsComponent from '@/components/ChatsComponent.vue'
 </script>
 
 <template>
-  <div class="text-2xl font-semibold w-full text-center">My all chats</div>
+  <div class="text-2xl font-semibold w-full text-center p-4">My all chats</div>
   <ChatsComponent />
 </template>
 

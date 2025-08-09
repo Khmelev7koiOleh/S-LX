@@ -199,7 +199,16 @@ const getRoom = async () => {
   certainRoom.value = data
 }
 
-const otherUserId = computed(() => chat.participant_ids.find((id) => id !== user.value.id))
+const otherUserId = computed(() => {
+  if (
+    chat.participant_ids[0] === chat.participant_ids[1] &&
+    chat.participant_ids[0] === user.value.id
+  ) {
+    return chat.participant_ids.find((id) => id == user.value.id)
+  } else {
+    return chat.participant_ids.find((id) => id !== user.value.id)
+  }
+})
 
 const getUser = async (id: string) => {
   console.log(id)
