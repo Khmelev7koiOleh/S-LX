@@ -66,12 +66,12 @@ const cancel = () => {
       class="w-[34px] h-[34px] flex justify-center items-center cursor-pointer m-2"
       @click="toggle"
     >
-      <Icon :icon="icon || 'mdi:dots-vertical'" width="20" height="20" class="text-white" />
+      <Icon :icon="icon || 'mdi:dots-vertical'" width="20" height="20" class="text-black" />
     </button>
 
     <div
       v-if="isOpen"
-      class="absolute top-full right-8 w-fit bg-white shadow rounded-md px-4 py-2 z-50"
+      class="absolute top-full right-8 w-[300px] md:w-[300px] bg-white shadow rounded-md px-4 py-2 z-50 transform transition-all duration-1000"
     >
       <div v-if="!isConfirming" class="text-center transition-all transform duration-1000">
         <button

@@ -16,8 +16,8 @@ const props = defineProps<{
   title?: string
   description?: string
   img?: string
-  price?: string
-  id?: string | number
+  price?: number
+  id: string | number
   user_name?: string
   created_at?: string
   type?: string
@@ -46,18 +46,31 @@ const {
   discount,
 } = toRefs(props)
 
-const addToFavorites = async (val: any) => {
-  const { data, error } = await supabase.from('favorites').select('*').eq('ad_id', val.id)
+const addToFavorites = async (
+  title: string | undefined,
+  description: string | undefined,
+  img: string | undefined,
+  price: number | undefined,
+  id: string | number,
+  if_discount: boolean | undefined,
+  discount: string | undefined,
+) => {
+  console.log(title, description, img, price, id, if_discount, discount)
+  if (!id) return
+
+  const { data, error } = await supabase.from('favorites').select('*').eq('id', id)
   console.log(data)
   if (error) {
     console.log(error)
   }
 
   if (data?.length) {
+    console.log(id)
+    console.log('delete the favorite')
     const { data: dataDelete, error: errorDelete } = await supabase
       .from('favorites')
       .delete()
-      .eq('ad_id', val.id)
+      .eq('id', id)
     if (!errorDelete) {
       isFavorite.value = false
     } else {
@@ -65,15 +78,17 @@ const addToFavorites = async (val: any) => {
     }
   }
   if (!data?.length) {
+    console.log(id)
+    console.log('insert the favorite')
     const { data: dataCreate, error: errorCreate } = await supabase.from('favorites').insert({
       user_id: user.value.id,
-      ad_id: val.id,
-      img: val.img,
-      title: val.title,
-      description: val.description,
-      price: val.price,
-      if_discount: val.if_discount,
-      discount: val.discount,
+      id: id,
+      img: [img],
+      title: title,
+      description: description,
+      price: price,
+      if_discount: if_discount,
+      discount: discount,
     })
     if (!errorCreate) {
       isFavorite.value = true
@@ -83,12 +98,12 @@ const addToFavorites = async (val: any) => {
   }
 }
 
-const checkFavorites = async (ad_id: string) => {
+const getFavorites = async (id: string) => {
   // console.log(ad_id)
   const { data, error } = await supabase
     .from('favorites')
-    .select('ad_id')
-    .eq('ad_id', ad_id)
+    .select('id')
+    .eq('id', id)
     .eq('user_id', user.value.id)
     .maybeSingle()
 
@@ -100,30 +115,52 @@ const checkFavorites = async (ad_id: string) => {
   }
 }
 
-onMounted(() => {
-  checkFavorites(id.value as string)
+// function subscribeToRoom(id: string, callback: (newMessage: any) => void) {
+//   return supabase
+//     .channel(`favorites:user:${user.value.id}`)
+//     .on(
+//       'postgres_changes',
+//       {
+//         event: '*',
+//         schema: 'public',
+//         table: 'favorites',
+//         filter: `user_id=eq.${user.value.id}`,
+//       },
+//       (payload) => callback(payload.new),
+//     )
+//     .subscribe()
+// }
 
-  // const channel = supabase
-  //   .channel('favorites')
-  //   .on(
-  //     'postgres_changes',
-  //     {
-  //       event: '*',
-  //       schema: 'public',
-  //       table: 'favorites',
-  //       filter: `user_id=eq.${user.value.id}`,
-  //     },
-  //     () => checkFavorites(id.value as string),
-  //   )
-  //   .subscribe()
+onMounted(() => {
+  getFavorites(id.value as string)
+
+  supabase
+    .channel(`favorites:user:${user.value.id}`)
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'favorites',
+        filter: `user_id=eq.${user.value.id}`,
+      },
+      () => {
+        getFavorites(id.value as string)
+      },
+    )
+    .subscribe()
 })
 </script>
 
 <template>
-  <div class="bg-white"></div>
+  <div class="bg-white">
+    <!-- <Button @click.stop.prevent="getFavorites(id as string)"> click</Button> -->
+  </div>
   <div>
     <Button
-      @click.stop="addToFavorites(props)"
+      @click.stop.prevent="
+        addToFavorites(title, description, img, price, id, if_discount, discount)
+      "
       :class="
         isFavorite
           ? 'text-red-600 rounded-full w-8 h-8 bg-white hover:bg-white shadow '

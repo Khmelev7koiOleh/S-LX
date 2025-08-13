@@ -11,7 +11,7 @@ export function useGetAdCategory() {
     console.log(ref)
     selectedCategory.value = ref
     console.log(selectedCategory.value)
-    router.push(`/about/`)
+    router.push(`/ads/`)
   }
 
   return {

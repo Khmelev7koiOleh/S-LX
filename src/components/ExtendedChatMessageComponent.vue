@@ -13,7 +13,11 @@ import router from '@/router'
 
 const chatStore = useChatStore()
 
-const chat = chatStore.currentChat // Always available
+// write a type fot the chat const
+// write a type fot the chat const
+// write a type fot the chat const
+// write a type fot the chat const
+const chat: any = chatStore.currentChat // Always available
 console.log(chat, 'chat')
 
 const userStore = useGetUserStore()
@@ -201,12 +205,12 @@ const getRoom = async () => {
 
 const otherUserId = computed(() => {
   if (
-    chat.participant_ids[0] === chat.participant_ids[1] &&
-    chat.participant_ids[0] === user.value.id
+    chat?.participant_ids[0] === chat?.participant_ids[1] &&
+    chat?.participant_ids[0] === user.value.id
   ) {
-    return chat.participant_ids.find((id) => id == user.value.id)
+    return chat.participant_ids.find((id: string) => id == user.value.id)
   } else {
-    return chat.participant_ids.find((id) => id !== user.value.id)
+    return chat?.participant_ids.find((id: string) => id !== user.value.id)
   }
 })
 
