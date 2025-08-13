@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import DynamicId from '../components/DynamicId.vue'
+import DynamicAd from '../components/DynamicAd.vue'
 import ChatMessageComponent from '../components/ChatMessageComponent.vue'
 import HomeView from '../views/HomeView.vue'
-import Check from '../components/Check.vue'
+import Check from '../components/ExtendedChatMessageComponent.vue'
 import UserProfile from '../components/user-profile/UserProfile.vue'
 
 // import AboutView from '../views/AboutView.vue'
@@ -29,15 +29,15 @@ const router = createRouter({
     },
 
     {
-      path: '/about',
-      name: 'about',
+      path: '/ads',
+      name: 'ads',
 
-      component: () => import('../views/AboutView.vue'),
+      component: () => import('../views/AllAdsView.vue'),
     },
     {
       path: '/favorites',
       name: 'favorites',
-      component: () => import('../views/ContactView.vue'),
+      component: () => import('../views/FavoritesView.vue'),
     },
     {
       path: '/profile',
@@ -84,7 +84,7 @@ const router = createRouter({
     {
       path: '/ad/:id', // dynamic route
       name: 'AdDetail',
-      component: DynamicId,
+      component: DynamicAd,
       props: true,
     },
     {

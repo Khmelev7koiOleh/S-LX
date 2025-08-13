@@ -132,7 +132,7 @@ const justifyComputed = computed(() => {
           "
         >
           <div
-            class="min-w-[5rem] bg-amber-500 object-cover overflow-hidden h-full rounded-t-sm"
+            class="min-w-[5rem] bg-transparent object-cover overflow-hidden h-full rounded-t-sm"
             :style="{ width: size, height: h_size }"
           >
             <img
@@ -158,7 +158,7 @@ const justifyComputed = computed(() => {
               {{ description }}
             </p>
             <div v-if="if_favorite" class="absolute top-2 right-2">
-              <AddFavxoritesButton
+              <AddFavoritesButton
                 :title="title"
                 :description="description"
                 :id="id"

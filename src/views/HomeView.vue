@@ -270,11 +270,15 @@ onMounted(() => {
         <ul
           :class="
             isPhone
-              ? ' w-full grid grid-cols-2 justify-center items-center gap-4 mx-auto p-2 '
+              ? ' w-full  grid grid-cols-2 justify-center items-center gap-4  '
               : ' w-full grid grid-cols-4 gap-4 p-20 justify-center items-center'
           "
         >
-          <li v-for="ad in randomReducedAds" :key="ad.id">
+          <li
+            v-for="ad in randomReducedAds"
+            :key="ad.id"
+            class="w-full flex flex-col justify-center items-center"
+          >
             <RouterLink :to="`/ad/${ad.id}`">
               <AdCard
                 :title="ad.title"

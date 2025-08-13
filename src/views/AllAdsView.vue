@@ -125,18 +125,22 @@ onMounted(async () => {
       <div
         :class="
           isPhone
-            ? ' w-full grid grid-cols-2 justify-center items-center gap-4 mx-auto '
-            : ' w-full grid grid-cols-4 gap-4  justify-center items-center'
+            ? ' w-full grid grid-cols-2 justify-center items-center gap-4 '
+            : ' w-full grid grid-cols-4 gap-4 justify-center items-center'
         "
       >
-        <div v-for="ad in filteredAds" :key="ad.id">
+        <div
+          v-for="ad in filteredAds"
+          :key="ad.id"
+          class="w-full flex flex-col justify-center items-center"
+        >
           <RouterLink :to="`/ad/${ad.id}`">
             <AdCard
               :title="ad.title"
               :description="ad.description"
               :price="ad.price"
               :id="ad.id"
-              :img="ad.img[0] || ''"
+              :img="ad.img[0] ? ad.img[0] : ad.img || ''"
               :if_discount="ad.if_discount"
               :discount="ad.discount"
               :type="ad.type"

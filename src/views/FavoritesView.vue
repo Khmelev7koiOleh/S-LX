@@ -6,6 +6,10 @@ import { useGetUserStore } from '../stores/current-user-store'
 import AdCard from '@/components/AdCard.vue'
 import { Icon } from '@iconify/vue'
 
+import { useWindowSize } from '@/composables/useWindowSize'
+
+const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
+
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
 
@@ -35,16 +39,32 @@ const getFavorites = async () => {
 onMounted(() => {
   getFavorites()
   getRoomsCurrentUserIn()
+
+  supabase
+    .channel(`favorites:user:${user.value.id}`)
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'favorites',
+        filter: `user_id=eq.${user.value.id}`,
+      },
+      () => {
+        getFavorites()
+      },
+    )
+    .subscribe()
 })
 </script>
 
 <template>
-  <div class="">Favorites</div>
+  <div class="text-2xl font-semibold p-4 pb-8 text-center">Favorites</div>
 
   <div class="w-full flex justify-center" v-if="favorites?.length === 0">
     <div class="w-full flex flex-col justify-center items-center gap-4">
       <p class="text-xl font-light">You have no favorite ads</p>
-      <RouterLink :to="{ name: 'about' }">
+      <RouterLink :to="{ name: 'ads' }">
         <div
           class="flex flex-row items-center gap-2 p-2 shadow-2xl shadow-gray-400 rounded-md bg-gradient-to-r from-gray-500 to-gray-900 text-white"
         >
@@ -55,27 +75,38 @@ onMounted(() => {
     </div>
   </div>
 
-  <div class="w-full grid grid-cols-4 gap-4 p-2">
-    <div class="w-full flex flex-col gap-4 p-4 rounded-lg" v-for="i in favorites" :key="i.id">
-      <RouterLink :to="`/ad/${i.ad_id}`">
+  <div
+    :class="
+      isPhone
+        ? ' w-full grid grid-cols-2 justify-center items-center gap-4  '
+        : ' w-full grid grid-cols-4 p-[2rem] justify-center items-center'
+    "
+  >
+    <div
+      class="w-full flex flex-col items-center justify-center rounded-lg"
+      v-for="f in favorites"
+      :key="f.id"
+    >
+      <!-- <img :src="f.img" alt="" /> -->
+      <RouterLink :to="`/ad/${f.ad_id}`">
         <AdCard
-          :title="i.title"
-          :description="i.description"
-          :price="i.price"
-          :id="i.id"
-          :img="i.img[0]"
-          :type="i.type"
-          :h_size="'200px'"
-          :size="'300px'"
-          :w_container="'300px'"
-          :h_container="'350px'"
+          :title="f.title"
+          :description="f.description"
+          :price="f.price"
+          :id="f.id"
+          :img="f.img[0] ? f.img[0] : f.img || ''"
+          :type="f.type"
+          :h_size="isPhone ? '120px' : '200px'"
+          :size="isPhone ? '180px' : '300px'"
+          :w_container="isPhone ? '180px' : '300px'"
+          :h_container="isPhone ? '250px' : '350px'"
           :horisontal="true"
           :col="true"
-          :created_at="i.created_at"
+          :created_at="f.created_at"
           :if_favorite="true"
-          :user_name="i.user_name"
-          :if_discount="i.if_discount"
-          :discount="i.discount"
+          :user_name="f.user_name"
+          :if_discount="f.if_discount"
+          :discount="f.discount"
         />
       </RouterLink>
     </div>

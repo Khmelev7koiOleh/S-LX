@@ -22,9 +22,11 @@ import UserProfile from './user-profile/UserProfile.vue'
 import { useChatStore } from '@/stores/chat-store'
 import { Icon } from '@iconify/vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
-
+import { useWindowSize } from '@/composables/useWindowSize'
+const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
+import { useGetAdCategory } from '../composables/get-ad-category'
 const chatStore = useChatStore()
-
+const { getValueOf } = useGetAdCategory()
 interface CurrentRoom {
   room_id: string
   // Add other properties of currentRoom here
@@ -139,7 +141,7 @@ const deleteAd = async (id: string) => {
   const { error } = await supabase.from('ads').delete().eq('id', id)
   if (error) console.log(error)
   else {
-    router.push({ name: 'about' })
+    router.push({ name: 'ads' })
   }
 }
 
@@ -194,6 +196,10 @@ const transformTime = computed(() => {
     return 'Unknown date'
   }
 })
+
+const handleCategory = (category: string) => {
+  getValueOf(category)
+}
 const subscribeToRatings = (targetUserId: any) => {
   ratingSubscription = supabase
     .channel('ratings-channel')
@@ -237,7 +243,10 @@ onMounted(async () => {
 
 <template>
   <div class="w-[100vw] h-[100vh] relative">
-    <Button v-if="user?.id === ad?.user_id" class="absolute top-8 right-8 bg-gray-900 rounded-md">
+    <button
+      v-if="user?.id === ad?.user_id"
+      :class="isPhone ? ' absolute top-2 right-2 ' : 'absolute top-8 right-8'"
+    >
       <ConfirmDialog
         message="Are you sure you want to delete this ad?"
         confirmText="Delete"
@@ -247,21 +256,29 @@ onMounted(async () => {
         @confirm="() => deleteAd(ad.id)"
         @cancel="handleCancel"
       />
-    </Button>
+    </button>
 
     <div
       v-if="currentRoom && chatStore.onCurrentRoomOpen"
       class="w-1/3 h-full absolute right-0 flex flex-col justify-center items-center"
     >
       <div
-        class="w-[30%] h-2/3 fixed bottom-0 right-0 flex flex-col justify-center items-center z-10"
+        :class="
+          isPhone
+            ? 'w-[100%] h-1/2 fixed bottom-0 right-0 flex flex-col justify-center items-center z-10'
+            : 'w-[30%] h-2/3 fixed bottom-0 right-0 flex flex-col justify-center items-center z-10'
+        "
       >
         <ChatMessageComponent :data="currentRoom" :userData="userData" />
       </div>
     </div>
 
     <div
-      class="w-full flex flex-row justify-center items-center gap-8 px-[10vw] py-[5vh]"
+      :class="
+        isPhone
+          ? 'w-full flex flex-col justify-center items-center gap-2 px-[5vw] py-[5vh]'
+          : 'w-full flex flex-row justify-center items-center gap-8 px-[10vw] py-[5vh]'
+      "
       v-if="ad"
     >
       <div v-if="ad.img" class="w-full flex flex-col justify-center items-center">
@@ -275,40 +292,12 @@ onMounted(async () => {
               delay: 2000,
             }),
           ]"
-          class="relative w-full max-w-xl"
+          :class="isPhone ? 'relative w-[100vw] max-w-xl' : 'relative w-full max-w-xl'"
         >
-          <CarouselContent>
-            <CarouselItem v-for="(item, index) in ad.img" :key="index">
-              <div class="p-1">
-                <Card>
-                  <CardContent
-                    class="max-h-[600px] flex aspect-square items-center justify-center p-10"
-                  >
-                    <img :src="item" alt="" class="object-cover" />
-                  </CardContent>
-                </Card>
-              </div>
-            </CarouselItem>
-          </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
-        <div class="flex justify-center items-center gap-2 p-4 bg-gray-200 m-4">
-          <div class="text-xl font-semibold">Description:</div>
-          <div class="px-2">{{ ad.description }}</div>
-        </div>
-      </div>
-
-      <div class="flex flex-col justify-center items-center gap-4">
-        <div v-for="sm in theMessage" :key="sm.msg">{{ sm }}</div>
-      </div>
-
-      <div class="flex flex-col justify-center items-center gap-4 relative">
-        <div class="w-[300px] flex flex-col justify-center items-center gap-2 bg-white shadow p-8">
-          <div class="absolute top-2 right-2">
+          <div class="absolute top-4 right-4 z-10">
             <AddFavoritesButton
               :id="ad.id"
-              :img="ad.img"
+              :img="ad.img[0] ? ad.img[0] : ad.img || ''"
               :title="ad.title"
               :description="ad.description"
               :price="ad.price"
@@ -316,7 +305,127 @@ onMounted(async () => {
               :discount="ad.discount"
             />
           </div>
-          <div class="text-lg font-normal">{{ ad.title }}</div>
+          <CarouselContent>
+            <CarouselItem v-for="(item, index) in ad.img" :key="index">
+              <div>
+                <Card>
+                  <CardContent
+                    class="max-h-[500px] min-h-[500px] flex aspect-square items-center justify-center"
+                  >
+                    <img :src="item" alt="" class="max-h-[450px] min-h-[450px] object-cover" />
+                  </CardContent>
+                </Card>
+              </div>
+            </CarouselItem>
+          </CarouselContent>
+          <div :class="isPhone ? 'absolute top-1/2 left-[15%]' : ''">
+            <CarouselPrevious />
+          </div>
+          <div :class="isPhone ? 'absolute top-1/2 right-[15%]' : ''">
+            <CarouselNext />
+          </div>
+        </Carousel>
+        <div
+          :class="
+            isPhone
+              ? 'w-[95vw] flex flex-col justify-center items-center gap-2 p-4 shadow m-4 rounded-md '
+              : 'w-[80%] flex flex-col justify-center items-center gap-2 p-4 shadow m-4 rounded-md'
+          "
+        >
+          <div class="w-full flex flex-col justify-center items-start gap-6">
+            <div class="flex flex-col items-start justify-start">
+              <p class="px-2 font-semibold">Title:</p>
+              <div class="px-2 font-extralight">{{ ad.title }}</div>
+            </div>
+
+            <div class="flex flex-col items-start justify-start">
+              <p class="px-2 font-semibold">Description:</p>
+              <div class="px-2 font-extralight whitespace-pre-line">{{ ad.description }}</div>
+            </div>
+            <div class="flex items-center">
+              <p class="px-2 font-semibold">Type:</p>
+              <Button class="px-2" @click="handleCategory(ad.type)">{{ ad.type }}</Button>
+            </div>
+            <div class="flex items-center">
+              <p class="px-2 font-semibold">Created at:</p>
+              <div>{{ transformTime }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="w-fit flex flex-col justify-center items-center gap-4">
+        <div v-for="sm in theMessage" :key="sm.msg">{{ sm }}</div>
+      </div>
+
+      <div
+        :class="
+          isPhone
+            ? 'flex flex-col justify-center items-center gap-4 relative shadow'
+            : 'flex flex-col justify-center items-center gap-4 relative shadow'
+        "
+      >
+        <div
+          :class="
+            isPhone
+              ? 'w-[95vw] flex flex-col justify-center items-center gap-2 bg-white  p-2 rounded-md'
+              : 'w-[400px]  flex flex-col justify-center items-center gap-2 bg-white  p-2 rounded-md'
+          "
+        >
+          <div class="text-xl font-semibold">User</div>
+
+          <RouterLink :to="'/user-profile/' + userData.id">
+            <div class="w-full flex flex-col justify-center items-start">
+              <div class="flex justify-center items-center gap-2">
+                <img
+                  :src="userData.img"
+                  alt=""
+                  width="14"
+                  height="14"
+                  class="w-14 h-14 object-cover rounded-full"
+                />
+
+                <div class="w-full flex flex-col justify-center items-start gap-0">
+                  <div class="text-xl">{{ userData.name }}</div>
+                  <div
+                    :class="
+                      computedRating == 'This user has not been rated yet'
+                        ? 'w-full flex flex-col  justify-start items-center gap-2'
+                        : 'w-full flex  justify-start items-center gap-2'
+                    "
+                  >
+                    <div
+                      :class="
+                        computedRating == 'This user has not been rated yet'
+                          ? 'text-gray-800 text-md font-semibold'
+                          : 'text-gray-800'
+                      "
+                    >
+                      {{ computedRating }}
+                    </div>
+                    <div class="flex justify-start items-center">
+                      <Icon
+                        v-for="(icon, i) in computedStars"
+                        :key="i"
+                        :icon="icon"
+                        width="24"
+                        height="24"
+                        class="text-yellow-400"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </RouterLink>
+        </div>
+        <div
+          :class="
+            isPhone
+              ? 'w-[95vw]  flex flex-col justify-center items-center gap-2 bg-white  p-2 rounded-md'
+              : 'w-[400px]  flex flex-col justify-center items-center gap-2 bg-white  p-2 rounded-md'
+          "
+        >
           <!-- <RouterLink :to="'/chats/' + ad.user_id"> -->
           <Button
             @click="
@@ -340,57 +449,6 @@ onMounted(async () => {
               </div>
             </div>
           </Button>
-        </div>
-
-        <div class="w-[300px] flex flex-col justify-center items-center gap-2 bg-white shadow p-2">
-          <div class="text-xl font-semibold">User</div>
-
-          <RouterLink :to="'/user-profile/' + userData.id">
-            <div class="w-full flex flex-col justify-center items-start">
-              <div class="flex justify-center items-center">
-                <img
-                  :src="userData.img"
-                  alt=""
-                  width="12"
-                  height="12"
-                  class="w-12 h-12 object-cover rounded-full"
-                />
-
-                <div class="text-xl px-4 py-1">{{ userData.name }}</div>
-              </div>
-              <div class="w-full flex justify-start items-center gap-2">
-                <div
-                  :class="
-                    computedRating == 'This user has not been rated yet'
-                      ? 'w-full flex flex-col  justify-start items-center gap-2'
-                      : 'w-full flex  justify-start items-center gap-2'
-                  "
-                >
-                  <div
-                    :class="
-                      computedRating == 'This user has not been rated yet'
-                        ? 'text-gray-800 text-md font-semibold'
-                        : 'text-gray-800'
-                    "
-                  >
-                    {{ computedRating }}
-                  </div>
-                  <div class="flex justify-start items-center">
-                    <Icon
-                      v-for="(icon, i) in computedStars"
-                      :key="i"
-                      :icon="icon"
-                      width="24"
-                      height="24"
-                      class="text-yellow-400"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </RouterLink>
-
-          <div>{{ transformTime }}</div>
         </div>
       </div>
     </div>
