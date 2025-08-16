@@ -4,12 +4,12 @@ import { ref } from 'vue'
 
 import type { UserType } from '@/types/user-type'
 
-export function useGetUserComposable() {
-  const user = ref<UserType[]>([])
+export function useGetUsersComposable() {
+  const users = ref<UserType[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  const getUser = async (id: string[]) => {
+  const getUsers = async (id: string[]) => {
     console.log(id)
     try {
       loading.value = true
@@ -19,8 +19,8 @@ export function useGetUserComposable() {
       console.log(data)
       if (fetchError) throw fetchError
 
-      user.value = data
-      console.log(user.value)
+      users.value = data ?? []
+      console.log(users.value)
     } catch (err) {
       error.value = (err as Error).message
     } finally {
@@ -29,9 +29,9 @@ export function useGetUserComposable() {
   }
 
   return {
-    user,
+    users,
     loading,
     error,
-    getUser,
+    getUsers,
   }
 }
