@@ -16,11 +16,11 @@ import { useGetUserStore } from '../stores/current-user-store'
 import ChatMessageComponent from '@/components/ChatMessageComponent.vue'
 import { Icon } from '@iconify/vue'
 import { useChatStore } from '../stores/chat-store'
-import { useGetUserComposable } from '@/composables/get-user'
+import { useGetUsersComposable } from '@/composables/get-users'
 import { useWindowSize } from '@/composables/useWindowSize'
 const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
 
-const { users, loading, error, getUser } = useGetUserComposable()
+const { users, loading, error, getUsers } = useGetUsersComposable()
 
 const chatStore = useChatStore()
 
@@ -29,7 +29,13 @@ const { user } = toRefs(userStore)
 const messages = ref<any | null>(null)
 const router = useRouter()
 const chatsIn = ref<any | null>([])
-const getRoomsCurrentUserIn = async () => {
+/*************  ✨ Windsurf Command ⭐  *************/
+/**
+ * Fetches chat rooms the current user is participating in.
+ * @returns {Promise<Array>} An array of chat room objects.
+ * @throws {Error} If an error occurs while fetching chat rooms.
+ */
+/*******  58ef3a0d-27fa-4780-b1de-4828639ce2ba  *******/ const getRoomsCurrentUserIn = async () => {
   const { data, error } = await supabase
     .from('chat_rooms')
     .select('*')
@@ -65,7 +71,7 @@ onMounted(async () => {
     })
   })
   console.log([...ids])
-  await getUser([...ids])
+  await getUsers([...ids])
 })
 const itemsPerPage = 5
 

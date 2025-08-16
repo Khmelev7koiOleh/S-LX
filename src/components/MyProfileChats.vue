@@ -16,7 +16,7 @@ import { useGetUserStore } from '../stores/current-user-store'
 import ChatMessageComponent from '@/components/ChatMessageComponent.vue'
 import { Icon } from '@iconify/vue'
 import { useChatStore } from '../stores/chat-store'
-import { useGetUserComposable } from '@/composables/get-user'
+import { useGetUserComposable } from '@/composables/get-users'
 
 const { users, loading, error, getUser } = useGetUserComposable()
 

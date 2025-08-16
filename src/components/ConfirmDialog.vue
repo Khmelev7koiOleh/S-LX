@@ -66,7 +66,7 @@ const cancel = () => {
       class="w-[34px] h-[34px] flex justify-center items-center cursor-pointer m-2"
       @click="toggle"
     >
-      <Icon :icon="icon || 'mdi:dots-vertical'" width="20" height="20" class="text-black" />
+      <Icon :icon="icon || 'mdi:dots-vertical'" width="20" height="20" class="text-gray-500" />
     </button>
 
     <div

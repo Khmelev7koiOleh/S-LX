@@ -10,7 +10,8 @@ import { Icon } from '@iconify/vue'
 import { useChatStore } from '@/stores/chat-store'
 import EmojiMessageComponent from '@/components/EmojiMessageComponent.vue'
 import router from '@/router'
-
+import { useWindowSize } from '@/composables/useWindowSize'
+const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
 const chatStore = useChatStore()
 
 // write a type fot the chat const
@@ -194,8 +195,6 @@ const updateMessage = async (room_id, id, message, created_at) => {
 
   isEditPanelOpen.value = false
 }
-// path: '/chats/' + chat.room_id,
-//   state: { chat }
 
 const getRoom = async () => {
   const { data, error } = await supabase.from('chat_rooms').select('*').eq('room_id', id)
@@ -282,49 +281,55 @@ onMounted(() => {
 
 <template>
   <div class="w-[100vw] min-h-[calc(100vh-0px)] h-full p-0 bg-gray-300 relative">
-    <div v-if="fileUrl" class="w-[100vw] h-[100vh] fixed p-4 cursor-pointer z-10">
-      <div class="w-full h-full flex justify-center items-start">
-        <div
-          class="w-[400px] h-[400px] flex flex-col justify-center items-center gap-10 bg-white rounded-sm relative"
-        >
-          <div class="absolute top-4 left-4">
-            <Icon
-              @click="((fileUrl = null), (picDescription = ''))"
-              icon="mdi:close"
-              class="text-black w-[30px] h-[30px]"
+    <div
+      v-if="fileUrl"
+      class="w-[100vw] h-[100vh] fixed cursor-pointer z-10 flex justify-center items-center"
+    >
+      <div
+        :class="
+          isPhone
+            ? 'w-[90%] h-[50vh] flex flex-col justify-center items-center gap-10 bg-white rounded-sm relative '
+            : 'w-[400px] h-[400px] flex flex-col justify-center items-center gap-10 bg-white rounded-sm relative'
+        "
+      >
+        <div :class="isPhone ? 'absolute top-6 left-6' : 'absolute top-4 left-4'">
+          <Icon
+            @click="((fileUrl = null), (picDescription = ''))"
+            icon="mdi:close"
+            class="text-black w-[30px] h-[30px]"
+          />
+        </div>
+        <img v-if="fileUrl" :src="fileUrl" alt="Selected image" class="w-50 h-50 object-cover" />
+        <div class="flex justify-center items-center gap-4 relative">
+          <div class="">
+            <EmojiMessageComponent
+              v-model="picDescription"
+              :showPicker="showPickerImg"
+              @update:showPicker="(val: boolean) => (showPickerImg = val)"
             />
           </div>
-          <img v-if="fileUrl" :src="fileUrl" alt="Selected image" class="w-50 h-50 object-cover" />
-          <div class="flex justify-center items-center gap-4 relative">
-            <div class="">
-              <EmojiMessageComponent
-                v-model="picDescription"
-                :showPicker="showPickerImg"
-                @update:showPicker="(val: boolean) => (showPickerImg = val)"
-              />
-            </div>
-            <textarea
-              @keydown.enter="file !== null ? sendPhoto(id, user.id, file, picDescription) : null"
-              type="text"
-              :rows="picDescription.length > 20 ? 3 : 1"
-              placeholder="Add a description"
-              v-model="picDescription"
-              class="w-full shadow py-1 resize-none placeholder-black text-black rounded-md px-4"
-            ></textarea>
 
-            <div class="w-[40px] h-[40px]">
-              <div class="flex justify-center items-center">
-                <Button
-                  :disabled="!fileUrl"
-                  @click="
-                    file !== null
-                      ? sendPhoto(id, user.id, file, picDescription)
-                      : (error = 'please upload image')
-                  "
-                  class="w-[40px] h-[40px] flex items-center rounded-full"
-                  ><Icon icon="mdi:send" width="40" height="40" class="text-white" />
-                </Button>
-              </div>
+          <textarea
+            @keydown.enter="file !== null ? sendPhoto(id, user.id, file, picDescription) : null"
+            type="text"
+            :rows="picDescription.length > 20 ? 3 : 1"
+            placeholder="Add a description"
+            v-model="picDescription"
+            class="w-full shadow py-1 resize-none placeholder-black text-black rounded-md px-4"
+          ></textarea>
+
+          <div class="w-[40px] h-[40px]">
+            <div class="flex justify-center items-center">
+              <Button
+                :disabled="!fileUrl"
+                @click="
+                  file !== null
+                    ? sendPhoto(id, user.id, file, picDescription)
+                    : (error = 'please upload image')
+                "
+                class="w-[40px] h-[40px] flex items-center rounded-full"
+                ><Icon icon="mdi:send" width="40" height="40" class="text-white" />
+              </Button>
             </div>
           </div>
         </div>
@@ -356,7 +361,9 @@ onMounted(() => {
           </div>
         </div>
       </RouterLink>
-      <Button class="absolute top-center right-1 bg-transparent hover:bg-transparent rounded-md">
+      <Button
+        class="absolute top-center right-1 bg-transparent p-0 rounded-full hover:bg-transparent"
+      >
         <!-- Delete this ad
       <Icon icon="mdi:trash-can" class="w-[20px] h-[20px] text-red-500" /> -->
         <ConfirmDialog
@@ -434,9 +441,7 @@ onMounted(() => {
                       :rows="editMessage.length > 45 ? 3 : 1"
                       placeholder="Edit your message..."
                       class="w-full p-2 rounded-md border border-gray-300 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
-                    >
-                  {{ editMessage }}</textarea
-                    >
+                    ></textarea>
 
                     <Button
                       :disabled="editMessage.length <= 0"
@@ -504,6 +509,7 @@ onMounted(() => {
       </div>
     </div>
 
+    <!-- footer part -->
     <div
       class="w-full h-[100px] flex gap-8 justify-center fixed bottom-0 left-0 bg-gray-50 p-2 z-10"
     >
@@ -538,7 +544,11 @@ onMounted(() => {
           :rows="message.length > 45 ? 3 : 1"
           placeholder="Message"
           v-model="message"
-          class="w-[400px] shadow py-1 resize-none placeholder-black text-black rounded-md px-4"
+          :class="
+            isPhone
+              ? 'w-full shadow py-1 resize-none placeholder-black text-black rounded-md px-4'
+              : 'w-[400px] shadow py-1 resize-none placeholder-black text-black rounded-md px-4'
+          "
         ></textarea>
 
         <div class="w-[40px] h-[40px]">
