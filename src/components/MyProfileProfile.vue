@@ -3,8 +3,10 @@ import { ref, toRefs, onMounted } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import { useGetUserStore } from '@/stores/current-user-store'
 import type { UserType } from '@/types/user-type'
-
 import { Icon } from '@iconify/vue'
+import { useWindowSize } from '@/composables/useWindowSize'
+const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
+
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
 
@@ -164,9 +166,15 @@ function handleEdit() {
 </script>
 <template>
   <!-- Add deleted chats and profile for every chat user chats with  -->
-  <div class="w-full bg-gray-300">
-    <div class="w-[60%] mx-auto">
-      <div class="w-full flex flex-col justify-center items-start gap-4 m-10 p-10">
+  <div class="w-full h-full bg-gray-300 py-4">
+    <div :class="isPhone ? 'w-[100%] mx-auto' : 'w-[60%] mx-auto'">
+      <div
+        :class="
+          isPhone
+            ? 'w-full flex flex-col justify-center items-start gap-4 m-10 '
+            : 'w-full flex flex-col justify-center items-start gap-4 m-10 p-10'
+        "
+      >
         <div class="flex justify-start items-center gap-6">
           <div>
             <img
@@ -187,7 +195,13 @@ function handleEdit() {
     </div>
 
     <!-- add section -->
-    <div class="w-[70%] mx-auto bg-gray-100 p-4">
+    <div
+      :class="
+        isPhone
+          ? 'w-[90%] mx-auto bg-gray-100 p-4 rounded-md'
+          : 'w-[70%] mx-auto bg-gray-100 p-4 rounded-md'
+      "
+    >
       <div class="text-center text-xl font-stretch-ultra-expanded">Main info</div>
       <div class="flex flex-col gap-4 p-4">
         <div
@@ -213,8 +227,14 @@ function handleEdit() {
           </button>
         </div>
 
-        <div class="w-full flex justify-start items-start relative">
-          <div v-if="!onAddInfo" class="text-black w-1/2 p-4">
+        <div
+          :class="
+            isPhone
+              ? 'w-full flex flex-col justify-start items-start relative'
+              : 'w-full flex  justify-start items-start relative'
+          "
+        >
+          <div v-if="isPhone ? !onAddInfo && !onEditInfo : !onAddInfo" class="text-black w-1/2 p-4">
             <div class="flex flex-col justify-start items-start gap-8">
               <div class="flex justify-start items-center gap-2">
                 <div class="text-md font-semibold text-gray-600">Main information</div>
@@ -241,12 +261,18 @@ function handleEdit() {
           </div>
 
           <div
-            v-if="!onAddInfo"
+            v-if="!isPhone && !onAddInfo"
             class="h-[100px] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 shadow border border-gray-200"
           ></div>
 
           <!--  edit section -->
-          <div v-if="onEditInfo" class="w-1/2 mx-auto p-4">
+          <div
+            v-if="onEditInfo"
+            :class="isPhone ? 'w-1/1 mx-auto p-4 bg-gray-100' : 'w-1/2 mx-auto p-4 bg-gray-100'"
+          >
+            <div v-if="isPhone" class="text-md font-semibold text-gray-600 p-4">
+              Edit main information
+            </div>
             <div class="flex flex-col justify-center items-center gap-4">
               <div class="w-2/3">
                 <p class="text-gray-800 text-sm font-extralight p-1">Name</p>
@@ -325,10 +351,19 @@ function handleEdit() {
           </div>
         </div>
 
-        <div v-if="onAddInfo" class="flex flex-col gap-4 w-1/2">
+        <div
+          v-if="onAddInfo"
+          :class="
+            isPhone
+              ? 'flex flex-col  justify-center items-center gap-4 w-[100%] '
+              : 'flex flex-col justify-center items-center gap-4 w-[100%] '
+          "
+        >
           <div
             v-if="onAddInfo && info.description == '' && info.location == '' && info.tel == ''"
-            class="flex flex-col gap-4"
+            :class="
+              isPhone ? 'w-1/1 mx-auto flex flex-col  gap-4' : 'w-1/2 mx-auto flex flex-col gap-4'
+            "
           >
             <div class="px-4 py-2 shadow">
               <input
@@ -373,27 +408,6 @@ function handleEdit() {
         </div>
       </div>
     </div>
-
-    <!-- <div class="w-[70%] mx-auto bg-gray-100 p-4">
-      <div class="text-center">Something else</div>
-
-      <br />
-      <div>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequuntur saepe perferendis
-      </div>
-      <div class="flex flex-col gap-4">
-        <div class="flex justify-between items-center">
-          <button
-            class="px-4 py-2 border-b-2 border-gray-900 text-gray-800 text-md font-bold shadow"
-          >
-            Add something else
-          </button>
-        </div>
-        <div class="px-4 py-2 border border-gray-900">
-          <input type="text" placeholder="Change some info" />
-        </div>
-      </div>
-    </div> -->
   </div>
 </template>
 

@@ -16,9 +16,9 @@ import { useGetUserStore } from '../stores/current-user-store'
 import ChatMessageComponent from '@/components/ChatMessageComponent.vue'
 import { Icon } from '@iconify/vue'
 import { useChatStore } from '../stores/chat-store'
-import { useGetUserComposable } from '@/composables/get-users'
+import { useGetUsersComposable } from '@/composables/get-users'
 
-const { users, loading, error, getUser } = useGetUserComposable()
+const { users, loading, error, getUsers } = useGetUsersComposable()
 
 const chatStore = useChatStore()
 
@@ -63,7 +63,7 @@ onMounted(async () => {
     })
   })
   console.log([...ids])
-  await getUser([...ids])
+  await getUsers([...ids])
 })
 const itemsPerPage = 5
 
