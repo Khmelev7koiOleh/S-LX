@@ -2,6 +2,8 @@
 import { ref, toRefs, onMounted } from 'vue'
 import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { useGetUserStore } from '@/stores/current-user-store'
+import { useWindowSize } from '@/composables/useWindowSize'
+const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
 const router = useRouter()
@@ -29,7 +31,7 @@ onMounted(() => {
 </script>
 <template>
   <div class="bg-gray-300">
-    <div class="w-full text-3xl text-gray-800 flex justify-center pb-10">
+    <div class="w-full text-3xl text-gray-800 flex justify-center">
       <div class="px-4 py-2">{{ currentProfileTap }}</div>
     </div>
     <div class="flex flex-col gap-5">
@@ -52,8 +54,6 @@ onMounted(() => {
         </div>
       </div>
     </div>
-
-    <div class="p-40" />
   </div>
 </template>
 
