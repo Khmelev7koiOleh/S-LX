@@ -21,6 +21,7 @@ const props = defineProps<{
   cancelText?: string
   item?: string
   icon?: string
+  text_color?: string
 }>()
 const { message, confirmText, cancelText, item, icon } = toRefs(props)
 
@@ -66,17 +67,17 @@ const cancel = () => {
       class="w-[34px] h-[34px] flex justify-center items-center cursor-pointer m-2"
       @click="toggle"
     >
-      <Icon :icon="icon || 'mdi:dots-vertical'" width="20" height="20" class="text-gray-500" />
+      <Icon :icon="icon || 'mdi:dots-vertical'" width="20" height="20" :class="text_color" />
     </button>
 
     <div
       v-if="isOpen"
-      class="absolute top-full right-8 w-[300px] md:w-[300px] bg-white shadow rounded-md px-4 py-2 z-50 transform transition-all duration-1000"
+      class="absolute top-full right-0 sm:w-[200px] md:w-fit bg-white shadow rounded-md py-2 z-10 transform transition-all duration-1000"
     >
       <div v-if="!isConfirming" class="text-center transition-all transform duration-1000">
         <button
           @click="askConfirmation"
-          class="text-red-600 font-semibold w-full transition-all transform duration-1000"
+          class="w-[200px] md:w-[200px] text-red-600 font-semibold transition-all transform duration-1000"
         >
           Delete this {{ item }}
         </button>
@@ -86,8 +87,8 @@ const cancel = () => {
         v-else
         :class="
           isConfirming
-            ? 'w-[300px] transition-all transform duration-1000  flex flex-col items-center space-y-4'
-            : 'w-[100px] transition-all transform duration-1000  flex flex-col items-center space-y-4'
+            ? 'w-[300px] transition-all transform duration-1000  flex flex-col items-center space-y-4  '
+            : 'w-fit transition-all transform duration-1000  flex flex-col items-center space-y-4'
         "
       >
         <p class="text-sm text-black text-center">

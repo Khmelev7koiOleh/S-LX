@@ -253,6 +253,7 @@ onMounted(async () => {
         cancelText="Cancel"
         item="ad"
         icon="mdi:dots-vertical"
+        text_color="text-black"
         @confirm="() => deleteAd(ad.id)"
         @cancel="handleCancel"
       />

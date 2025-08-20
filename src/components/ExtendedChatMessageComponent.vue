@@ -372,6 +372,7 @@ onMounted(() => {
           cancelText="Cancel"
           item="chat"
           icon="mdi:dots-vertical"
+          text_color="text-white"
           @confirm="() => deleteRoom(id as string)"
           @cancel="handleCancel"
         />
@@ -380,7 +381,11 @@ onMounted(() => {
 
     <div
       id="messages-container"
-      class="w-full overflow-y-auto h-[80vh] px-20 py-[5%] pb-[10%] z-10 transition-all transform duration-1000"
+      :class="
+        isPhone
+          ? 'w-full overflow-y-auto h-[80vh] px-2  py-[5%] pb-[10%] z-10 transition-all transform duration-1000'
+          : 'w-full overflow-y-auto h-[80vh] px-20 py-[5%] pb-[10%] z-10 transition-all transform duration-1000l'
+      "
     >
       <div class="w-full p-4 relative" v-for="item in messages" :key="item.id">
         <div
@@ -392,8 +397,8 @@ onMounted(() => {
           <div
             :class="
               item.sender_id === user.id
-                ? 'text-right  bg-green-700 text-gray-300  rounded-lg w-fit flex flex-wrap justify-end  max-w-[60vw] relative'
-                : 'text-left bg-gray-600 text-gray-300  rounded-lg w-fit flex justify-start  max-w-[60vw]'
+                ? 'text-right  bg-green-700 text-gray-300  rounded-lg w-fit flex flex-wrap justify-end   max-w-fit md:max-w-[60vw] relative'
+                : 'text-left bg-gray-600 text-gray-300  rounded-lg w-fit flex justify-start max-w-fit md:max-w-[60vw] '
             "
           >
             <div
@@ -410,29 +415,33 @@ onMounted(() => {
                 v-if="isMessagePanelOpen && item.id === onMessagePanelOpen"
                 :class="
                   isEditPanelOpen
-                    ? 'w-[400px] flex flex-col justify-center items-center absolute bottom-full right-2 bg-gray-950 p-1 rounded-md mb-1  shadow-xl transform transition-all duration-1000 '
-                    : 'w-[100px] flex flex-col justify-center items-center absolute bottom-full right-2 bg-gray-950 p-1 rounded-md mb-1  shadow-xl transform transition-all duration-1000 '
+                    ? 'w-[300px] md:w-[400px] flex flex-col justify-center items-center absolute bottom-full right-2 bg-gray-950 p-1 rounded-md mb-1  shadow-xl transform transition-all duration-1000 '
+                    : 'w-[100px] md:w-[100px] flex flex-col justify-center items-center absolute bottom-full right-2 bg-gray-950 p-1 rounded-md mb-1  shadow-xl transform transition-all duration-1000 '
                 "
               >
                 <div
+                  v-if="!isEditPanelOpen"
                   @click.stop="deleteMessage(item.id)"
                   class="w-full flex justify-center items-center text-white bg-gray-800 px-4 py-2 text-sm font-extralight"
                 >
                   Delete
                 </div>
-                <div class="w-full flex justify-center items-center border-b border-gray-200"></div>
+                <div
+                  v-if="!isEditPanelOpen"
+                  class="w-full flex justify-center items-center border-b border-gray-200"
+                ></div>
                 <div
                   @click.stop="onIsEditPanelOpen(item.content)"
-                  class="w-full flex flex-col px-4 py-2 justify-center items-center text-white bg-gray-800 text-sm font-extralight"
+                  class="w-full flex flex-col px-2 md:px-4 py-2 justify-center items-center text-white bg-gray-800 text-sm font-extralight"
                 >
                   <div v-if="!isEditPanelOpen">Edit</div>
-                  <div v-if="isEditPanelOpen" class="w-full flex justify-center items-center gap-0">
+                  <div v-if="isEditPanelOpen" class="w-full flex justify-center items-center gap-2">
                     <div>
                       <Icon
                         @click.stop="isEditPanelOpen = false"
                         icon="mdi:close"
-                        width="20"
-                        height="20"
+                        width="25"
+                        height="25"
                         class="text-white"
                       />
                     </div>
@@ -475,13 +484,14 @@ onMounted(() => {
                     alt=""
                     :class="
                       fullSize && item.id == fullSizeVal
-                        ? ' min-w-[60%] min-h-[60%] w-fit h-fit max-w-[80vw] max-h-[80vh] object-cover flex justify-center items-center relative rounded-sm  '
-                        : 'min-w-[500px] min-h-[500px]  w-fit h-fit max-w-[500px] max-h-[500px] object-cover flex justify-center items-center rounded-sm break-words '
+                        ? 'w-[90vw] h-auto md:w-[auto] md:h-auto md:max-w-[90vw] md:max-h-[90vh] object-contain mx-auto'
+                        : 'w-[70vw] h-auto md:min-w-[300px] md:max-w-[500px]  md:h-auto object-cover mx-auto'
                     "
                   />
-                  <div
+
+                  <button
                     v-if="fullSize && item.id == fullSizeVal"
-                    class="w-full h-full absolute top-12 left-4"
+                    class="w-full h-full absolute top-4 left-1"
                   >
                     <Icon
                       @click="fullSize = false"
@@ -490,15 +500,15 @@ onMounted(() => {
                       height="40"
                       class="text-white absolute top-0 left-4 cursor-pointer rounded-full bg-gray-950 p-1"
                     />
-                  </div>
+                  </button>
                 </div>
               </div>
               <div
                 v-if="!fullSize || item.id !== fullSizeVal"
                 :class="
                   item.pic !== null && item.sender_id === user.id
-                    ? ' px-6 w-fit max-w-[500px] break-words self-end  rounded-sm'
-                    : 'px-6 py-1 w-fit max-w-[800px] break-words  self-start rounded-sm'
+                    ? ' px-6 w-fit max-w-[70vw] md:max-w-[500px] break-words self-end  rounded-sm'
+                    : 'px-6 py-1 w-fit max-w-[70vw] md:max-w-[500px] break-words  self-start rounded-sm'
                 "
               >
                 {{ item.content }}
@@ -515,7 +525,13 @@ onMounted(() => {
     >
       <div class="text-red-500 text-sm" v-if="errorMessage.length > 0">{{ errorMessage }}"</div>
 
-      <div class="flex justify-center items-center gap-6 p-4 relative">
+      <div
+        :class="
+          isPhone
+            ? 'flex justify-center items-center gap-4 p-1 relative'
+            : 'flex justify-center items-center gap-6 p-4 relative'
+        "
+      >
         <div class="relative inline-block">
           <!-- Hidden file input -->
           <input type="file" ref="fileInput" @change="onFileChange" class="hidden" />

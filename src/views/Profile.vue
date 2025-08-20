@@ -48,7 +48,7 @@ onMounted(() => {
           </RouterLink>
         </div>
       </div>
-      <div class="w-full flex justify-center items-center">
+      <div class="w-full flex justify-center items-center py-10">
         <div class="w-full h-full min-h-[90vh]">
           <RouterView name="main" />
         </div>

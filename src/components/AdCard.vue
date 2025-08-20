@@ -113,7 +113,7 @@ const justifyComputed = computed(() => {
 
 <template>
   <div
-    :class="` flex justify-center items-center shadow rounded-t-md relative cursor-pointer `"
+    :class="` flex justify-center items-center shadow rounded-t-md relative cursor-pointer bg-white `"
     :style="{ width: w_container, height: h_container }"
   >
     <div class="w-full h-full flex justify-center items-center">
@@ -127,8 +127,8 @@ const justifyComputed = computed(() => {
         <div
           :class="
             col
-              ? 'flex flex-col gap-3 items-center justify-center rounded-lg bg-gray-0'
-              : 'flex  gap-3 items-center justify-center rounded-lg bg-gray-0'
+              ? 'flex flex-col gap-3 items-center justify-center  bg-gray-0'
+              : 'flex  gap-3 items-center justify-center  bg-gray-0'
           "
         >
           <div
