@@ -49,7 +49,7 @@ onMounted(() => {
         </div>
       </div>
       <div class="w-full flex justify-center items-center">
-        <div class="w-full">
+        <div class="w-full h-full min-h-[90vh]">
           <RouterView name="main" />
         </div>
       </div>

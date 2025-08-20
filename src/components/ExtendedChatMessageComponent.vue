@@ -546,7 +546,7 @@ onMounted(() => {
           v-model="message"
           :class="
             isPhone
-              ? 'w-[70vw] shadow py-1 resize-none placeholder-black text-black rounded-md px-4'
+              ? 'w-[50vw] shadow py-1 resize-none placeholder-black text-black rounded-md px-4'
               : 'w-[30vw] shadow py-1 resize-none placeholder-black text-black rounded-md px-4'
           "
         ></textarea>
