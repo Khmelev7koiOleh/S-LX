@@ -121,7 +121,7 @@ onMounted(async () => {
         @update:filteredItems="filteredAds = $event"
       />
     </div>
-    <div :class="isPhone ? 'p-2 w-full ' : ' w-full px-[5%] '">
+    <div :class="isPhone ? 'p-2 w-full ' : ' w-full px-[5%]'">
       <div
         :class="
           isPhone
