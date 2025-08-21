@@ -18,7 +18,14 @@ import UserProfile from './user-profile/UserProfile.vue'
 import ReusableUserProfile from './ReusableUserProfile.vue'
 import { start } from 'repl'
 import { styleText } from 'util'
+import ReusableFilterComponent from './reusable/ReusableFilterComponent.vue'
+import { useFilterStore } from '../stores/filter-store'
+import { useWindowSize } from '@/composables/useWindowSize'
 
+const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
+const filterStore = useFilterStore()
+
+const { selectedCategory } = toRefs(filterStore)
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
 const info = ref<any>({})
@@ -111,7 +118,8 @@ const unsubscribeFromRatings = async () => {
     await supabase.removeChannel(ratingSubscription)
   }
 }
-
+const searchQuery = ref<string>('')
+const filteredAds = ref<any[]>([])
 onMounted(async () => {
   const { data, error } = await supabase.from('user').select('*').eq('id', user.value.id)
   if (data && data.length > 0) {
@@ -132,23 +140,23 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="w-full flex flex-col mx-auto px-4">
+  <div class="w-full flex flex-col mx-auto">
     <div class="w-full flex flex-col gap-4 justify-center items-center p-4"></div>
     <div class="w-full flex justify-center items-center">
-      <div class="w-full flex justify-center items-center gap-2 bg-amber-400 p-4 rounded-sm">
+      <div class="w-full flex justify-center items-center gap-2 bg-amber-400 p-2 md:p-4 rounded-sm">
         <!-- <div class="text-lg font-semibold">Rating:</div> -->
         <div
           :class="
             computedRating == 'This user has not been rated yet'
               ? 'w-full flex  justify-center items-center gap-6'
-              : 'w-full flex  justify-center items-center gap-6'
+              : 'w-full flex  justify-center items-center gap-4  md:gap-6'
           "
         >
           <div class="rotate-y-0">
             <Icon
               icon="game-icons:fluffy-wing"
-              width="74"
-              height="74"
+              :width="isPhone ? 50 : 74"
+              :height="isPhone ? 50 : 74"
               class="text-amber-200 animate-bounce"
             />
           </div>
@@ -162,13 +170,13 @@ onUnmounted(() => {
                     ? 'flex flex-col justify-center items-center'
                     : 'flex justify-center items-center '
                 "
-                class="flex justify-center items-center gap-4"
+                class="flex justify-center items-center gap-2 md:gap-4"
               >
                 <div
                   :class="
                     computedRating == 'You have not been rated yet'
                       ? ' text-amber-400 text-2xl font-semibold'
-                      : ' text-amber-400 text-xl '
+                      : ' text-amber-400 text-md md:text-xl '
                   "
                 >
                   {{ computedRating }}
@@ -179,9 +187,9 @@ onUnmounted(() => {
                     v-for="(icon, i) in computedStars"
                     :key="i"
                     :icon="icon"
-                    width="44"
-                    height="44"
-                    class="text-yellow-400"
+                    :width="isPhone ? 30 : 44"
+                    :height="isPhone ? 30 : 44"
+                    class="text-yellow-300"
                   />
                 </div>
               </div>
@@ -190,8 +198,8 @@ onUnmounted(() => {
           <div class="rotate-y-180">
             <Icon
               icon="game-icons:fluffy-wing"
-              width="74"
-              height="74"
+              :width="isPhone ? 50 : 74"
+              :height="isPhone ? 50 : 74"
               class="text-amber-200 animate-bounce"
             />
           </div>
@@ -201,6 +209,16 @@ onUnmounted(() => {
     <div class="text-sm self-center font-light text-gray-600 underline p-2">
       Users that rated you
     </div>
+
+    <!-- <div class="w-full px-4 py-8">
+      <ReusableFilterComponent
+        :items="info"
+        v-model:searchQuery="searchQuery"
+        v-model:selectedCategory="selectedCategory"
+        @update:filteredItems="filteredAds = $event"
+      />
+    </div> -->
+    <!-- {{ info }} -->
     <div class="w-full rounded-sm">
       <div class="w-full flex flex-col justify-center items-center">
         <div class="w-full flex flex-col gap-4 justify-center items-center p-4">
@@ -213,6 +231,9 @@ onUnmounted(() => {
               :end="false"
               :bg="'bg-gray-50'"
               :router-on="true"
+              :is_visable="true"
+              :main_info="true"
+              :main_info_confirm="false"
             />
           </div>
         </div>

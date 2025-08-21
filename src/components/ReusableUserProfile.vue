@@ -11,6 +11,8 @@ import { RouterLink, useRouter } from 'vue-router'
 
 import { useChatStore } from '@/stores/chat-store'
 import Button from '@/components/ui/button/Button.vue'
+import { useWindowSize } from '@/composables/useWindowSize'
+const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
 
 const chatStore = useChatStore()
 
@@ -20,6 +22,9 @@ const router = useRouter()
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
 const allStars = ref(5)
+const isEmail = ref<boolean>(false)
+const isRating = ref<boolean>(false)
+const isChatButton = ref<boolean>(false)
 const getUser = supabase.auth.getUser()
 const description = ref<string>('')
 const location = ref<string>('')
@@ -63,6 +68,18 @@ const props = defineProps({
     required: false,
   },
   routerOn: {
+    type: Boolean,
+    required: false,
+  },
+  is_visable: {
+    type: Boolean,
+    required: false,
+  },
+  main_info: {
+    type: Boolean,
+    required: false,
+  },
+  main_info_confirm: {
     type: Boolean,
     required: false,
   },
@@ -191,8 +208,10 @@ const justifyComputed = computed(() => {
   if (end.value) return 'justify-end'
   return 'justify-center'
 })
+
 const goToProfile = (id: string) => {
-  if (routerOn.value && id) return router.push(`/user-profile/${id}`)
+  if (!isEmail.value && !isRating.value && !isChatButton.value) return
+  else if (routerOn.value && id) return router.push(`/user-profile/${id}`)
   else {
     return
   }
@@ -215,6 +234,17 @@ const subscribeToRatings = (targetUserId: string) => {
       },
     )
     .subscribe()
+}
+
+const hideProfileData = () => {
+  console.log('hideProfileData')
+  if (props.is_visable) {
+    {
+      isEmail.value = !isEmail.value
+      isRating.value = !isRating.value
+      isChatButton.value = !isChatButton.value
+    }
+  } else return
 }
 const unsubscribeFromRatings = async () => {
   if (ratingSubscription) {
@@ -252,38 +282,44 @@ onUnmounted(() => {
 
   <br /> -->
 
-  <div class="w-full h-full bg-gray-50 py-10 px-10">
+  <div @click.stop.prevent="hideProfileData()" class="w-full h-full py-0 px-0 md:py-4 md:px-10">
     <div
-      :class="['w-full h-full flex items-center gap-10 rounded-sm p-4', justifyComputed, bg]"
-      class="w-full h-full flex justify-center items-center"
+      :class="[
+        'w-full h-full flex justify-center items-center gap-10 rounded-sm  ',
+        justifyComputed,
+        bg,
+        isPhone ? 'flex-col  ' : 'flex-row',
+        isEmail && isRating && isChatButton ? 'p-1' : 'p-4',
+      ]"
     >
-      <div>
-        <div @click="goToProfile(info.id)" class="flex justify-center items-center gap-8">
-          <div class="">
+      <div class="w-fit flex flex-col justify-center items-start px-[2%] md:px-[10%]">
+        <div @click="goToProfile(info.id)" class="flex justify-start items-center gap-4 md:gap-8">
+          <div class="w-full h-full flex justify-center items-center">
             <img
               :src="info.img"
-              class="rounded-full object-cover w-[150px] h-[150px]"
-              width="150"
-              height="150"
+              class="rounded-full object-cover min-w-[90px] min-h-[90px] w-[90px] h-[90px] md:min-w-[150px] md:min-h-[150px] md:w-[150px] md:h-[150px]"
+              :width="isPhone ? 90 : 150"
+              :height="isPhone ? 90 : 150"
               alt=""
             />
           </div>
           <div class="flex flex-col justify-center items-start gap-2">
             <div class="text-xl text-gray-800 font-mono">{{ info.name }}</div>
-            <div class="text-md text-gray-800 font-mono">{{ info.email }}</div>
+            <div v-if="isEmail" class="text-md text-gray-800 font-mono">{{ info.email }}</div>
 
-            <div class="w-full flex justify-start items-center gap-2">
+            <div class="w-full min-w-[200px] flex flex-col justify-center items-start gap-2">
               <div
+                v-if="isRating"
                 :class="
                   computedRating == 'This user has not been rated yet'
                     ? 'w-full flex flex-col  justify-start items-center gap-2'
-                    : 'w-full flex  justify-start items-center gap-2'
+                    : 'w-full flex justify-start items-center gap-2  '
                 "
               >
                 <div
                   :class="
                     computedRating == 'This user has not been rated yet'
-                      ? 'text-gray-800 text-md font-semibold'
+                      ? ' text-gray-800 text-md font-semibold '
                       : 'text-gray-800'
                   "
                 >
@@ -307,62 +343,73 @@ onUnmounted(() => {
                   />
                 </div>
               </div>
+              <div v-if="isChatButton" class="w-full flex justify-end items-center">
+                <Button @click="createChatRoom(user.id, info.id, chat?.room_topic)" class="w-full">
+                  <Icon icon="material-symbols:chat" width="24" height="24" />
+                  <div class="text-md text-gray-300 font-mono truncate">
+                    Chat with {{ info.name }}
+                  </div>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-
-        <div class="w-full flex justify-end items-center">
-          <Button @click="createChatRoom(user.id, info.id, chat?.room_topic)" class="">
-            <div class="text-md text-gray-300 font-mono">Chat with {{ info.name }}</div>
-            <Icon icon="material-symbols:chat" width="24" height="24" />
-          </Button>
-        </div>
       </div>
 
-      <div class="flex justify-center items-start relative">
+      <div
+        v-if="main_info && main_info_confirm ? true : !isPhone"
+        class="w-[90vw] md:w-auto flex justify-start items-start relative"
+      >
         <div v-if="info" class="text-black p-4">
           <div class="flex flex-col justify-start items-start gap-8">
-            <div class="flex justify-start items-center gap-2">
-              <div class="text-md font-semibold text-gray-600">Main information</div>
-              <div class="relative">
-                <button
-                  @mouseenter="onHintOpen = true"
-                  @mouseleave="onHintOpen = false"
-                  class="absolute top-4 left-4"
+            <div class="relative flex justify-between items-cente gap-2 px-0 md:px-4">
+              <span class="text-md font-semibold text-gray-600">Main information</span>
+              <button @mouseenter="onHintOpen = true" @mouseleave="onHintOpen = false">
+                <Icon icon="mdi:eye" width="20" height="20" />
+              </button>
+
+              <div
+                v-if="onHintOpen"
+                class="w-[200px] absolute bottom-full left-[80%] flex justify-center items-center bg-gray-800 rounded-md break-words whitespace-break-spaces px-2 py-1 shadow"
+              >
+                <p
+                  class="w-full text-[11px] text-white font-mono break-words whitespace-break-spaces"
                 >
-                  <Icon icon="mdi:eye" width="20" height="20" />
-                </button>
-                <div
-                  v-if="onHintOpen"
-                  class="w-[200px] absolute flex justify-center items-center bottom-0 left-10 bg-gray-800 rounded-md break-words whitespace-break-spaces px-2 py-1 shadow"
-                >
-                  <p
-                    class="w-full text-[11px] text-white font-mono break-words whitespace-break-spaces"
-                  >
-                    User can left his additional information here
-                  </p>
-                </div>
+                  User can leave additional information here
+                </p>
               </div>
             </div>
-            <div class="flex flex-col gap-4 px-4">
-              <div class="flex justify-start items-center gap-2">
-                <p class="text-gray-800">Description:</p>
-                <p v-if="info.description == null" class="px-4 text-sm font-extralight">
-                  there is no description
+
+            <div class="w-full flex flex-col gap-4 px-0 md:px-4">
+              <div class="w-full">
+                <p class="text-sm font-extralight">
+                  <span class="inline-block w-auto text-gray-600 font-semibold text-md"
+                    >Description:</span
+                  >
+                  <span class="align-top px-2 text-sm font-light">{{
+                    info.description ?? 'there is no description'
+                  }}</span>
                 </p>
-                <p v-else class="px-4 text-sm font-extralight">{{ info.description }}</p>
               </div>
-              <div class="flex justify-start items-center gap-4">
-                <p class="text-gray-800">Location:</p>
-                <p v-if="info.location == null" class="px-4 text-sm font-extralight">
-                  there is no location
+
+              <div class="w-full">
+                <p class="text-sm font-extralight">
+                  <span class="inline-block w-auto text-gray-600 font-semibold text-md"
+                    >Location:</span
+                  >
+                  <span class="align-top px-2 text-sm font-light">{{
+                    info.location ?? 'there is no location'
+                  }}</span>
                 </p>
-                <p v-else class="px-4 text-sm font-extralight">{{ info.location }}</p>
               </div>
-              <div class="flex justify-start items-center gap-4">
-                <p class="text-gray-800">Tel:</p>
-                <p v-if="info.tel == null" class="px-4 text-sm font-extralight">there is no tel</p>
-                <p v-else class="px-4 text-sm font-extralight">{{ info.tel }}</p>
+
+              <div class="w-full">
+                <p class="text-sm font-extralight">
+                  <span class="inline-block w-auto text-gray-600 font-semibold text-md">Tel:</span>
+                  <span class="align-top px-2 text-sm font-light">{{
+                    info.tel ?? 'there is no tel'
+                  }}</span>
+                </p>
               </div>
             </div>
           </div>
