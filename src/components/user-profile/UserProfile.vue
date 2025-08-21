@@ -12,6 +12,8 @@ import { RouterLink, useRouter } from 'vue-router'
 import { useChatStore } from '@/stores/chat-store'
 import Button from '../ui/button/Button.vue'
 import ReusableUserProfile from '@/components/ReusableUserProfile.vue'
+import { useWindowSize } from '@/composables/useWindowSize'
+const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
 
 const chatStore = useChatStore()
 
@@ -222,16 +224,19 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-w-[100vw] w-full min-h-[100vh] h-full bg-gray-50 p-10">
+  <div :class="isPhone ? 'p-2 w-full ' : ' w-full px-[5%]'">
     <div class="w-full h-full flex justify-center items-center gap-10">
       <ReusableUserProfile
         v-if="info.user_id"
         :data="info"
-        :start="false"
-        :center="true"
+        :start="true"
+        :center="false"
         :end="false"
-        :bg="'bg-gray-50'"
+        :bg="'bg-transparent'"
         :router-on="false"
+        :is_visable="false"
+        :main_info="true"
+        :main_info_confirm="true"
       />
     </div>
     <div class="w-full border"></div>
@@ -239,11 +244,17 @@ onUnmounted(() => {
       {{ ads }}
     </div> -->
 
-    <div class="w-full flex justify-center items-center p-4">
+    <div class="w-full flex justify-center items-center pb-8 p-2">
       <div class="text-xl text-gray-800 font-mono border-b">{{ info.name }}'s ads</div>
     </div>
-    <div class="p-10 w-full flex flex-wrap justify-start items-center gap-8">
-      <div v-for="ad in ads" :key="ad.id">
+    <div
+      :class="
+        isPhone
+          ? ' w-full grid grid-cols-2 justify-center items-center gap-4 '
+          : ' w-full grid grid-cols-4 gap-4 justify-center items-center'
+      "
+    >
+      <div v-for="ad in ads" :key="ad.id" class="w-full flex flex-col justify-center items-center">
         <RouterLink :to="`/ad/${ad.id}`">
           <AdCard
             :title="ad.title"
@@ -255,15 +266,15 @@ onUnmounted(() => {
             :type="ad.type"
             :if_discount="ad.if_discount"
             :discount="ad.discount"
-            :h_size="'200px'"
-            :size="'300px'"
-            :w_container="'300px'"
-            :h_container="'350px'"
+            :h_size="isPhone ? '120px' : '200px'"
+            :size="isPhone ? '180px' : '300px'"
+            :w_container="isPhone ? '180px' : '300px'"
+            :h_container="isPhone ? '250px' : '350px'"
             :horisontal="true"
             :col="true"
             :is_user_name="false"
             :created_at="ad.created_at || ''"
-            :if_favorite="false"
+            :if_favorite="true"
           />
         </RouterLink>
       </div>
