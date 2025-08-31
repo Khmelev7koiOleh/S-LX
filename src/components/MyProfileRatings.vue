@@ -15,7 +15,7 @@ import { useGetUserStore } from '../stores/current-user-store'
 // import ChatMessageComponent from '@/components/ChatMessageComponent.vue'
 import { Icon } from '@iconify/vue'
 // import UserProfile from './user-profile/UserProfile.vue'
-import ReusableUserProfile from './ReusableUserProfile.vue'
+import ReusableUserProfile from './reusable/ReusableUserProfile.vue'
 // import { start } from 'repl'
 // import { styleText } from 'util'
 // import ReusableFilterComponent from './reusable/ReusableFilterComponent.vue'
@@ -164,9 +164,9 @@ onUnmounted(() => {
   <div class="w-full flex flex-col mx-auto">
     <div class="w-full flex flex-col gap-4 justify-center items-center p-4"></div>
     <div class="w-full flex justify-center items-center">
-      <div class="w-full flex justify-center items-center gap-2 bg-amber-400 p-2 md:p-4 rounded-sm">
+      <div class="w-fit flex justify-center items-center gap-2 p-2 md:p-4 rounded-sm">
         <!-- <div class="text-lg font-semibold">Rating:</div> -->
-        <div
+        <!-- <div
           :class="
             computedRating == 'This user has not been rated yet'
               ? 'w-full flex  justify-center items-center gap-6'
@@ -223,6 +223,180 @@ onUnmounted(() => {
               :height="isPhone ? 50 : 74"
               class="text-amber-200 animate-bounce"
             />
+          </div>
+        </div> -->
+        <div class="w-full h-[150px] flex justify-center items-center gap-8">
+          <div
+            :class="
+              computedRating == 'You have not been rated yet'
+                ? 'flex flex-col justify-center items-center'
+                : 'flex flex-col justify-center items-start '
+            "
+            class="flex justify-center items-center gap-2 md:gap-4"
+          >
+            <div
+              :class="
+                computedRating == 'You have not been rated yet'
+                  ? ' text-amber-400 text-xl font-semibold'
+                  : ' text-gray-900 text-md md:text-xl '
+              "
+            >
+              {{ computedRating }}
+            </div>
+
+            <div class="flex justify-center items-center">
+              <Icon
+                v-for="(icon, i) in computedStars"
+                :key="i"
+                :icon="icon"
+                :width="isPhone ? 30 : 34"
+                :height="isPhone ? 30 : 34"
+                class="text-yellow-300"
+              />
+            </div>
+          </div>
+
+          <div class="h-full border border-gray-300"></div>
+
+          <div class="w-full flex flex-col justify-center items-center gap-2 md:gap-4">
+            <div class="w-full flex justify-start items-center gap-2">
+              <!-- <div
+                :class="
+                  computedRating == 'You have not been rated yet'
+                    ? ' text-amber-400 text-xl font-semibold'
+                    : ' text-gray-900 text-md md:text-xl '
+                "
+              >
+                {{ computedRating }}
+              </div> -->
+              <p class="text-gray-900 text-md md:text-xl">5</p>
+
+              <div class="flex justify-center items-center">
+                <Icon
+                  v-for="(icon, i) in computedStars"
+                  :key="i"
+                  :icon="icon"
+                  :width="isPhone ? 30 : 34"
+                  :height="isPhone ? 30 : 34"
+                  class="text-yellow-300"
+                />
+              </div>
+            </div>
+            <div class="w-full flex justify-start items-center gap-2">
+              <!-- <div
+                :class="
+                  computedRating == 'You have not been rated yet'
+                    ? ' text-amber-400 text-xl font-semibold'
+                    : ' text-gray-900 text-md md:text-xl '
+                "
+              >
+                {{ computedRating }}
+              </div> -->
+              <p class="text-gray-900 text-md md:text-xl">5</p>
+
+              <div class="flex justify-center items-center">
+                <Icon
+                  v-for="(icon, i) in computedStars"
+                  :key="i"
+                  :icon="icon"
+                  :width="isPhone ? 30 : 34"
+                  :height="isPhone ? 30 : 34"
+                  class="text-yellow-300"
+                />
+              </div>
+            </div>
+            <div class="w-full flex justify-start items-center gap-2">
+              <!-- <div
+                :class="
+                  computedRating == 'You have not been rated yet'
+                    ? ' text-amber-400 text-xl font-semibold'
+                    : ' text-gray-900 text-md md:text-xl '
+                "
+              >
+                {{ computedRating }}
+              </div> -->
+              <p class="text-gray-900 text-md md:text-xl">5</p>
+
+              <div class="flex justify-center items-center">
+                <Icon
+                  v-for="(icon, i) in computedStars"
+                  :key="i"
+                  :icon="icon"
+                  :width="isPhone ? 30 : 34"
+                  :height="isPhone ? 30 : 34"
+                  class="text-yellow-300"
+                />
+              </div>
+            </div>
+            <div class="w-full flex justify-start items-center gap-2">
+              <!-- <div
+                :class="
+                  computedRating == 'You have not been rated yet'
+                    ? ' text-amber-400 text-xl font-semibold'
+                    : ' text-gray-900 text-md md:text-xl '
+                "
+              >
+                {{ computedRating }}
+              </div> -->
+              <p class="text-gray-900 text-md md:text-xl">5</p>
+
+              <div class="flex justify-center items-center">
+                <Icon
+                  v-for="(icon, i) in computedStars"
+                  :key="i"
+                  :icon="icon"
+                  :width="isPhone ? 30 : 34"
+                  :height="isPhone ? 30 : 34"
+                  class="text-yellow-300"
+                />
+              </div>
+            </div>
+            <div class="w-full flex justify-start items-center gap-2">
+              <!-- <div
+                :class="
+                  computedRating == 'You have not been rated yet'
+                    ? ' text-amber-400 text-xl font-semibold'
+                    : ' text-gray-900 text-md md:text-xl '
+                "
+              >
+                {{ computedRating }}
+              </div> -->
+              <p class="text-gray-900 text-md md:text-xl">5</p>
+
+              <div class="flex justify-center items-center">
+                <Icon
+                  v-for="(icon, i) in computedStars"
+                  :key="i"
+                  :icon="icon"
+                  :width="isPhone ? 30 : 34"
+                  :height="isPhone ? 30 : 34"
+                  class="text-yellow-300"
+                />
+              </div>
+            </div>
+            <div class="w-full flex justify-start items-center gap-2">
+              <!-- <div
+                :class="
+                  computedRating == 'You have not been rated yet'
+                    ? ' text-amber-400 text-xl font-semibold'
+                    : ' text-gray-900 text-md md:text-xl '
+                "
+              >
+                {{ computedRating }}
+              </div> -->
+              <p class="text-gray-900 text-md md:text-xl">1</p>
+
+              <div class="flex justify-center items-center">
+                <Icon
+                  v-for="(icon, i) in computedStars"
+                  :key="i"
+                  :icon="icon"
+                  :width="isPhone ? 30 : 34"
+                  :height="isPhone ? 30 : 34"
+                  class="text-yellow-300"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>

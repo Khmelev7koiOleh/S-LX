@@ -187,12 +187,12 @@ onUnmounted(() => {
 </script>
 <template>
   <!-- Add deleted chats and profile for every chat user chats with  -->
-  <div class="w-full h-full bg-gray-300 py-4">
+  <div class="w-full h-full bg-gray-100 py-4">
     <div :class="isPhone ? 'w-[100%] mx-auto' : 'w-[60%] mx-auto'">
       <div
         :class="
           isPhone
-            ? 'w-full flex flex-col justify-center items-start gap-4 m-10 '
+            ? 'w-full flex flex-col justify-center items-start gap-4 p-4 my-10  '
             : 'w-full flex flex-col justify-center items-start gap-4 m-10 p-10'
         "
       >
@@ -207,8 +207,8 @@ onUnmounted(() => {
             />
           </div>
           <div class="flex flex-col justify-center items-start gap-2">
-            <div class="text-xl text-gray-800 font-mono">{{ info.name }}</div>
-            <div class="text-md text-gray-800 font-mono">{{ info.email }}</div>
+            <div class="text-xl text-gray-800 font-mono truncate">{{ info.name }}</div>
+            <div class="text-md text-gray-800 font-mono truncate">{{ info.email }}</div>
           </div>
         </div>
         <!-- <div class="px-4 py-2 text-md text-gray-800 rounded-lg font-mono">{{ user.id }}</div> -->

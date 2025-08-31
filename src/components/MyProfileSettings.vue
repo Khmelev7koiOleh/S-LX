@@ -2,16 +2,17 @@
   <div
     :class="
       darkMode
-        ? 'bg-white  min-w-[100vw] w-full min-h-[100vh] h-full'
+        ? 'bg-gray-100   min-w-[100vw] w-full min-h-[100vh] h-full'
         : 'bg-gray-900  min-w-[100vw] w-full min-h-[100vh] h-full'
     "
   >
-    <div class="w-full flex flex-col justify-end items-center p-10 gap-5">
+    <!-- <div :class="darkMode ? 'border border-gray-950' : 'border border-gray-50'" /> -->
+    <div class="w-full flex justify-center items-center gap-0 p-8">
       <div
         :class="
           darkMode
-            ? 'text-black text-2xl font-thin w-full flex justify-center items-center'
-            : 'text-white text-2xl  font-thin w-full flex justify-center items-center'
+            ? 'text-black text-2xl font-thin w-full flex justify-center items-center '
+            : 'text-white text-2xl  font-thin w-full flex justify-center items-center '
         "
       >
         Dark mode
@@ -27,7 +28,7 @@
       >
         <Icon icon="mdi:theme-light-dark" width="34" />
       </button> -->
-      <div class="w-full flex justify-end items-center">
+      <div class="w-fit flex justify-center items-center">
         <Switch
           class="w-16 h-8 flex justify-center items-center"
           :model-value="darkMode"
