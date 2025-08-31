@@ -6,16 +6,34 @@ import { ref, computed, watch, toRefs } from 'vue'
 import { defineEmits } from 'vue'
 
 import { adType } from '@/data/ad-type'
-
+import type { Tables } from '@/types/supabase'
+import type { PropType } from 'vue'
 import { useWindowSize } from '@/composables/useWindowSize'
 
-const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
+const { isPhone, isLaptop, isTablet } = useWindowSize()
 
 const props = defineProps({
-  items: { type: Array, required: true },
+  items: { type: Array as PropType<Tables<'ads'>[]>, required: true },
   searchQuery: { type: String, required: true },
   selectedCategory: { type: String, required: false },
 })
+
+// const props = defineProps<{
+//   items: Tables<'ads'>[]
+//   searchQuery: string
+//   selectedCategory: string
+// }>()
+
+// interface ItemType {
+//   id: number
+//   title: string
+//   description: string
+//   price: string
+//   discount: string
+//   if_discount: boolean
+//   created_at: string
+//   type: string
+// }
 const { items } = toRefs(props)
 const emit = defineEmits(['update:searchQuery', 'update:selectedCategory', 'update:filteredItems'])
 
@@ -39,12 +57,12 @@ const filteredItems = computed(() => {
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase()
     result = result.filter(
-      (ad: any) =>
-        ad.title.toLowerCase().includes(query) || ad.description.toLowerCase().includes(query),
+      (ad: Tables<'ads'>) =>
+        ad?.title?.toLowerCase().includes(query) || ad?.description?.toLowerCase().includes(query),
     )
   }
   if (selectedCategory.value) {
-    result = result.filter((ad: any) => ad.type === selectedCategory.value)
+    result = result.filter((ad: Tables<'ads'>) => ad.type === selectedCategory.value)
   }
 
   if (filterCreatedAt.value) {
@@ -54,9 +72,12 @@ const filteredItems = computed(() => {
   }
 
   if (filterPrice.value) {
-    result = result.sort((a, b) => b.price - a.price)
+    result = result.sort((a, b) => {
+      if (a.price === null) return 1
+      if (b.price === null) return -1
+      return (b.price as number) - (a.price as number)
+    })
   }
-
   return result
 })
 
@@ -130,7 +151,7 @@ watch(filteredItems, (newVal) => {
         >
           <button
             @click="onFilterMenuOpen = !onFilterMenuOpen"
-            v-if="isPhone"
+            v-if="isPhone || isTablet"
             class="shadow shadow-gray-400 rounded-full p-2"
           >
             <Icon
@@ -200,6 +221,12 @@ watch(filteredItems, (newVal) => {
 
             <div>
               <button
+                :disabled="
+                  searchQuery == '' &&
+                  selectedCategory == '' &&
+                  filterCreatedAt == false &&
+                  filterPrice == false
+                "
                 :class="
                   isPhone
                     ? 'w-[100px] h-[40px] flex justify-center items-center shadow shadow-gray-400 text-gray-900 text-center placeholder:text-amber-100  focus:bg-gray-200 rounded-b-sm cursor-pointer '
@@ -208,7 +235,18 @@ watch(filteredItems, (newVal) => {
                 @click="filterRemove"
               >
                 <!-- <Icon v-if="isPhone" icon="bi:arrow-counterclockwise" width="24" height="24" /> -->
-                <p>Reset</p>
+                <p
+                  :class="
+                    searchQuery == '' &&
+                    selectedCategory == '' &&
+                    filterCreatedAt == false &&
+                    filterPrice == false
+                      ? 'text-gray-300'
+                      : 'text-gray-900'
+                  "
+                >
+                  Reset
+                </p>
               </button>
             </div>
           </div>

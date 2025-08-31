@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import DynamicAd from '../components/DynamicAd.vue'
-import ChatMessageComponent from '../components/ChatMessageComponent.vue'
+// import ChatMessageComponent from '../components/ChatMessageComponent.vue'
 import HomeView from '../views/HomeView.vue'
 import Check from '../components/ExtendedChatMessageComponent.vue'
 import UserProfile from '../components/user-profile/UserProfile.vue'

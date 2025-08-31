@@ -3,11 +3,11 @@
 import { onMounted, ref, toRefs, computed, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient'
-import type { AdsType } from '@/types/ads-type'
+// import type { AdsType } from '@/types/ads-type'
 import Button from './ui/button/Button.vue'
 import { useGetUserStore } from '@/stores/current-user-store'
 import ChatMessageComponent from './ChatMessageComponent.vue'
-import AdCard from './AdCard.vue'
+// import AdCard from './AdCard.vue'
 import { Card, CardContent } from '@/components/ui/card'
 import {
   Carousel,
@@ -18,100 +18,105 @@ import {
 } from '@/components/ui/carousel'
 import Autoplay from 'embla-carousel-autoplay'
 import AddFavoritesButton from './AddFavoritesButton.vue'
-import UserProfile from './user-profile/UserProfile.vue'
+// import UserProfile from './user-profile/UserProfile.vue'
+
 import { useChatStore } from '@/stores/chat-store'
 import { Icon } from '@iconify/vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
-import { useWindowSize } from '@/composables/useWindowSize'
-const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
+import type { Tables } from '@/types/supabase'
 import { useGetAdCategory } from '../composables/get-ad-category'
+import { useSupabaseSubscription } from '@/composables/useSupabaseSubscription'
+import { useWindowSize } from '@/composables/useWindowSize'
+const { isPhone } = useWindowSize()
+const { subscribe, unsubscribe } = useSupabaseSubscription()
 const chatStore = useChatStore()
 const { getValueOf } = useGetAdCategory()
-interface CurrentRoom {
-  room_id: string
-  // Add other properties of currentRoom here
-}
+// interface CurrentRoom {
+//   room_id: string
+//   // Add other properties of currentRoom here
+// }
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
-const message = ref('')
+// const message = ref('')
 // const room = ref('general')
 const router = useRouter()
 const route = useRoute()
-const ad = ref<AdsType | null>(null)
-const userData = ref<any | null>(null)
-const chat = ref<any | null>(null)
+// const adq = ref<Tables<'ads'>[]>([])
+const ad = ref<Tables<'ads'> | null>(null)
+const userData = ref<Tables<'user'> | null>(null)
+const chat = ref<Tables<'chat'>[] | null>(null)
 const theMessage = ref<{ msg: string }[]>([])
-const currentRoom = ref<any | undefined>(null)
+const currentRoom = ref<Tables<'chat_rooms'> | null>(null)
 // const onCurrentRoomOpen = ref<boolean>(false)
-const klasse = ref<any[] | null>([])
-const klasseNew = ref<any[] | null>([])
-const adImg = ref<string[] | null>([])
-const rating = ref<Number>(0)
+// const klasse = ref<any[] | null>([])
+// const klasseNew = ref<any[] | null>([])
+// const adImg = ref<string[] | null>([])
+const rating = ref<number>(0)
 const onPhoneNumberShow = ref<boolean>(false)
-let ratingSubscription: any = null
+// let ratingSubscription: any = null
 
-async function getOrCreateConversation(user_1, user_2) {
-  const sorted = [user_1, user_2].sort() // sorts alphabetically
-  const room_id = `${sorted[0]}_${sorted[1]}`
+// async function getOrCreateConversation(user_1, user_2) {
+//   const sorted = [user_1, user_2].sort() // sorts alphabetically
+//   const room_id = `${sorted[0]}_${sorted[1]}`
 
-  console.log('room_id', room_id)
+//   console.log('room_id', room_id)
 
-  const { data: existingConvo, error } = await supabase
-    .from('chat')
-    .select('*')
+//   const { data: existingConvo, error } = await supabase
+//     .from('chat')
+//     .select('*')
 
-    .eq('room_id', room_id)
-    .maybeSingle()
-  theMessage.value = existingConvo
-  klasse.value = existingConvo
+//     .eq('room_id', room_id)
+//     .maybeSingle()
+//   theMessage.value = existingConvo
+//   klasse.value = existingConvo
 
-  if (existingConvo) return existingConvo
+//   if (existingConvo) return existingConvo
 
-  // Falls nicht, neuen Chat erstellen
-  const { data: newConvo, error: createError } = await supabase
-    .from('chat')
-    .insert([
-      {
-        user_name: 'just a name',
-        room_id: room_id,
-        content: 'text and smth else',
-        participants: [user_1, user_2], // [user_1, user_2],
-        msg: [{ sender_id: user_1, text: message.value, timestamp: new Date().toISOString() }],
-        // msg: [message.value],
-      },
-    ])
-    .select()
-    .single()
-  console.log('newConvo', newConvo)
-  klasseNew.value = newConvo
-  return newConvo
-}
+//   // Falls nicht, neuen Chat erstellen
+//   const { data: newConvo, error: createError } = await supabase
+//     .from('chat')
+//     .insert([
+//       {
+//         user_name: 'just a name',
+//         room_id: room_id,
+//         content: 'text and smth else',
+//         participants: [user_1, user_2], // [user_1, user_2],
+//         msg: [{ sender_id: user_1, text: message.value, timestamp: new Date().toISOString() }],
+//         // msg: [message.value],
+//       },
+//     ])
+//     .select()
+//     .single()
+//   console.log('newConvo', newConvo)
+//   klasseNew.value = newConvo
+//   return newConvo
+// }
 
 const getChat = async () => {
-  const { data, error } = await supabase.from('chat').select('*')
+  const { data } = await supabase.from('chat').select('*')
   if (data) chat.value = data
 }
 
-const sendMessageToMessage = async (id: string, message: string) => {
-  console.log(id, message)
+// const sendMessageToMessage = async (id: string, message: string) => {
+//   console.log(id, message)
 
-  const { data, error } = await supabase.from('chat').insert([
-    {
-      user_name: 'just a namewfwefwgw',
-      content: message,
-      room_id: ad.value?.user_id + '_' + user.value.id,
-      participants: [{ participant_1: user.value.id }, { participant_2: id }],
-      check: [{ messages: message }],
-    },
-  ])
-  console.log('data', data)
-  if (error) console.error('Error sending message:', error)
-}
+//   const { data, error } = await supabase.from('chat').insert([
+//     {
+//       user_name: 'just a namewfwefwgw',
+//       content: message,
+//       room_id: ad.value?.user_id + '_' + user.value.id,
+//       participants: [{ participant_1: user.value.id }, { participant_2: id }],
+//       check: [{ messages: message }],
+//     },
+//   ])
+//   console.log('data', data)
+//   if (error) console.error('Error sending message:', error)
+// }
 
 async function createChatRoom(user1_id: string, user2_id: string) {
   console.log(user1_id, user2_id)
   const room_id = [user1_id, user2_id].sort().join('_')
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from('chat_rooms')
     .upsert(
       {
@@ -129,7 +134,7 @@ async function createChatRoom(user1_id: string, user2_id: string) {
   return data
 }
 const getUser = async () => {
-  const { data, error } = await supabase.from('user').select('*').eq('id', ad?.value?.user_id)
+  const { data } = await supabase.from('user').select('*').eq('id', ad?.value?.user_id)
   if (data && data.length > 0) {
     userData.value = data[0]
   } else {
@@ -145,7 +150,7 @@ const deleteAd = async (id: string) => {
   }
 }
 
-const getAverageRating = async (targetUserId: any) => {
+const getAverageRating = async (targetUserId: string | number) => {
   console.log('getAverageRating', targetUserId)
 
   const { data, error } = await supabase
@@ -200,29 +205,28 @@ const transformTime = computed(() => {
 const handleCategory = (category: string) => {
   getValueOf(category)
 }
-const subscribeToRatings = (targetUserId: any) => {
-  ratingSubscription = supabase
-    .channel('ratings-channel')
-    .on(
-      'postgres_changes',
-      {
-        event: '*', // or 'INSERT' | 'UPDATE' | 'DELETE'
-        schema: 'public',
-        table: 'ratings',
-        filter: `target_user_id=eq.${targetUserId}`,
-      },
-      (payload) => {
-        console.log('Realtime change:', payload)
-        getAverageRating(targetUserId)
-      },
-    )
-    .subscribe()
-}
-const unsubscribeFromRatings = async () => {
-  if (ratingSubscription) {
-    await supabase.removeChannel(ratingSubscription)
-  }
-}
+
+// const subscribeToRatings = (targetUserId: string | number) => {
+//   ratingSubscription = supabase
+//     .channel('ratings-channel')
+//     .on(
+//       'postgres_changes',
+//       {
+//         event: '*', // or 'INSERT' | 'UPDATE' | 'DELETE'
+//         schema: 'public',
+//         table: 'ratings',
+//         filter: `target_user_id=eq.${targetUserId}`,
+//       },
+//       (payload) => {
+//         console.log('Realtime change:', payload)
+//         getAverageRating(targetUserId)
+//       },
+//     )
+//     .subscribe()
+// }
+// const unsubscribeFromRatings = async () => {
+//   if (unsubscribe) unsubscribe()
+// }
 
 onMounted(async () => {
   await getChat()
@@ -230,19 +234,34 @@ onMounted(async () => {
 
   if (!error) {
     ad.value = data
-    userData.value = data
+    userData.value = data ?? []
   }
   await getUser()
-  adImg.value = ad.value?.img ? [ad.value?.img] : null
-  subscribeToRatings(ad.value?.user_id)
-  subscribeToRatings(ad.value?.user_id)
+  // adImg.value = ad.value?.img ? ad.value?.img : null
+  // subscribeToRatings(ad.value?.user_id)
+  subscribe(
+    {
+      event: '*',
+      schema: 'public',
+      table: 'ratings',
+      filter: `target_user_id=eq.${ad.value?.user_id}`,
+    },
+    (payload) => {
+      console.log('Realtime change:', payload)
+      getAverageRating(ad.value?.user_id ?? '')
+    },
+  )
 
-  getAverageRating(ad.value?.user_id)
+  getAverageRating(ad.value?.user_id ?? '')
+})
+onUnmounted(() => {
+  if (unsubscribe) unsubscribe()
 })
 </script>
 
 <template>
   <div class="w-[100vw] h-[100vh] relative">
+    <!-- {{ userData }} -->
     <button
       v-if="user?.id === ad?.user_id"
       :class="isPhone ? ' absolute top-2 right-2 ' : 'absolute top-8 right-8'"
@@ -254,11 +273,13 @@ onMounted(async () => {
         item="ad"
         icon="mdi:dots-vertical"
         text_color="text-black"
-        @confirm="() => deleteAd(ad.id)"
-        @cancel="handleCancel"
+        @confirm="() => ad?.id && deleteAd(ad?.id)"
       />
     </button>
-
+    <!--
+    <div class="p-10 bg-amber-800">
+      {{ adImg }}
+    </div> -->
     <div
       v-if="currentRoom && chatStore.onCurrentRoomOpen"
       class="w-1/3 h-full absolute right-0 flex flex-col justify-center items-center"
@@ -270,7 +291,7 @@ onMounted(async () => {
             : 'w-[30%] h-2/3 fixed bottom-0 right-0 flex flex-col justify-center items-center z-10'
         "
       >
-        <ChatMessageComponent :data="currentRoom" :userData="userData" />
+        <ChatMessageComponent :data="currentRoom" :userData="userData ?? []" />
       </div>
     </div>
 
@@ -297,11 +318,13 @@ onMounted(async () => {
         >
           <div class="absolute top-4 right-4 z-10">
             <AddFavoritesButton
-              :id="ad.id"
-              :img="ad.img[0] ? ad.img[0] : ad.img || ''"
               :title="ad.title"
               :description="ad.description"
+              :id="ad.id"
+              :img="[ad.img?.[0] || '']"
               :price="ad.price"
+              :created_at="ad.created_at"
+              :type="ad.type"
               :if_discount="ad.if_discount"
               :discount="ad.discount"
             />
@@ -309,11 +332,19 @@ onMounted(async () => {
           <CarouselContent>
             <CarouselItem v-for="(item, index) in ad.img" :key="index">
               <div>
-                <Card>
+                <Card class="bg-white">
                   <CardContent
                     class="max-h-[500px] min-h-[500px] flex aspect-square items-center justify-center"
                   >
-                    <img :src="item" alt="" class="max-h-[450px] min-h-[450px] object-cover" />
+                    <img
+                      :src="item"
+                      alt=""
+                      :class="
+                        isPhone
+                          ? 'min-w-[30vw] min-h-auto max-w-[90vw] md:max-h-[90vh] object-contain mx-auto'
+                          : '  min-w-[30vw] min-h-auto max-w-[70vw] md:max-h-[70vh] object-contain mx-auto'
+                      "
+                    />
                   </CardContent>
                 </Card>
               </div>
@@ -343,9 +374,27 @@ onMounted(async () => {
               <p class="px-2 font-semibold">Description:</p>
               <div class="px-2 font-extralight whitespace-pre-line">{{ ad.description }}</div>
             </div>
+            <div class="flex items-start justify-start">
+              <p class="px-2 font-semibold">Price:</p>
+
+              <div
+                class="px-2 bg-black text-white font-extralight whitespace-pre-line"
+                :class="ad.if_discount ? 'line-through' : ''"
+              >
+                {{ ad.price }}€
+              </div>
+              <div v-if="ad.if_discount" class="px-2 font-extralight whitespace-pre-line">/</div>
+              <div
+                v-if="ad.if_discount"
+                class="bg-red-400 text-white px-2 font-extralight whitespace-pre-line"
+                :class="ad.if_discount ? '' : 'line-through'"
+              >
+                {{ ad.discount }}€
+              </div>
+            </div>
             <div class="flex items-center">
               <p class="px-2 font-semibold">Type:</p>
-              <Button class="px-2" @click="handleCategory(ad.type)">{{ ad.type }}</Button>
+              <Button class="px-2" @click="handleCategory(ad.type || '')">{{ ad.type }}</Button>
             </div>
             <div class="flex items-center">
               <p class="px-2 font-semibold">Created at:</p>
@@ -375,11 +424,11 @@ onMounted(async () => {
         >
           <div class="text-xl font-semibold">User</div>
 
-          <RouterLink :to="'/user-profile/' + userData.id">
+          <RouterLink :to="'/user-profile/' + userData?.id">
             <div class="w-full flex flex-col justify-center items-start">
               <div class="flex justify-center items-center gap-2">
                 <img
-                  :src="userData.img"
+                  :src="userData?.img ?? ''"
                   alt=""
                   width="14"
                   height="14"
@@ -387,7 +436,7 @@ onMounted(async () => {
                 />
 
                 <div class="w-full flex flex-col justify-center items-start gap-0">
-                  <div class="text-xl">{{ userData.name }}</div>
+                  <div class="text-xl">{{ userData?.name }}</div>
                   <div
                     :class="
                       computedRating == 'This user has not been rated yet'
@@ -432,7 +481,7 @@ onMounted(async () => {
             @click="
               (() => {
                 chatStore.onCurrentRoomOpen = true
-                createChatRoom(user.id, ad.user_id)
+                createChatRoom(user.id, ad.user_id ?? '')
               })()
             "
             class="w-full flex items-center p-2 gap-1 text-black bg-white shadow rounded-lg cursor-pointer hover:text-white"
@@ -444,7 +493,7 @@ onMounted(async () => {
             class="w-full p-2 gap-1 text-black bg-white shadow rounded-lg hover:text-white"
             ><div v-if="!onPhoneNumberShow">Phone number</div>
             <div v-else class="w-full break-words whitespace-normal">
-              <div v-if="userData.tel">{{ userData.tel }}</div>
+              <div v-if="userData?.tel">{{ userData?.tel }}</div>
               <div v-else class="text-sm font-light break-words">
                 This user has not provided a phone number
               </div>

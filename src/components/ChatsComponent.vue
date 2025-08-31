@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ChatsComponent from './ChatsComponent.vue'
+// import ChatsComponent from './ChatsComponent.vue'
 import {
   Pagination,
   PaginationContent,
@@ -13,22 +13,28 @@ import { ref, toRefs, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient'
 import { useGetUserStore } from '../stores/current-user-store'
-import ChatMessageComponent from '@/components/ChatMessageComponent.vue'
+// import ChatMessageComponent from '@/components/ChatMessageComponent.vue'
 import { Icon } from '@iconify/vue'
 import { useChatStore } from '../stores/chat-store'
 import { useGetUsersComposable } from '@/composables/get-users'
+import type { Tables } from '@/types/supabase'
 import { useWindowSize } from '@/composables/useWindowSize'
-const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
+const { isPhone } = useWindowSize()
 
-const { users, loading, error, getUsers } = useGetUsersComposable()
+const { users, getUsers } = useGetUsersComposable()
 
 const chatStore = useChatStore()
 
 const userStore = useGetUserStore()
+
 const { user } = toRefs(userStore)
-const messages = ref<any | null>(null)
+
+// const messages = ref<any | null>(null)
 const router = useRouter()
-const chatsIn = ref<any | null>([])
+
+// from   chatsIn
+
+const chatsIn = ref<Tables<'chat_rooms'>[] | null>([])
 /*************  ✨ Windsurf Command ⭐  *************/
 /**
  * Fetches chat rooms the current user is participating in.
@@ -48,7 +54,7 @@ const chatsIn = ref<any | null>([])
   chatsIn.value = data
   return data
 }
-const goToChat = (chat: any) => {
+const goToChat = (chat: Tables<'chat_rooms'>) => {
   console.log(chat)
   chatStore.currentChat = chat // Store the chat
   router.push(`/chats/${chat.room_id}`) // Navigate
@@ -65,8 +71,8 @@ const ids = new Set<string>()
 onMounted(async () => {
   await getRoomsCurrentUserIn()
 
-  chatsIn.value.forEach((chat: any) => {
-    chat.participant_ids.forEach((id: string) => {
+  chatsIn?.value?.forEach((chat: Tables<'chat_rooms'>) => {
+    chat?.participant_ids?.forEach((id: string) => {
       if (id) ids.add(id)
     })
   })
@@ -83,17 +89,17 @@ const itemsPerPage = 5
 // console.log(myPersonalChats)
 const enrichedChats = computed(() => {
   let personalChat = ''
-  if (!chatsIn.value.length || !users.value.length || !user.value) return []
+  if (!chatsIn?.value?.length || !users.value.length || !user.value) return []
 
-  return chatsIn.value.map((chat: any) => {
+  return chatsIn.value.map((chat: Tables<'chat_rooms'>) => {
     if (
-      chat.participant_ids[0] === chat.participant_ids[1] &&
-      chat.participant_ids[0 && 1] === user.value.id
+      chat?.participant_ids?.[0] === chat?.participant_ids?.[1] &&
+      chat.participant_ids?.[0 && 1] === user.value.id
     ) {
       personalChat = chat.participant_ids[0]
     }
 
-    const otherUserId = chat.participant_ids.find((id: string) => id !== user.value.id)
+    const otherUserId = chat?.participant_ids?.find((id: string) => id !== user.value.id)
 
     const otherUser = users.value.find((u) => u.id === otherUserId)
     const otherUserTwo = users.value.find((u) => u.id === personalChat)
@@ -101,13 +107,13 @@ const enrichedChats = computed(() => {
     return {
       ...chat,
       name:
-        chat.participant_ids[0] === chat.participant_ids[1] &&
-        chat.participant_ids[0] === user.value.id
+        chat?.participant_ids?.[0] === chat.participant_ids?.[1] &&
+        chat?.participant_ids?.[0] === user.value.id
           ? otherUserTwo?.name || 'Unknown'
           : otherUser?.name || 'Unknown',
       img:
-        chat.participant_ids[0] === chat.participant_ids[1] &&
-        chat.participant_ids[0] === user.value.id
+        chat?.participant_ids?.[0] === chat?.participant_ids?.[1] &&
+        chat?.participant_ids?.[0] === user.value.id
           ? otherUserTwo?.img || null
           : otherUser?.img || null,
     }
@@ -124,19 +130,18 @@ const getPaginatedChats = (page: number) => {
   <div class="w-full flex flex-col mx-auto px-4">
     <!-- <div>{{ enrichedChats }}</div> -->
   </div>
-
   <div class="p-10">
     <Pagination
       class="w-full flex flex-col justify-center items-center gap-10"
       v-slot="{ page }"
       :items-per-page="itemsPerPage"
-      :total="chatsIn.length"
+      :total="chatsIn?.length"
       :default-page="1"
     >
       <div :class="isPhone ? ' mt-4 space-y-2 w-[90vw]' : ' mt-4 space-y-2 w-[60vw]'">
         <div
           v-for="chat in getPaginatedChats(page)"
-          :key="chat.id"
+          :key="chat.room_id"
           class="bg-black border p-2 rounded-md"
         >
           <!-- <div class="text-white">{{ chat }}</div> -->

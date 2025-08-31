@@ -3,15 +3,15 @@ import { ref, onMounted, toRefs } from 'vue'
 import { supabase } from '../lib/supabaseClient'
 import { useGetUserStore } from '@/stores/current-user-store'
 import AdCard from '../components/AdCard.vue'
-
+import type { Tables } from '@/types/supabase'
 import { useWindowSize } from '@/composables/useWindowSize'
 
-const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
+const { isPhone } = useWindowSize()
 
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
 
-const ads = ref<any[]>([])
+const ads = ref<Tables<'ads'>[]>([])
 
 const getAds = async () => {
   const { data, error } = await supabase.from('ads').select('*').eq('user_id', user.value.id)
@@ -48,8 +48,7 @@ onMounted(() => {
             :description="ad.description"
             :price="ad.price"
             :id="ad.id"
-            :img="ad.img[0] || ''"
-            :user_name="ad.user_name"
+            :img="[ad?.img?.[0] || '']"
             :type="ad.type"
             :h_size="isPhone ? '120px' : '200px'"
             :size="isPhone ? '180px' : '300px'"

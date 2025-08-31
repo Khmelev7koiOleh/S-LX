@@ -1,35 +1,31 @@
 <script setup lang="ts">
-import { ref, toRefs, onMounted } from 'vue'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { Icon } from '@iconify/vue'
-import { adType } from '@/data/ad-type'
+import { toRefs, onMounted } from 'vue'
+
 import { defineProps } from 'vue'
 import { useGetAdCategory } from '../composables/get-ad-category'
-import { useFilterStore } from '../stores/filter-store'
+
 import { useWindowSize } from '@/composables/useWindowSize'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './ui/accordion'
 
-const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
+const { isPhone, isLaptop } = useWindowSize()
 
 const { getValueOf } = useGetAdCategory()
-const filterStore = useFilterStore()
-const { selectedCategory } = toRefs(filterStore)
-const router = useRouter()
+
 const props = defineProps({
-  img: {
-    type: String,
-    required: true,
-  },
   title: {
     type: String,
     required: true,
   },
+  img: {
+    type: String,
+    required: true,
+  },
   data: {
-    type: Array,
+    type: Array<{ title: string; value: string }>,
     required: true,
   },
 })
-const { img, title, data } = toRefs(props)
+const { data } = toRefs(props)
 // const mediaIcons = ref([
 //   {
 //     icon: 'mdi:facebook',
@@ -63,8 +59,8 @@ onMounted(() => {
   <div
     :class="
       isPhone
-        ? 'bg-white w-full flex justify-center items- gap-2 px-1'
-        : 'bg-white w-full flex justify-center items- gap-2 px-10'
+        ? 'bg-white w-full flex justify-center items- gap-2 px-1 pb-4'
+        : 'bg-white w-full flex justify-center items- gap-2 px-10 pb-6'
     "
   >
     <div class="flex flex-col items-center w-full">
@@ -88,12 +84,12 @@ onMounted(() => {
             <li class="font-semibold text-lg">{{ props.title }}:</li>
             <li
               v-for="item in props.data"
-              :key="item.title"
+              :key="item?.title"
               :class="isPhone ? 'w-full flex justify-start items-center' : 'self-start'"
               class="break-words"
             >
-              <button @click="handleCategory(item.value)" class="hover:underline hover:scale-110">
-                {{ item.title }}
+              <button @click="handleCategory(item?.value)" class="hover:underline hover:scale-110">
+                {{ item?.title }}
               </button>
             </li>
           </ul>

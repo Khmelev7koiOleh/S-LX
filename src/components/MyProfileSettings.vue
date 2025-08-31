@@ -55,9 +55,8 @@
 import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
 import { Switch } from '@/components/ui/switch'
-import UserProfile from './user-profile/UserProfile.vue'
 
-let darkMode = ref(false)
+const darkMode = ref(false)
 </script>
 
 <style scoped></style>

@@ -1,33 +1,31 @@
 <script setup lang="ts">
-import { Icon } from '@iconify/vue'
-import { supabase } from '../lib/supabaseClient'
+// import { Icon } from '@iconify/vue'
+// import { supabase } from '../lib/supabaseClient'
 
-import { ref, onMounted, computed, watch, toRefs } from 'vue'
-import type { AdsType } from '@/types/ads-type'
+import { computed, toRefs } from 'vue'
+// import type { AdsType } from '@/types/ads-type'
 
-import { useGetUserStore } from '../stores/current-user-store'
-import Button from './ui/button/Button.vue'
+// import { useGetUserStore } from '../stores/current-user-store'
+// import Button from './ui/button/Button.vue'
 import AddFavoritesButton from './AddFavoritesButton.vue'
-const userStore = useGetUserStore()
-const { user } = toRefs(userStore)
+// const userStore = useGetUserStore()
+// const { user } = toRefs(userStore)
 
 const props = defineProps<{
-  title: string
-  description: string
-  img: string
-  price: number
-  id: string | number
-  user_name: string
-  created_at: string | undefined
-  if_discount: boolean
-  discount: string
-  type: string
+  title: string | null
+  description: string | null
+  img: string[] | null
+  price: number | null
+  id: string
+  created_at: string
+  if_discount: boolean | null
+  discount: number | null
+  type: string | null
   size?: string
   h_size?: string
   horisontal?: boolean
   col?: boolean
   if_favorite?: boolean
-  is_user_name?: boolean
   w_container?: string
   h_container?: string
   schrink?: boolean
@@ -42,7 +40,6 @@ const {
   img,
   price,
   id,
-  user_name,
   created_at,
   if_discount,
   discount,
@@ -52,7 +49,6 @@ const {
   horisontal,
   col,
   if_favorite,
-  is_user_name,
   w_container,
   h_container,
   schrink,
@@ -74,25 +70,25 @@ const ifHorisontal = computed(() => {
 //   emit('navigate', id.value)
 // }
 
-const addToFavorites = async (id: string) => {
-  console.log(id)
-  const { data, error } = await supabase.from('favorites').insert({
-    user_id: user.value.id,
-    ad_id: id,
-    img: img.value,
-  })
+// const addToFavorites = async (id: string) => {
+//   console.log(id)
+//   const { data, error } = await supabase.from('favorites').insert({
+//     user_id: user.value.id,
+//     ad_id: id,
+//     img: img.value,
+//   })
 
-  if (error) {
-    console.log(error)
-  }
-}
+//   if (error) {
+//     console.log(error)
+//   }
+// }
 // const computeDiscount = computed(() => {
 //   return Math.floor(price.value / discount.value)
 // })
 
 const computedDiscount = computed(() => {
-  const original = parseFloat(price.value)
-  const discounted = parseFloat(discount.value)
+  const original = price.value === null ? null : parseFloat(price.value.toString())
+  const discounted = discount.value === null ? null : parseFloat(discount.value.toString())
 
   if (!original || !discounted || original <= discounted) return 0
 
@@ -136,7 +132,7 @@ const justifyComputed = computed(() => {
             :style="{ width: size, height: h_size }"
           >
             <img
-              :src="img"
+              :src="img?.[0] || undefined"
               alt=""
               class="w-full h-full object-cover"
               :style="{ width: size, height: h_size }"
@@ -162,10 +158,12 @@ const justifyComputed = computed(() => {
                 :title="title"
                 :description="description"
                 :id="id"
-                :img="img"
+                :img="[img?.[0] || '']"
                 :price="price"
                 :created_at="created_at"
                 :type="type"
+                :if_discount="if_discount"
+                :discount="discount"
               />
               <!-- <Button
                 class="flex items-center w-8 h-8 bg-white rounded-full shadow cursor-pointer text-red-600 hover:text-white hover:bg-red-600"

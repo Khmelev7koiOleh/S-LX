@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { ref, toRefs, onMounted, watch, computed } from 'vue'
+import { ref, toRefs, watch, computed } from 'vue'
 
 import { supabase } from '@/lib/supabaseClient'
 import { useClickFunctionStore } from '@/stores/click-function-store'
 import { useGetUserStore } from '@/stores/current-user-store'
 import { adType } from '@/data/ad-type'
 import { Icon } from '@iconify/vue'
-import { Button } from '@/components/ui/button'
 
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
@@ -24,7 +23,7 @@ const files = ref<File[]>([])
 const imageUrl = ref<string>('')
 const uploadError = ref<string>('')
 const fileInputRef = ref<HTMLInputElement | null>(null)
-// Bild auswählen
+
 const onFileChange = (e: Event) => {
   const target = e.target as HTMLInputElement
   if (target.files) {
@@ -32,7 +31,6 @@ const onFileChange = (e: Event) => {
   }
 }
 const imageUrls = ref<string[]>([])
-// Bild hochladen und Eintrag speichern
 
 const handleUpload = async () => {
   if (!files.value.length) {
@@ -45,9 +43,7 @@ const handleUpload = async () => {
   for (const file of files.value) {
     const filePath = `user-${Date.now()}-${file.name}`
 
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('ads')
-      .upload(filePath, file)
+    const { error: uploadError } = await supabase.storage.from('ads').upload(filePath, file)
 
     if (uploadError) {
       console.error(`Fehler beim Hochladen von ${file.name}:`, uploadError.message)
@@ -58,15 +54,25 @@ const handleUpload = async () => {
 
     imageUrls.value.push(publicData.publicUrl)
   }
-  const newAd: any = {
+  interface NewAd {
+    title: string
+    description: string
+    price: string
+    discount?: string
+    if_discount: boolean
+    type: string
+    img: string[]
+    user_id: string
+  }
+  const newAd: NewAd = {
     title: title.value,
     description: description.value,
     price: price.value,
     type: type.value,
     img: imageUrls.value,
     user_id: user.value.id,
-    ...(discount.value && { discount: discount.value }),
-    ...(if_discount.value && { if_discount: if_discount.value }),
+    discount: discount.value || '', // provide a default value
+    if_discount: if_discount.value ?? false, // provide a default value of false
   }
   // Save all image URLs into the `img` field as an array
   const { error: insertError, data: insertData } = await supabase.from('ads').insert(newAd)

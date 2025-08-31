@@ -1,24 +1,28 @@
 <script setup lang="ts">
-import { ref, onMounted, toRefs, computed, watch, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, toRefs, computed, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { supabase } from '../lib/supabaseClient'
 import { useGetUserStore } from '@/stores/current-user-store'
 import Button from './ui/button/Button.vue'
-import { Input } from '@/components/ui/input'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import { Icon } from '@iconify/vue'
 import { useChatStore } from '@/stores/chat-store'
 import EmojiMessageComponent from '@/components/EmojiMessageComponent.vue'
+// import { RealtimeChannel } from '@supabase/supabase-js'
+// import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
+import { useSupabaseSubscription } from '@/composables/useSupabaseSubscription'
 import router from '@/router'
-import { useWindowSize } from '@/composables/useWindowSize'
-const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
-const chatStore = useChatStore()
 
+import { useWindowSize } from '@/composables/useWindowSize'
+import type { Tables } from '@/types/supabase'
+const { isPhone } = useWindowSize()
+const chatStore = useChatStore()
+const { subscribe, unsubscribe } = useSupabaseSubscription()
 // write a type fot the chat const
 // write a type fot the chat const
 // write a type fot the chat const
 // write a type fot the chat const
-const chat: any = chatStore.currentChat // Always available
+const chat = chatStore.currentChat // Always available
 console.log(chat, 'chat')
 
 const userStore = useGetUserStore()
@@ -26,16 +30,16 @@ const { user } = toRefs(userStore)
 
 const route = useRoute()
 const id = route.params.id
-const othreUser = ref<any>(null)
+const othreUser = ref<Tables<'user'> | null>(null)
 
-const messages = ref<any>([])
+const messages = ref<Tables<'messages'>[]>([])
 const message = ref('')
 const errorMessage = ref('')
-const certainRoom = ref<any>([])
+const certainRoom = ref<Tables<'chat_rooms'>[] | null>([])
 const isMessagePanelOpen = ref(false)
 const onMessagePanelOpen = ref('')
 const isEditPanelOpen = ref(false)
-const editMessage = ref('')
+const editMessage = ref<string | null>(null)
 const fileInput = ref({} as HTMLInputElement)
 const fileUrl = ref<string | null>(null)
 const file = ref<File | null>(null)
@@ -43,11 +47,11 @@ const picDescription = ref<string>('')
 const error = ref<string>('')
 const fullSize = ref<boolean>(false)
 const fullSizeVal = ref<string>('')
-const chatContainer = ref<HTMLElement | null>(null)
+// const chatContainer = ref<HTMLElement | null>(null)
 const showPickerMessage = ref(false)
 const showPickerImg = ref(false)
-const onRoomSettingsOpen = ref<boolean>(false)
-const onDeleteRoomConfirmation = ref<boolean>(false)
+// const onRoomSettingsOpen = ref<boolean>(false)
+// const onDeleteRoomConfirmation = ref<boolean>(false)
 
 const triggerFileInput = () => {
   ;(fileInput.value as HTMLInputElement)?.click()
@@ -84,7 +88,7 @@ const getMessages = async () => {
   }
 }
 
-const sendMessage = async (room_id, sender_id, text) => {
+const sendMessage = async (room_id: string | string[], sender_id: string, text: string) => {
   console.log(room_id, sender_id, text)
   if (text.length <= 0) {
     errorMessage.value = 'Message field must contain at least one character'
@@ -105,17 +109,17 @@ const sendMessage = async (room_id, sender_id, text) => {
     showPickerMessage.value = false
   }
 }
-const onIsEditPanelOpen = (message: string) => {
+const onIsEditPanelOpen = (message: string | null) => {
   console.log(message)
   editMessage.value = message
   isEditPanelOpen.value = true
 }
-const toggleMessagePanel = (id) => {
+const toggleMessagePanel = (id: string) => {
   isMessagePanelOpen.value = !isMessagePanelOpen.value
   onMessagePanelOpen.value = id
 }
 
-const deleteMessage = async (id) => {
+const deleteMessage = async (id: string) => {
   console.log(id)
 
   const { error } = await supabase.from('messages').delete().eq('id', id)
@@ -134,7 +138,7 @@ const sendPhoto = async (
   console.log(room_id, sender_id, file, description)
   const filePath = `user-${Date.now()}.jpg`
 
-  const { data: uploadData, error: uploadError } = await supabase.storage
+  const { error: uploadError } = await supabase.storage
     .from('messages')
     .upload(filePath, file ?? 'empty.jpg')
 
@@ -175,7 +179,12 @@ const makeFullSize = (val: string) => {
   return
 }
 
-const updateMessage = async (room_id, id, message, created_at) => {
+const updateMessage = async (
+  room_id: Tables<'messages'>['room_id'],
+  id: Tables<'messages'>['id'],
+  message: Tables<'messages'>['content'],
+  created_at: Tables<'messages'>['created_at'],
+) => {
   console.log(id)
   console.log(message)
 
@@ -197,25 +206,25 @@ const updateMessage = async (room_id, id, message, created_at) => {
 }
 
 const getRoom = async () => {
-  const { data, error } = await supabase.from('chat_rooms').select('*').eq('room_id', id)
+  const { data } = await supabase.from('chat_rooms').select('*').eq('room_id', id)
 
   certainRoom.value = data
 }
 
 const otherUserId = computed(() => {
   if (
-    chat?.participant_ids[0] === chat?.participant_ids[1] &&
-    chat?.participant_ids[0] === user.value.id
+    chat?.participant_ids?.[0] === chat?.participant_ids?.[1] &&
+    chat?.participant_ids?.[0] === user.value.id
   ) {
-    return chat.participant_ids.find((id: string) => id == user.value.id)
+    return chat?.participant_ids?.find((id: string) => id == user.value.id)
   } else {
-    return chat?.participant_ids.find((id: string) => id !== user.value.id)
+    return chat?.participant_ids?.find((id: string) => id !== user.value.id)
   }
 })
 
-const getUser = async (id: string) => {
+const getUser = async (id: string | undefined) => {
   console.log(id)
-  const { data, error } = await supabase.from('user').select('*').eq('user_id', id).maybeSingle()
+  const { data } = await supabase.from('user').select('*').eq('user_id', id).maybeSingle()
 
   othreUser.value = data
 }
@@ -235,47 +244,95 @@ watch(messages, async () => {
   await nextTick()
   scrollToBottom()
 })
-function subscribeToRoom(room_id: string, callback: (newMessage: any) => void) {
-  return supabase
-    .channel(`room:${room_id}`)
-    .on(
-      'postgres_changes',
-      {
-        event: '*',
-        schema: 'public',
-        table: 'messages',
-        filter: `room_id=eq.${room_id}`,
-      },
-      (payload) => callback(payload),
-    )
-    .subscribe()
-}
+// function subscribeToRoom(room_id: string, callback: (newMessage: any) => void) {
+//   return supabase
+//     .channel(`room:${room_id}`)
+//     .on(
+//       'postgres_changes',
+//       {
+//         event: '*',
+//         schema: 'public',
+//         table: 'messages',
+//         filter: `room_id=eq.${room_id}`,
+//       },
+//       (payload) => callback(payload),
+//     )
+//     .subscribe()
+// }
+
 onMounted(() => {
-  console.log(chat, 'chat')
-  console.log('id:', id)
-  subscribeToRoom(id, (payload) => {
-    const { eventType, new: newMessage, old: oldMessage } = payload
+  // console.log(chat, 'chat')
+  // console.log('id:', id)
+  // interface RealtimePayloada {
+  //   eventType: string
+  //   new: any
+  //   old: any
+  // }
+  // type MessageRow = Tables<'messages'>
+  subscribe<{
+    content: string | null
+    created_at: string
+    id: string
+    pic: string | null
+    room_id: string
+    sender_id: string | null
+  }>(
+    {
+      event: '*',
+      schema: 'public',
+      table: 'messages',
+      filter: `room_id=eq.${id}`,
+    },
+    (payload) => {
+      console.log('Realtime change:', payload)
 
-    if (eventType === 'INSERT') {
-      messages.value.push(newMessage)
-      nextTick(() => scrollToBottom()) // this now scrolls smoothly
-    }
-    if (eventType === 'UPDATE') {
-      const index = messages.value.findIndex((msg) => msg.id === newMessage.id)
-      if (index !== -1) {
-        messages.value[index] = newMessage
+      const { eventType, new: newMessage, old: oldMessage } = payload
+
+      if (eventType === 'INSERT') {
+        messages.value.push(newMessage)
+        nextTick(() => scrollToBottom()) // this now scrolls smoothly
       }
-    }
+      if (eventType === 'UPDATE') {
+        const index = messages.value.findIndex((msg) => msg.id === newMessage.id)
+        if (index !== -1) {
+          messages.value[index] = newMessage
+        }
+      }
 
-    if (eventType === 'DELETE') {
-      messages.value = messages.value.filter((msg) => msg.id !== oldMessage.id)
-    }
-  })
+      if (eventType === 'DELETE') {
+        messages.value = messages.value.filter((msg) => msg.id !== oldMessage.id)
+      }
+    },
+  )
+
+  // getAverageRating(ad.value?.user_id ?? '')
+
+  // subscribeToRoom(id, (payload) => {
+  //   const { eventType, new: newMessage, old: oldMessage } = payload
+
+  //   if (eventType === 'INSERT') {
+  //     messages.value.push(newMessage)
+  //     nextTick(() => scrollToBottom()) // this now scrolls smoothly
+  //   }
+  //   if (eventType === 'UPDATE') {
+  //     const index = messages.value.findIndex((msg) => msg.id === newMessage.id)
+  //     if (index !== -1) {
+  //       messages.value[index] = newMessage
+  //     }
+  //   }
+
+  //   if (eventType === 'DELETE') {
+  //     messages.value = messages.value.filter((msg) => msg.id !== oldMessage.id)
+  //   }
+  // })
   getUser(otherUserId.value)
   getMessages()
   getRoom()
 
   scrollToBottom()
+})
+onUnmounted(() => {
+  unsubscribe()
 })
 </script>
 
@@ -374,7 +431,6 @@ onMounted(() => {
           icon="mdi:dots-vertical"
           text_color="text-white"
           @confirm="() => deleteRoom(id as string)"
-          @cancel="handleCancel"
         />
       </Button>
     </div>
@@ -447,14 +503,21 @@ onMounted(() => {
                     </div>
                     <textarea
                       v-model="editMessage"
-                      :rows="editMessage.length > 45 ? 3 : 1"
+                      :rows="(editMessage?.length ?? 0) > 45 ? 3 : 1"
                       placeholder="Edit your message..."
                       class="w-full p-2 rounded-md border border-gray-300 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                     ></textarea>
 
                     <Button
-                      :disabled="editMessage.length <= 0"
-                      @click="updateMessage(id, item.id, editMessage, item.created_at)"
+                      :disabled="(editMessage?.length ?? 0) <= 0"
+                      @click="
+                        updateMessage(
+                          id as Tables<'messages'>['room_id'],
+                          item.id as Tables<'messages'>['id'],
+                          editMessage as Tables<'messages'>['content'],
+                          item.created_at as Tables<'messages'>['created_at'],
+                        )
+                      "
                       class="w-[40px] h-[40px] flex items-center rounded-full"
                       ><Icon icon="mdi:send" width="40" height="40" class="text-white" />
                     </Button>

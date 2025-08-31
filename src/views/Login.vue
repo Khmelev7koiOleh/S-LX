@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, toRefs } from 'vue'
-import { signUp } from '@/composables/sign-up'
-import { signIn } from '@/composables/sign-in'
+// import { signUp } from '@/composables/sign-up'
+// import { signIn } from '@/composables/sign-in'
 import { useGetUserStore } from '@/stores/current-user-store'
 import { useRouter } from 'vue-router'
 

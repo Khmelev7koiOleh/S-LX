@@ -5,15 +5,16 @@ import { supabase } from '@/lib/supabaseClient'
 import { useGetUserStore } from '../stores/current-user-store'
 import AdCard from '@/components/AdCard.vue'
 import { Icon } from '@iconify/vue'
+import type { Tables } from '@/types/supabase'
 
 import { useWindowSize } from '@/composables/useWindowSize'
 
-const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
+const { isPhone } = useWindowSize()
 
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
 
-const chatsIn = ref<any | null>(null)
+const chatsIn = ref<Tables<'chats'>[]>([])
 const getRoomsCurrentUserIn = async () => {
   const { data, error } = await supabase
     .from('chat_rooms')
@@ -27,13 +28,13 @@ const getRoomsCurrentUserIn = async () => {
   chatsIn.value = data
   return data
 }
-const favorites = ref<any[] | null>([])
+const favorites = ref<Tables<'favorites'>[]>([])
 const getFavorites = async () => {
   const { data, error } = await supabase.from('favorites').select('*').eq('user_id', user.value.id)
   if (error) {
     console.log(error)
   }
-  favorites.value = data
+  favorites.value = data ?? []
 }
 
 onMounted(() => {
@@ -88,14 +89,14 @@ onMounted(() => {
       :key="f.id"
     >
       <!-- <img :src="f.img" alt="" /> -->
-      <RouterLink :to="`/ad/${f.ad_id}`">
+      <RouterLink :to="`/ad/${f.id}`">
         <AdCard
           :title="f.title"
           :description="f.description"
           :price="f.price"
           :id="f.id"
-          :img="f.img[0] ? f.img[0] : f.img || ''"
-          :type="f.type"
+          :img="[f.img?.[0] || '']"
+          :type="null"
           :h_size="isPhone ? '120px' : '200px'"
           :size="isPhone ? '180px' : '300px'"
           :w_container="isPhone ? '180px' : '300px'"
@@ -104,7 +105,6 @@ onMounted(() => {
           :col="true"
           :created_at="f.created_at"
           :if_favorite="true"
-          :user_name="f.user_name"
           :if_discount="f.if_discount"
           :discount="f.discount"
         />

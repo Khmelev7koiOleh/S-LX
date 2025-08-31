@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, toRefs, handleError } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { Icon } from '@iconify/vue'
 import {
   Accordion,
@@ -7,22 +7,22 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import { supabase } from '../lib/supabaseClient'
+// import { supabase } from '../lib/supabaseClient'
 import Search from '@/components/icons/Search.vue'
 import AddAnAd from '@/components/icons/AddAnAd.vue'
 import { adType } from '@/data/ad-type'
-import type { AdsType } from '@/types/ads-type'
+// import type { AdsType } from '@/types/ads-type'
 import { useClickFunctionStore } from '@/stores/click-function-store'
 import UploadAd from '@/components/UploadAd.vue'
 import { getAllAds } from '../composables/get-ads'
 import AdCard from '../components/AdCard.vue'
 import { useRouter } from 'vue-router'
-import { useFilterStore } from '../stores/filter-store'
+// import { useFilterStore } from '../stores/filter-store'
 import AdvertisementBanner from '@/components/AdvertisementBanner.vue'
 import AdvertisementLine from '@/components/AdvertisementLine.vue'
 import PopularSomethigComponent from '@/components/PopularSomethigComponent.vue'
-import { title } from 'process'
-import { useGetUserStore } from '../stores/current-user-store'
+
+// import { useGetUserStore } from '../stores/current-user-store'
 import { useWindowSize } from '@/composables/useWindowSize'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -33,40 +33,53 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel'
 import Autoplay from 'embla-carousel-autoplay'
-
+// import { Database } from '@/types/supabase'
 import { useGetAdCategory } from '../composables/get-ad-category'
+import type { Tables } from '@/types/supabase'
+// import { useGetUserComposable } from '../composables/get-user'
+// <const { user: userw, loading, error, getUser } = useGetUserComposable()>
 
-const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
+// const frf = async () => {
+//   await getUser(['ab8818d9-1a18-4eaa-9981-4c40562c014a', 'a4066069-bff7-43a9-b6f7-775906b8fde9'])
+//   console.log(userw.value)
+// }
+// onMounted(() => {
+//   frf()
+//   console.log(userw.value)
+// })
+// console.log(userw.value) // Typed as Tables<'user'>[]
 
-const userStore = useGetUserStore()
-const { user } = toRefs(userStore)
+const { isPhone, isLaptop } = useWindowSize()
+
+// const userStore = useGetUserStore()
+// const { user } = toRefs(userStore)
 const { getValueOf } = useGetAdCategory()
 const router = useRouter()
 const { ads } = getAllAds()
 
-interface adType {
-  id: number
-  title: string
-  description: string
-  price: string
-  discount: string
-  if_discount: boolean
-  type: string
-}
+// interface adType {
+//   id: number
+//   title: string
+//   description: string
+//   price: string
+//   discount: string
+//   if_discount: boolean
+//   type: string
+// }
 
-const filterStore = useFilterStore()
+// const filterStore = useFilterStore()
 
-const { selectedCategory } = toRefs(filterStore)
+// const { selectedCategory } = toRefs(filterStore)
 const clickStore = useClickFunctionStore() // Access the store
 
 const searchQuery = ref<string>('')
 
-const filteredAds = computed(() => {
+const filteredAds = computed<Tables<'ads'>[]>(() => {
   if (searchQuery.value) {
     return ads.value.filter(
-      (ad: adType) =>
-        ad.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        ad.description.toLowerCase().includes(searchQuery.value.toLowerCase()),
+      (ad) =>
+        ad.title?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        ad.description?.toLowerCase().includes(searchQuery.value.toLowerCase()),
     )
   } else {
     return []
@@ -141,18 +154,20 @@ onMounted(() => {
             v-if="searchQuery"
             :class="
               isPhone
-                ? ' w-[100%] h-[29vh] absolute mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-2 z-10'
-                : ' w-[100%] h-[29vh] absolute mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-2 z-10 '
+                ? ' w-[100%] h-[29vh] absolute mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-2  py-2 z-10'
+                : ' w-[100%] h-[29vh] absolute mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-2  py-2 z-10 '
             "
           >
             <li v-for="ad in filteredAds" :key="ad.id">
               <RouterLink :to="`/ad/${ad.id}`">
                 <AdCard
-                  :title="ad.title"
+                  :title="ad.title || null"
                   :description="ad.description"
                   :price="ad.price"
                   :id="ad.id"
-                  :img="ad.img[0] || ''"
+                  :img="[ad.img?.[0] || '']"
+                  :if_discount="null"
+                  :discount="null"
                   :type="ad.type"
                   :h_size="'70px'"
                   :size="'100px'"
@@ -160,7 +175,6 @@ onMounted(() => {
                   :col="false"
                   :created_at="ad.created_at"
                   :if_favorite="false"
-                  :user_name="ad.user_name"
                   :schrink="true"
                   :start="false"
                   :center="false"
@@ -270,8 +284,8 @@ onMounted(() => {
         <ul
           :class="
             isPhone
-              ? ' w-full  grid grid-cols-2 justify-center items-center gap-4  '
-              : ' w-full grid grid-cols-4 gap-4 p-20 justify-center items-center'
+              ? ' w-full  grid grid-cols-2 justify-center items-center gap-4  py-8 '
+              : ' w-full grid grid-cols-4 gap-4 p-20 justify-center items-center  py-2'
           "
         >
           <li
@@ -285,7 +299,7 @@ onMounted(() => {
                 :description="ad.description"
                 :price="ad.price"
                 :id="ad.id"
-                :img="ad.img[0] || ''"
+                :img="[ad.img?.[0] || '']"
                 :if_discount="ad.if_discount"
                 :discount="ad.discount"
                 :type="ad.type"
@@ -297,7 +311,6 @@ onMounted(() => {
                 :col="true"
                 :created_at="ad.created_at"
                 :if_favorite="true"
-                :user_name="ad.user_name"
                 @navigate="(id: string) => router.push(`/ad/${id}`)"
               />
             </RouterLink>
@@ -306,7 +319,9 @@ onMounted(() => {
       </div>
 
       <div>
-        <AdvertisementLine />
+        <div class="pt-10">
+          <AdvertisementLine />
+        </div>
 
         <div class="w-full flex flex-wrap">
           <div v-for="shard in PopularComponentData" :key="shard.title" class="w-1/2 flex">

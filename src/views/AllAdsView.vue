@@ -1,26 +1,29 @@
 <script setup lang="ts">
-import { Icon } from '@iconify/vue'
+// import { Icon } from '@iconify/vue'
 import { supabase } from '../lib/supabaseClient'
 import { useFilterStore } from '@/stores/filter-store'
-import { ref, onMounted, computed, watch, toRefs } from 'vue'
+import { ref, onMounted, toRefs } from 'vue'
 import { RouterLink } from 'vue-router'
 import AdCard from '../components/AdCard.vue'
+import type { Tables } from '@/types/supabase'
 
-import { adType } from '@/data/ad-type'
-
+// import { adType } from '@/data/ad-type'
+// import { useRoute } from 'vue-router'
+// import { useGetUserStore } from '../stores/current-user-store'
 import { useWindowSize } from '@/composables/useWindowSize'
 import ReusableFilterComponent from '@/components/reusable/ReusableFilterComponent.vue'
-import type { AdsType } from '@/types/ads-type'
 
-const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
+const { isPhone } = useWindowSize()
 
+// const userStore = useGetUserStore()
+// const { user } = toRefs(userStore)
 const filterStore = useFilterStore()
 
 const { selectedCategory } = toRefs(filterStore)
-
-const ads = ref<any[]>([])
+// const route = useRoute()
+const ads = ref<Tables<'ads'>[]>([])
 const searchQuery = ref<string>('')
-const filteredAds = ref<any[]>([])
+const filteredAds = ref<Tables<'ads'>[]>([])
 // const onFilterOpen = ref<boolean>(false)
 
 // const filterCreatedAt = ref<boolean>(false)
@@ -38,7 +41,7 @@ const getAds = async () => {
 //   return data.sort(() => Math.random() - 0.5)
 // }
 
-function shuffleArray(array: AdsType[]): AdsType[] {
+const shuffleArray = (array: Tables<'ads'>[]): Tables<'ads'>[] => {
   const shuffled = [...array]
 
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -47,6 +50,24 @@ function shuffleArray(array: AdsType[]): AdsType[] {
   }
   return shuffled
 }
+
+// const getFavorites = async (id: string) => {
+//   // console.log(ad_id)
+//   const { data, error } = await supabase
+//     .from('favorites')
+//     .select('id')
+//     .eq('id', id)
+//     .eq('user_id', user.value.id)
+//     .maybeSingle()
+
+//   // console.log(data)
+//   if (route.name === 'favorites ' && !error) {
+//     isFavorite.value = true
+//   } else {
+//     isFavorite.value = !!data
+//   }
+// }
+
 // const filteredItems = computed(() => {
 //   let result = [...ads.value]
 //   if (searchQuery.value.trim()) {
@@ -91,6 +112,45 @@ function shuffleArray(array: AdsType[]): AdsType[] {
 //   filterCreatedAt.value = false
 //   filterPrice.value = false
 // }
+// let ratingSubscription: any = null
+// const subscribeToFavorites = (targetUserId: any) => {
+//   ratingSubscription = supabase
+//     .channel('ratings-channel')
+//     .on(
+//       'postgres_changes',
+//       {
+//         event: '*', // or 'INSERT' | 'UPDATE' | 'DELETE'
+//         schema: 'public',
+//         table: 'ratings',
+//         filter: `user_id=eq.${targetUserId}`,
+//       },
+//       (payload) => {
+//         console.log('Realtime change:', payload)
+//         getAverageRating(targetUserId)
+//       },
+//     )
+//     .subscribe()
+// }
+// const unsubscribeFromFavorites = async () => {
+//   if (ratingSubscription) {
+//     await supabase.removeChannel(ratingSubscription)
+//   }
+// }
+
+// onMounted(async () => {
+//   await getChat()
+//   const { data, error } = await supabase.from('ads').select('*').eq('id', route.params.id).single()
+
+//   if (!error) {
+//     ad.value = data
+//     userData.value = data
+//   }
+//   await getUser()
+//   adImg.value = ad.value?.img ? [ad.value?.img] : null
+//   subscribeToRatings(ad.value?.user_id)
+
+//   getAverageRating(ad.value?.user_id)
+// })
 
 onMounted(async () => {
   await getAds()
@@ -140,7 +200,7 @@ onMounted(async () => {
               :description="ad.description"
               :price="ad.price"
               :id="ad.id"
-              :img="ad.img[0] ? ad.img[0] : ad.img || ''"
+              :img="[ad.img?.[0] || '']"
               :if_discount="ad.if_discount"
               :discount="ad.discount"
               :type="ad.type"
@@ -153,7 +213,6 @@ onMounted(async () => {
               :created_at="ad.created_at"
               :if_favorite="true"
               :is_user_name="false"
-              :user_name="ad.user_name"
             />
           </RouterLink>
         </div>

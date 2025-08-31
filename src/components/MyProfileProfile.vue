@@ -1,27 +1,31 @@
 <script setup lang="ts">
-import { ref, toRefs, onMounted } from 'vue'
+import { ref, toRefs, onMounted, onUnmounted } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import { useGetUserStore } from '@/stores/current-user-store'
-import type { UserType } from '@/types/user-type'
+// import type { UserType } from '@/types/user-type'
+import type { Tables } from '@/types/supabase'
 import { Icon } from '@iconify/vue'
+import { useSupabaseSubscription } from '@/composables/useSupabaseSubscription'
 import { useWindowSize } from '@/composables/useWindowSize'
-const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
+const { isPhone } = useWindowSize()
 
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
 
+const { subscribe, unsubscribe } = useSupabaseSubscription()
+
 const onAddInfo = ref<boolean>(false)
 const onEditInfo = ref<boolean>(false)
-const getUser = supabase.auth.getUser()
+// const getUser = supabase.auth.getUser()
 const description = ref<string>('')
 const location = ref<string>('')
 const tel = ref<string>('')
-const name = ref<string>('')
+const name = ref<string | null>('')
 const error = ref<string>('')
 
-const imageUrl = ref<string>('')
+const imageUrl = ref<string | null>('')
 const file = ref<File | null>(null)
-const info = ref<UserType>({
+const info = ref<Tables<'user'>>({
   created_at: '',
   name: '',
   email: '',
@@ -61,7 +65,7 @@ const addInfo = async (description: string, location: string, tel: string) => {
 }
 
 const editInfo = async (
-  name: string,
+  name: string | null,
   description: string,
   location: string,
   tel: string,
@@ -69,7 +73,7 @@ const editInfo = async (
 ) => {
   const filePath = `user-${Date.now()}.jpg`
 
-  const { data: uploadData, error: uploadError } = await supabase.storage
+  const { error: uploadError } = await supabase.storage
     .from('ads')
     .upload(filePath, file ?? 'empty.jpg')
 
@@ -120,22 +124,22 @@ const openEdit = async () => {
   onEditInfo.value = !onEditInfo.value
 }
 
-function subscribeToProfile(user_id: string, callback: (newMessage: any) => void) {
-  console.log(user_id)
-  return supabase
-    .channel(`room:${user_id}`)
-    .on(
-      'postgres_changes',
-      {
-        event: '*',
-        schema: 'public',
-        table: 'user',
-        filter: `user_id=eq.${user_id}`,
-      },
-      (payload) => callback(payload.new),
-    )
-    .subscribe()
-}
+// function subscribeToProfile(user_id: string, callback: (newMessage: any) => void) {
+//   console.log(user_id)
+//   return supabase
+//     .channel(`room:${user_id}`)
+//     .on(
+//       'postgres_changes',
+//       {
+//         event: '*',
+//         schema: 'public',
+//         table: 'user',
+//         filter: `user_id=eq.${user_id}`,
+//       },
+//       (payload) => callback(payload.new),
+//     )
+//     .subscribe()
+// }
 onMounted(async () => {
   // transformCheckValue()
   // await getChat()
@@ -149,20 +153,37 @@ onMounted(async () => {
     info.value = data
   }
   await getInfo(user.value.id)
-  subscribeToProfile(user.value.id, (newMessage) => {
-    console.log('Neue Nachricht:', newMessage)
-    getInfo(user.value.id)
-  })
+  subscribe(
+    {
+      event: '*',
+      schema: 'public',
+      table: 'user',
+      filter: `user_id=eq.${user.value.id}`,
+    },
+    (payload) => {
+      console.log('Neue Nachricht:', payload)
+      getInfo(user.value.id)
+    },
+  )
+  // subscribeToProfile(user.value.id, (newMessage) => {
+  //   console.log('Neue Nachricht:', newMessage)
+  //   getInfo(user.value.id)
+  // })
 })
 onMounted(() => {
   getInfo(user.value.id)
 })
-
-function handleEdit() {
-  if (file.value !== null) {
-    editInfo(name.value, description.value, location.value, tel.value, file.value)
+onUnmounted(() => {
+  if (unsubscribe) {
+    unsubscribe()
   }
-}
+})
+
+// function handleEdit() {
+//   if (file.value !== null) {
+//     editInfo(name.value, description.value, location.value, tel.value, file.value)
+//   }
+// }
 </script>
 <template>
   <!-- Add deleted chats and profile for every chat user chats with  -->
@@ -178,7 +199,7 @@ function handleEdit() {
         <div class="flex justify-start items-center gap-6">
           <div>
             <img
-              :src="info.img"
+              :src="info.img ?? ''"
               class="rounded-full object-cover w-[150px] h-[150px]"
               width="150"
               height="150"

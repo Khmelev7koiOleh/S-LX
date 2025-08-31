@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import { ref, toRefs, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { RouterLink, RouterView, useRouter } from 'vue-router'
-import { useGetUserStore } from '@/stores/current-user-store'
-import { useWindowSize } from '@/composables/useWindowSize'
-const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
-const userStore = useGetUserStore()
-const { user } = toRefs(userStore)
+// import { useGetUserStore } from '@/stores/current-user-store'
+// import { useWindowSize } from '@/composables/useWindowSize'
+// const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
+// const userStore = useGetUserStore()
+// const { user } = toRefs(userStore)
+interface usersDataType {
+  name: string
+  path: string
+}
 const router = useRouter()
 
-const usersData = ref<any>([
+const usersData = ref<usersDataType[]>([
   { name: 'Ads', path: '/profile/my-profile-ads' },
   { name: 'Chats', path: '/profile/my-profile-chats' },
 
@@ -31,11 +35,13 @@ onMounted(() => {
 </script>
 <template>
   <div class="bg-gray-300">
-    <div class="w-full text-3xl text-gray-800 flex justify-center">
-      <div class="px-4 py-2">{{ currentProfileTap }}</div>
+    <div class="w-full text-gray-800 flex justify-center">
+      <div class="w-full flex justify-center px-4 py-4">
+        <!-- <p class="text-gray-800 text-xl font-mono">{{ currentProfileTap }}</p> -->
+      </div>
     </div>
-    <div class="flex flex-col gap-5">
-      <div class="w-full flex justify-around bg-gray-300">
+    <div class="flex flex-col gap-5 px-2">
+      <div class="w-full flex justify-center items-center gap-6 md:gap-20 bg-gray-300">
         <div v-for="user in usersData" :key="user.name">
           <RouterLink
             :to="`${user.path}`"

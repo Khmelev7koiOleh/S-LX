@@ -9,6 +9,7 @@ import { useGetUserStore } from '@/stores/current-user-store'
 import EmojiMessageComponent from './EmojiMessageComponent.vue'
 import { useChatStore } from '@/stores/chat-store'
 import { Icon } from '@iconify/vue'
+import type { Tables } from '@/types/supabase'
 
 const props = defineProps({
   data: {
@@ -32,7 +33,7 @@ const route = useRoute()
 const ad = ref<AdsType | null>(null)
 const showPicker = ref<boolean>(false)
 
-const goToChat = (chat: any) => {
+const goToChat = (chat: Tables<'chat_rooms'>) => {
   console.log(chat)
   chatStore.currentChat = chat // Store the chat
   router.push(`/chats/${chat.room_id}`) // Navigate
@@ -49,9 +50,9 @@ async function sendMessage(room_id: string, sender_id: string, text: string) {
   showPicker.value = false
   if (error) console.error('Nachricht konnte nicht gesendet werden:', error)
 }
-const theMessages = ref<any[] | null>(null)
+const theMessages = ref<Tables<'messages'>[] | null>(null)
 async function getMessages(room_id: string) {
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from('messages')
     .select('*')
     .eq('room_id', room_id)
@@ -60,7 +61,7 @@ async function getMessages(room_id: string) {
   theMessages.value = data
   return data
 }
-function subscribeToRoom(room_id: string, callback: (newMessage: any) => void) {
+function subscribeToRoom(room_id: string, callback: (newMessage: string) => void) {
   return supabase
     .channel(`room:${room_id}`)
     .on(
@@ -71,7 +72,7 @@ function subscribeToRoom(room_id: string, callback: (newMessage: any) => void) {
         table: 'messages',
         filter: `room_id=eq.${room_id}`,
       },
-      (payload) => callback(payload.new),
+      (payload) => callback(payload.new as string),
     )
     .subscribe()
 }
@@ -99,7 +100,8 @@ onMounted(async () => {
     >
       <Icon icon="material-symbols:arrow-back" width="28" class="text-white cursor-pointer" />
     </div>
-    <div @click="goToChat(roomData)" class="absolute top-4 right-4">
+
+    <div @click="goToChat(roomData as Tables<'chat_rooms'>)" class="absolute top-4 right-4">
       <Icon icon="bx:expand" width="28" class="text-white cursor-pointer" />
     </div>
     <!-- <div class="text-red-500">{{ data.participant_ids[1] }}</div> -->
@@ -134,7 +136,7 @@ onMounted(async () => {
         "
         class="w-fit h-fit flex justify-end items-center"
         v-for="item in theMessages"
-        :key="item"
+        :key="item.id"
       >
         <div
           :class="
