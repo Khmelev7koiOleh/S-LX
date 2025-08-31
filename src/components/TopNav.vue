@@ -114,13 +114,7 @@ watch(onMenuOpen, (val) => {
         </RouterLink>
       </div>
 
-      <div
-        :class="
-          isPhone && onMenuOpen
-            ? 'w-full relative flex justify-center items-center'
-            : 'w-full relative'
-        "
-      >
+      <div :class="isPhone && onMenuOpen ? '' : 'w-full relative'">
         <DropdownMenu>
           <DropdownMenuTrigger
             ><Button
@@ -146,7 +140,7 @@ watch(onMenuOpen, (val) => {
                 class="flex items-center justify-start gap-2"
               >
                 <Avatar>
-                  <AvatarImage :src="user.img" alt="@unovue" />
+                  <AvatarImage :src="user.img ?? ''" alt="@unovue" />
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
 

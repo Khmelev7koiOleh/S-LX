@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { RouterLink, RouterView, useRouter } from 'vue-router'
+import { useWindowSize } from '@/composables/useWindowSize'
+const { isPhone } = useWindowSize()
 // import { useGetUserStore } from '@/stores/current-user-store'
 // import { useWindowSize } from '@/composables/useWindowSize'
 // const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
@@ -34,27 +36,27 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div class="bg-gray-300">
+  <div class="bg-gray-100">
     <div class="w-full text-gray-800 flex justify-center">
       <div class="w-full flex justify-center px-4 py-4">
         <!-- <p class="text-gray-800 text-xl font-mono">{{ currentProfileTap }}</p> -->
       </div>
     </div>
-    <div class="flex flex-col gap-5 px-2">
-      <div class="w-full flex justify-center items-center gap-6 md:gap-20 bg-gray-300">
+    <div class="w-full flex flex-col justify-center items-center gap-5 px-0">
+      <div class="w-fit flex justify-center items-center gap-6 md:gap-20 p-4">
         <div v-for="user in usersData" :key="user.name">
           <RouterLink
             :to="`${user.path}`"
             @click="getValue(user.name)"
-            active-class="  text-gray-800 text-lg font-semibold  p-2 shadow-sm shadow-gray-400 rounded-md"
+            active-class="  text-gray-800 text-lg font-semibold  p-2 border-b border-gray-400 "
           >
-            <button>
+            <button :class="isPhone ? 'min-w-[fit]' : 'min-w-[70px]'">
               {{ user.name }}
             </button>
           </RouterLink>
         </div>
       </div>
-      <div class="w-full flex justify-center items-center py-10">
+      <div class="w-full flex justify-center items-center py-4">
         <div class="w-full h-full min-h-[90vh]">
           <RouterView name="main" />
         </div>

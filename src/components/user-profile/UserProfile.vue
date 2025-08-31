@@ -11,7 +11,7 @@ import { RouterLink } from 'vue-router'
 
 // import { useChatStore } from '@/stores/chat-store'
 // import Button from '../ui/button/Button.vue'
-import ReusableUserProfile from '@/components/ReusableUserProfile.vue'
+import ReusableUserProfile from '@/components/reusable/ReusableUserProfile.vue'
 import { getAllAds } from '@/composables/get-ads'
 import { useWindowSize } from '@/composables/useWindowSize'
 import type { Tables } from '@/types/supabase'
