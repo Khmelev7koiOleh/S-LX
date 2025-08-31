@@ -20,6 +20,7 @@ import ReusableUserProfile from './reusable/ReusableUserProfile.vue'
 // import { styleText } from 'util'
 // import ReusableFilterComponent from './reusable/ReusableFilterComponent.vue'
 // import { useFilterStore } from '../stores/filter-store'
+import { Button } from '@/components/ui/button'
 import { useSupabaseSubscription } from '@/composables/useSupabaseSubscription'
 import { useWindowSize } from '@/composables/useWindowSize'
 import type { Tables } from '@/types/supabase'
@@ -33,7 +34,7 @@ const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
 const info = ref<Tables<'user'>[]>([])
 const rating = ref<number>(0)
-
+const fullRating = ref<number[]>([])
 const ratedBy = ref<string[]>([])
 // const reviews = ref<any>([])
 
@@ -45,6 +46,8 @@ const getRatedBy = async (targetUserId: string) => {
     .eq('target_user_id', targetUserId)
 
   if (data) {
+    // fullRating.value = data
+    fullRating.value = data.map((rating) => rating.rating)
     ratedBy.value = data.map((rating) => rating.rated_by)
     const { data: ratedByUsersData, error: ratedByUsersError } = await supabase
       .from('user')
@@ -90,13 +93,33 @@ const computedStars = computed(() => {
 
   return stars
 })
+
+const computedRatingScore = computed(() => {
+  // Create rating distribution for stars 1–5
+  const distribution = [1, 2, 3, 4, 5].map((star) => {
+    const count = fullRating.value.filter((r) => r === star).length
+    return { star, count }
+  })
+
+  // Total number of ratings
+  const totalCount = fullRating.value.length || 1
+
+  // Sort stars high→low and calculate percentage of total
+  return distribution
+    .sort((a, b) => b.star - a.star)
+    .map((d) => ({
+      ...d,
+      percent: (d.count / totalCount) * 100, // <-- now percentage of ALL ratings
+    }))
+})
+
 const computedRating = computed(() => {
-  console.log('computedRating', rating.value)
   if (rating.value === 0 || undefined || null) return ''
-  if (rating.value) return rating.value.toFixed(1) + ' / 5'
+  if (rating.value) return rating.value.toFixed(1)
   else if (!rating.value) return 'You have not been rated yet'
   else return ''
 })
+
 // let ratingSubscription: any = null
 // const subscribeToRatings = (targetUserId: string) => {
 //   ratingSubscription = supabase
@@ -164,7 +187,7 @@ onUnmounted(() => {
   <div class="w-full flex flex-col mx-auto">
     <div class="w-full flex flex-col gap-4 justify-center items-center p-4"></div>
     <div class="w-full flex justify-center items-center">
-      <div class="w-fit flex justify-center items-center gap-2 p-2 md:p-4 rounded-sm">
+      <div class="w-full flex justify-center items-center gap-2 p-2 md:p-4 rounded-sm">
         <!-- <div class="text-lg font-semibold">Rating:</div> -->
         <!-- <div
           :class="
@@ -225,7 +248,13 @@ onUnmounted(() => {
             />
           </div>
         </div> -->
-        <div class="w-full h-[150px] flex justify-center items-center gap-8">
+        <div
+          :class="
+            isPhone
+              ? 'w-full h-fit flex flex-col justify-start items-center gap-8 px-4 py-4 '
+              : 'w-full h-fit flex justify-center items-start gap-8 px-4 py-4'
+          "
+        >
           <div
             :class="
               computedRating == 'You have not been rated yet'
@@ -237,11 +266,13 @@ onUnmounted(() => {
             <div
               :class="
                 computedRating == 'You have not been rated yet'
-                  ? ' text-amber-400 text-xl font-semibold'
-                  : ' text-gray-900 text-md md:text-xl '
+                  ? ' text-amber-400 text-xl font-semibold px-4'
+                  : '  px-4 flex justify-center items-center  gap-1'
               "
             >
-              {{ computedRating }}
+              <p class="text-gray-900 text-3xl md:text-3xl font-semibold">{{ computedRating }}</p>
+              <p class="text-gray-600 text-2xl md:text-2xl font-light">/</p>
+              <p class="text-gray-900 text-md md:text-md font-semibold self-end">5</p>
             </div>
 
             <div class="flex justify-center items-center">
@@ -249,153 +280,46 @@ onUnmounted(() => {
                 v-for="(icon, i) in computedStars"
                 :key="i"
                 :icon="icon"
-                :width="isPhone ? 30 : 34"
-                :height="isPhone ? 30 : 34"
+                :width="isPhone ? 40 : 30"
+                :height="isPhone ? 40 : 30"
                 class="text-yellow-300"
               />
+            </div>
+            <div class="w-fit flex justify-center items-center gap-2 px-4">
+              <p class="font-light text-md">{{ fullRating.length }}</p>
+              <p class="font-light text-md">Ratings</p>
             </div>
           </div>
 
           <div class="h-full border border-gray-300"></div>
 
-          <div class="w-full flex flex-col justify-center items-center gap-2 md:gap-4">
-            <div class="w-full flex justify-start items-center gap-2">
-              <!-- <div
-                :class="
-                  computedRating == 'You have not been rated yet'
-                    ? ' text-amber-400 text-xl font-semibold'
-                    : ' text-gray-900 text-md md:text-xl '
-                "
-              >
-                {{ computedRating }}
-              </div> -->
-              <p class="text-gray-900 text-md md:text-xl">5</p>
-
-              <div class="flex justify-center items-center">
-                <Icon
-                  v-for="(icon, i) in computedStars"
-                  :key="i"
-                  :icon="icon"
-                  :width="isPhone ? 30 : 34"
-                  :height="isPhone ? 30 : 34"
-                  class="text-yellow-300"
-                />
+          <div class="space-y-2">
+            <div
+              v-for="item in computedRatingScore"
+              :key="item.star"
+              class="flex items-center space-x-2"
+            >
+              <div class="w-[40px] text-right flex justify-center items-center gap-1">
+                <p>{{ item.star }}</p>
+                <Icon icon="mdi:star" width="25" height="25" class="text-yellow-300" />
               </div>
+              <div
+                :class="isPhone ? 'w-[70vw]' : 'w-[350px]'"
+                class="flex-1 bg-gray-200 rounded h-4 relative"
+              >
+                <div
+                  class="absolute top-0 left-0 h-4 bg-yellow-400 rounded"
+                  :style="{ width: item.percent + '%' }"
+                ></div>
+              </div>
+              <div class="w-8 text-left">{{ item.count }}</div>
             </div>
-            <div class="w-full flex justify-start items-center gap-2">
-              <!-- <div
-                :class="
-                  computedRating == 'You have not been rated yet'
-                    ? ' text-amber-400 text-xl font-semibold'
-                    : ' text-gray-900 text-md md:text-xl '
-                "
-              >
-                {{ computedRating }}
-              </div> -->
-              <p class="text-gray-900 text-md md:text-xl">5</p>
-
-              <div class="flex justify-center items-center">
-                <Icon
-                  v-for="(icon, i) in computedStars"
-                  :key="i"
-                  :icon="icon"
-                  :width="isPhone ? 30 : 34"
-                  :height="isPhone ? 30 : 34"
-                  class="text-yellow-300"
-                />
-              </div>
-            </div>
-            <div class="w-full flex justify-start items-center gap-2">
-              <!-- <div
-                :class="
-                  computedRating == 'You have not been rated yet'
-                    ? ' text-amber-400 text-xl font-semibold'
-                    : ' text-gray-900 text-md md:text-xl '
-                "
-              >
-                {{ computedRating }}
-              </div> -->
-              <p class="text-gray-900 text-md md:text-xl">5</p>
-
-              <div class="flex justify-center items-center">
-                <Icon
-                  v-for="(icon, i) in computedStars"
-                  :key="i"
-                  :icon="icon"
-                  :width="isPhone ? 30 : 34"
-                  :height="isPhone ? 30 : 34"
-                  class="text-yellow-300"
-                />
-              </div>
-            </div>
-            <div class="w-full flex justify-start items-center gap-2">
-              <!-- <div
-                :class="
-                  computedRating == 'You have not been rated yet'
-                    ? ' text-amber-400 text-xl font-semibold'
-                    : ' text-gray-900 text-md md:text-xl '
-                "
-              >
-                {{ computedRating }}
-              </div> -->
-              <p class="text-gray-900 text-md md:text-xl">5</p>
-
-              <div class="flex justify-center items-center">
-                <Icon
-                  v-for="(icon, i) in computedStars"
-                  :key="i"
-                  :icon="icon"
-                  :width="isPhone ? 30 : 34"
-                  :height="isPhone ? 30 : 34"
-                  class="text-yellow-300"
-                />
-              </div>
-            </div>
-            <div class="w-full flex justify-start items-center gap-2">
-              <!-- <div
-                :class="
-                  computedRating == 'You have not been rated yet'
-                    ? ' text-amber-400 text-xl font-semibold'
-                    : ' text-gray-900 text-md md:text-xl '
-                "
-              >
-                {{ computedRating }}
-              </div> -->
-              <p class="text-gray-900 text-md md:text-xl">5</p>
-
-              <div class="flex justify-center items-center">
-                <Icon
-                  v-for="(icon, i) in computedStars"
-                  :key="i"
-                  :icon="icon"
-                  :width="isPhone ? 30 : 34"
-                  :height="isPhone ? 30 : 34"
-                  class="text-yellow-300"
-                />
-              </div>
-            </div>
-            <div class="w-full flex justify-start items-center gap-2">
-              <!-- <div
-                :class="
-                  computedRating == 'You have not been rated yet'
-                    ? ' text-amber-400 text-xl font-semibold'
-                    : ' text-gray-900 text-md md:text-xl '
-                "
-              >
-                {{ computedRating }}
-              </div> -->
-              <p class="text-gray-900 text-md md:text-xl">1</p>
-
-              <div class="flex justify-center items-center">
-                <Icon
-                  v-for="(icon, i) in computedStars"
-                  :key="i"
-                  :icon="icon"
-                  :width="isPhone ? 30 : 34"
-                  :height="isPhone ? 30 : 34"
-                  class="text-yellow-300"
-                />
-              </div>
+          </div>
+          <div class="w-fit flex flex-col justify-start items-start gap-6">
+            <p class="text-lg font-semibold">Customer's Reviews</p>
+            <div class="w-full flex justify-center items-center gap-4 px-6">
+              <Button> Quality of service</Button>
+              <Button> Appropriate price</Button>
             </div>
           </div>
         </div>
@@ -413,7 +337,7 @@ onUnmounted(() => {
         @update:filteredItems="filteredAds = $event"
       />
     </div> -->
-    <!-- {{ info }} -->
+
     <div class="w-full rounded-sm">
       <div class="w-full flex flex-col justify-center items-center">
         <div class="w-[90%] gap-4 justify-start items-center flex flex-wrap">

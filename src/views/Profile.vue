@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { RouterLink, RouterView, useRouter } from 'vue-router'
+import { useWindowSize } from '@/composables/useWindowSize'
+const { isPhone } = useWindowSize()
 // import { useGetUserStore } from '@/stores/current-user-store'
 // import { useWindowSize } from '@/composables/useWindowSize'
 // const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
@@ -46,9 +48,9 @@ onMounted(() => {
           <RouterLink
             :to="`${user.path}`"
             @click="getValue(user.name)"
-            active-class="  text-gray-800 text-lg font-semibold  p-2 shadow-sm shadow-gray-400 rounded-md"
+            active-class="  text-gray-800 text-lg font-semibold  p-2 border-b border-gray-400 "
           >
-            <button class="min-w-[70px]">
+            <button :class="isPhone ? 'min-w-[fit]' : 'min-w-[70px]'">
               {{ user.name }}
             </button>
           </RouterLink>
