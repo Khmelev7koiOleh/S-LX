@@ -1,4 +1,4 @@
-import { onMounted, ref, toRefs } from 'vue'
+import { toRefs } from 'vue'
 import { useRouter } from 'vue-router'
 import { useFilterStore } from '../stores/filter-store'
 

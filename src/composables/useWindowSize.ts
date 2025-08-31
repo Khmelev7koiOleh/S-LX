@@ -17,7 +17,7 @@ export function useWindowSize() {
     window.removeEventListener('resize', handleResize)
   })
 
-  const isPhone = computed(() => width.value < 768)
+  const isPhone = computed(() => width.value < 900)
   const isTablet = computed(() => width.value >= 768 && width.value < 1024)
   const isLaptop = computed(() => width.value >= 1024)
 

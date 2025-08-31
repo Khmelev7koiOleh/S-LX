@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, toRefs, onMounted, watchEffect, watch, computed } from 'vue'
+import { toRefs, onMounted } from 'vue'
 import { supabase } from './lib/supabaseClient'
 import { RouterView } from 'vue-router'
 import TopNav from './components/TopNav.vue'

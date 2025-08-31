@@ -21,7 +21,7 @@ import { useWindowSize } from '@/composables/useWindowSize'
 import { useMenuOpenStore } from '@/stores/menu-open-store'
 const menuOpenStore = useMenuOpenStore()
 const { onMenuOpen } = toRefs(menuOpenStore)
-const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
+const { isPhone } = useWindowSize()
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
 const props = defineProps(['data'])
@@ -42,8 +42,9 @@ const burgerMenuComputed = computed(() => {
     return 'w-[100vw] h-[100vh] fixed  flex flex-col justify-start items-center gap-10 bg-gray-900 z-20 py-[20%] '
   } else if (isPhone.value && !onMenuOpen.value) {
     return 'hidden'
-  }
+  } else return ''
 })
+
 watch(onMenuOpen, (val) => {
   if (val) {
     document.body.classList.add('overflow-hidden')

@@ -1,12 +1,14 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { supabase } from '../lib/supabaseClient'
-import type { UserType } from '@/types/user-type'
+import type { Router } from 'vue-router'
+// import type { UserType } from '@/types/user-type'
+import type { Tables } from '@/types/supabase'
 
 export const useGetUserStore = defineStore(
   'user',
   () => {
-    const user = ref<UserType>({
+    const user = ref<Tables<'user'>>({
       name: '',
       email: '',
       id: '',
@@ -14,11 +16,13 @@ export const useGetUserStore = defineStore(
       description: '',
       location: '',
       tel: '',
+      user_id: '',
+      created_at: '',
     })
 
     const backendError = ref<string[]>([])
 
-    const signOut = async (router: any) => {
+    const signOut = async (router: Router) => {
       // signout
       const { error } = await supabase.auth.signOut()
       if (error) {
@@ -33,12 +37,14 @@ export const useGetUserStore = defineStore(
           description: '',
           location: '',
           tel: '',
+          user_id: '',
+          created_at: '',
         }
         router.push('/login')
       }
     }
 
-    const signUp = async (name: string, email: string, password: string, router: any) => {
+    const signUp = async (name: string, email: string, password: string, router: Router) => {
       console.log(email, password)
       const { data, error } = await supabase.auth.signUp({
         email: email,
@@ -51,7 +57,7 @@ export const useGetUserStore = defineStore(
         },
       })
 
-      const { data: UserData, error: UserError } = await supabase.from('user').insert({
+      const {} = await supabase.from('user').insert({
         id: data.user?.id,
         name: name,
         email: email,
@@ -76,13 +82,18 @@ export const useGetUserStore = defineStore(
           email: email as string,
           id: id as string,
           img: user_metadata?.img || '', // fallback if not set
+          description: '',
+          location: '',
+          tel: '',
+          user_id: id as string,
+          created_at: '',
         }
 
         console.log('Login success:', data.session)
         router.push('/')
       }
     }
-    const signIn = async (email: string, password: string, router: any) => {
+    const signIn = async (email: string, password: string, router: Router) => {
       console.log(email, password)
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email,
@@ -95,7 +106,7 @@ export const useGetUserStore = defineStore(
       } else {
         const currentUser = await supabase.auth.getUser()
         // console.log(currentUser.data.user?.id)
-        const { data: currentUserQ, error: currentUserQError } = await supabase
+        const { data: currentUserQ } = await supabase
           .from('user')
           .select('*')
           .eq('user_id', currentUser.data.user?.id)
@@ -108,7 +119,7 @@ export const useGetUserStore = defineStore(
 
           // console.log(email, name, id)
 
-          const { data: UserData, error: UserError } = await supabase
+          const {} = await supabase
             .from('user')
             .update({
               name: currentUserQ[0].name,
@@ -128,6 +139,8 @@ export const useGetUserStore = defineStore(
             description: currentUserQ[0].description || '',
             location: currentUserQ[0].location || '',
             tel: currentUserQ[0].tel || '',
+            user_id: currentUserQ[0].user_id || '',
+            created_at: currentUserQ[0].created_at || '',
           }
         }
 

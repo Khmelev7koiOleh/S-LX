@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabaseClient'
+import type { Router } from 'vue-router'
 
-export async function signIn(email: string, password: string, router: any) {
+export async function signIn(email: string, password: string, router: Router) {
   console.log(email, password)
   const { data, error } = await supabase.auth.signInWithPassword({
     email: email,

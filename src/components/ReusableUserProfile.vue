@@ -1,40 +1,43 @@
 <script setup lang="ts">
-import { ref, toRefs, onMounted, onUnmounted, computed, watchEffect } from 'vue'
+import { ref, toRefs, onMounted, onUnmounted, computed } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import { useGetUserStore } from '@/stores/current-user-store'
-import type { UserType } from '@/types/user-type'
+// import type { UserType } from '@/types/user-type'
 
 import { Icon } from '@iconify/vue'
 // import ReusableUserProfile from './ReusableUserProfile.vue'
-import AdCard from '@/components/AdCard.vue'
-import { RouterLink, useRouter } from 'vue-router'
-
+import type { Tables } from '@/types/supabase'
+import { useRouter } from 'vue-router'
+import { useSupabaseSubscription } from '@/composables/useSupabaseSubscription'
 import { useChatStore } from '@/stores/chat-store'
 import Button from '@/components/ui/button/Button.vue'
 import { useWindowSize } from '@/composables/useWindowSize'
-const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
+// import type { RealtimeChannel } from '@supabase/supabase-js'
+const { isPhone } = useWindowSize()
+const { subscribe, unsubscribe } = useSupabaseSubscription()
 
 const chatStore = useChatStore()
 
-const chat = chatStore.currentChat // Always available
+// const chat = chatStore.currentChat // Always available
 
 const router = useRouter()
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
-const allStars = ref(5)
+// const allStars = ref(5)
 const isEmail = ref<boolean>(false)
 const isRating = ref<boolean>(false)
 const isChatButton = ref<boolean>(false)
-const getUser = supabase.auth.getUser()
-const description = ref<string>('')
-const location = ref<string>('')
-const tel = ref<string>('')
-const currentRoom = ref<any | undefined>(null)
-const imageUrl = ref<string>('')
-const file = ref<File | null>(null)
+const isMainInfo = ref<boolean>(false)
+// const getUser = supabase.auth.getUser()
+// const description = ref<string>('')
+// const location = ref<string>('')
+// const tel = ref<string>('')
+const currentRoom = ref<Tables<'chat_rooms'> | null>(null)
+// const imageUrl = ref<string>('')
+// const file = ref<File | null>(null)
 const onHintOpen = ref<boolean>(false)
-const rating = ref<Number>(0)
-const info = ref<UserType>({
+const rating = ref<number>(0)
+const info = ref<Tables<'user'>>({
   created_at: '',
   name: '',
   email: '',
@@ -48,7 +51,7 @@ const info = ref<UserType>({
 
 const props = defineProps({
   data: {
-    type: Object as () => UserType,
+    type: Object as () => Tables<'user'>,
     required: true,
   },
   start: {
@@ -87,15 +90,15 @@ const props = defineProps({
 const { data, start, center, end, bg, routerOn } = toRefs(props)
 // console.log(data.value)
 info.value = data.value
-const goToChat = (chat: any) => {
+const goToChat = (chat: Tables<'chat_rooms'>) => {
   console.log(chat)
   chatStore.currentChat = chat // Store the chat
   router.push(`/chats/${chat.room_id}`) // Navigate
 }
-async function createChatRoom(user1_id: string, user2_id: string, room_topic: string) {
+async function createChatRoom(user1_id: string, user2_id: string) {
   console.log(user1_id, user2_id)
   const room_id = [user1_id, user2_id].sort().join('_') // Eindeutige ID (z. B. "user1_user2")
-  const { data: dataCheck, error } = await supabase
+  const { data: dataCheck } = await supabase
     .from('chat_rooms')
     .select('*')
     .eq('room_id', room_id)
@@ -105,7 +108,7 @@ async function createChatRoom(user1_id: string, user2_id: string, room_topic: st
     console.log(dataCheck)
     goToChat(dataCheck)
   } else {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('chat_rooms')
       .upsert(
         {
@@ -130,7 +133,7 @@ async function createChatRoom(user1_id: string, user2_id: string, room_topic: st
 
 const rateUser = async (targetUserId: string, userId: string, rating: number) => {
   console.log('rateUser', targetUserId, 'by', userId, 'with rating', rating)
-  const { data: dataGet, error: errorGet } = await supabase
+  const { data: dataGet } = await supabase
     .from('ratings')
     .select('*')
     .eq('target_user_id', targetUserId)
@@ -166,7 +169,7 @@ const rateUser = async (targetUserId: string, userId: string, rating: number) =>
   }
 }
 
-const getAverageRating = async (targetUserId: any) => {
+const getAverageRating = async (targetUserId: string | number) => {
   console.log('getAverageRating', targetUserId)
 
   const { data, error } = await supabase
@@ -216,42 +219,41 @@ const goToProfile = (id: string) => {
     return
   }
 }
-let ratingSubscription: any = null
-const subscribeToRatings = (targetUserId: string) => {
-  ratingSubscription = supabase
-    .channel('ratings-channel')
-    .on(
-      'postgres_changes',
-      {
-        event: '*', // or 'INSERT' | 'UPDATE' | 'DELETE'
-        schema: 'public',
-        table: 'ratings',
-        filter: `target_user_id=eq.${targetUserId}`,
-      },
-      (payload) => {
-        console.log('Realtime change:', payload)
-        getAverageRating(targetUserId)
-      },
-    )
-    .subscribe()
-}
+// let ratingSubscription: any = null
+// const subscribeToRatings = (targetUserId: string) => {
+//   ratingSubscription = supabase
+//     .channel('ratings-channel')
+//     .on(
+//       'postgres_changes',
+//       {
+//         event: '*', // or 'INSERT' | 'UPDATE' | 'DELETE'
+//         schema: 'public',
+//         table: 'ratings',
+//         filter: `target_user_id=eq.${targetUserId}`,
+//       },
+//       (payload) => {
+//         console.log('Realtime change:', payload)
+//         getAverageRating(targetUserId)
+//       },
+//     )
+//     .subscribe()
+// }
 
+// const unsubscribeFromRatings = async () => {
+//   if (ratingSubscription) {
+//     await supabase.removeChannel(ratingSubscription)
+//   }
+// }
 const hideProfileData = () => {
-  console.log('hideProfileData')
   if (props.is_visable) {
     {
       isEmail.value = !isEmail.value
       isRating.value = !isRating.value
       isChatButton.value = !isChatButton.value
+      isMainInfo.value = !isMainInfo.value
     }
   } else return
 }
-const unsubscribeFromRatings = async () => {
-  if (ratingSubscription) {
-    await supabase.removeChannel(ratingSubscription)
-  }
-}
-
 // const getUsers = async (id: string) => {
 //   console.log(id)
 //   const { data: userData, error } = await supabase.from('user').select('*').eq('id', id)
@@ -269,11 +271,24 @@ const unsubscribeFromRatings = async () => {
 
 onMounted(async () => {
   getAverageRating(props.data.id)
-  subscribeToRatings(props.data.id)
+  subscribe(
+    {
+      event: '*',
+      schema: 'public',
+      table: 'ratings',
+      filter: `target_user_id=eq.${props.data.id}`,
+    },
+    (payload) => {
+      console.log('Realtime change:', payload)
+      getAverageRating(props.data.id)
+    },
+  )
+  // subscribeToRatings(props.data.id)
 })
 
 onUnmounted(() => {
-  unsubscribeFromRatings()
+  if (unsubscribe) unsubscribe()
+  // unsubscribeFromRatings()
 })
 </script>
 
@@ -282,34 +297,43 @@ onUnmounted(() => {
 
   <br /> -->
 
-  <div @click.stop.prevent="hideProfileData()" class="w-full h-full py-0 px-0 md:py-4 md:px-10">
+  <div @click.stop.prevent="hideProfileData()" class="w-full h-full py-0 px-0 md:py-4 md:px-0">
     <div
       :class="[
-        'w-full h-full flex justify-center items-center gap-10 rounded-sm  ',
+        ' h-full flex justify-center items-center gap-10 rounded-sm  ',
         justifyComputed,
         bg,
         isPhone ? 'flex-col  ' : 'flex-row',
-        isEmail && isRating && isChatButton ? 'p-1' : 'p-4',
+        isEmail && isRating && isChatButton ? 'w-[80vw] p-2  ' : 'p-4',
       ]"
     >
-      <div class="w-fit flex flex-col justify-center items-start px-[2%] md:px-[10%]">
+      <div class="w-fit flex flex-col justify-center items-start px-[2%] md:px-[5%]">
         <div @click="goToProfile(info.id)" class="flex justify-start items-center gap-4 md:gap-8">
           <div class="w-full h-full flex justify-center items-center">
             <img
-              :src="info.img"
-              class="rounded-full object-cover min-w-[90px] min-h-[90px] w-[90px] h-[90px] md:min-w-[150px] md:min-h-[150px] md:w-[150px] md:h-[150px]"
+              :src="info.img ?? ''"
+              :class="
+                isRating && isEmail && isChatButton
+                  ? 'rounded-full object-cover min-w-[80px] min-h-[80px] w-[80px] h-[80px] md:min-w-[120px] md:min-h-[120px] md:w-[120px] md:h-[120px] transition-all duration-700 ease-in-out '
+                  : 'rounded-full object-cover min-w-[90px] min-h-[90px] w-[90px] h-[90px] md:min-w-[150px] md:min-h-[150px] md:w-[150px] md:h-[150px] transition-all duration-700 ease-in-out '
+              "
               :width="isPhone ? 90 : 150"
               :height="isPhone ? 90 : 150"
               alt=""
             />
           </div>
-          <div class="flex flex-col justify-center items-start gap-2">
-            <div class="text-xl text-gray-800 font-mono">{{ info.name }}</div>
-            <div v-if="isEmail" class="text-md text-gray-800 font-mono">{{ info.email }}</div>
+          <div class="flex flex-col justify-center items-start gap-3">
+            <div class="text-lg md:text-xl text-gray-800 font-mono">{{ info.name }}</div>
+            <div
+              v-if="props.is_visable ? isEmail : true"
+              class="text-sm md:text-md text-gray-800 font-mono truncate"
+            >
+              {{ info.email }}
+            </div>
 
             <div class="w-full min-w-[200px] flex flex-col justify-center items-start gap-2">
               <div
-                v-if="isRating"
+                v-if="props.is_visable ? isRating : true"
                 :class="
                   computedRating == 'This user has not been rated yet'
                     ? 'w-full flex flex-col  justify-start items-center gap-2'
@@ -319,7 +343,7 @@ onUnmounted(() => {
                 <div
                   :class="
                     computedRating == 'This user has not been rated yet'
-                      ? ' text-gray-800 text-md font-semibold '
+                      ? ' text-gray-800 text-sm md:text-md font-semibold '
                       : 'text-gray-800'
                   "
                 >
@@ -330,7 +354,10 @@ onUnmounted(() => {
                  bottom
                  one
                  -->
-                <div class="flex justify-start items-center">
+                <div
+                  v-if="computedRating == 'This user has not been rated yet' ? false : true"
+                  class="flex justify-start items-center"
+                >
                   <!-- not i + 1 -->
                   <Icon
                     v-for="(icon, i) in computedStars"
@@ -343,21 +370,24 @@ onUnmounted(() => {
                   />
                 </div>
               </div>
-              <div v-if="isChatButton" class="w-full flex justify-end items-center">
-                <Button @click="createChatRoom(user.id, info.id, chat?.room_topic)" class="w-full">
+              <div
+                v-if="props.is_visable ? isChatButton : true"
+                class="w-full flex justify-end items-center"
+              >
+                <Button @click="createChatRoom(user.id, info.id)" class="w-full">
                   <Icon icon="material-symbols:chat" width="24" height="24" />
-                  <div class="text-md text-gray-300 font-mono truncate">
-                    Chat with {{ info.name }}
-                  </div>
+                  <div class="text-sm md:text-md text-gray-300 font-mono">Chat {{ info.name }}</div>
                 </Button>
               </div>
             </div>
           </div>
         </div>
       </div>
-
+      <!-- <div>{{ main_info_confirm }}</div> -->
       <div
-        v-if="main_info && main_info_confirm ? true : !isPhone"
+        v-if="
+          main_info && isPhone ? main_info_confirm : true && props.is_visable ? isMainInfo : true
+        "
         class="w-[90vw] md:w-auto flex justify-start items-start relative"
       >
         <div v-if="info" class="text-black p-4">
@@ -386,9 +416,11 @@ onUnmounted(() => {
                   <span class="inline-block w-auto text-gray-600 font-semibold text-md"
                     >Description:</span
                   >
-                  <span class="align-top px-2 text-sm font-light">{{
-                    info.description ?? 'there is no description'
-                  }}</span>
+                  <span
+                    class="align-top px-2 text-sm font-light"
+                    :class="isEmail && isRating && isChatButton ? 'line-clamp-2' : ''"
+                    >{{ info.description ?? 'there is no description' }}</span
+                  >
                 </p>
               </div>
 

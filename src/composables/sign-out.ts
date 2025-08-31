@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabaseClient'
+import type { Router } from 'vue-router'
 
 /*************  ✨ Windsurf Command ⭐  *************/
 /**
@@ -6,7 +7,7 @@ import { supabase } from '../lib/supabaseClient'
  * @param router - The Vue Router instance to use for redirection.
  */
 /*******  8a637c2b-8238-49e8-bc1f-748b71190853  *******/ export async function signOut(
-  router: any,
+  router: Router,
 ) {
   // signout
   const { error } = await supabase.auth.signOut()

@@ -1,22 +1,16 @@
 import { defineStore } from 'pinia'
+import type { Tables } from '@/types/supabase'
 
+type ChatRoom = Tables<'chat_rooms'>
 export const useChatStore = defineStore('chat', {
   state: () => ({
-    currentChat: null,
+    currentChat: {} as ChatRoom | null,
     onCurrentRoomOpen: false,
   }),
   actions: {
-    setCurrentChat(chat: any) {
+    setCurrentChat(chat: ChatRoom | null) {
       this.currentChat = chat
     },
   },
-  persist: {
-    enabled: true,
-    strategies: [
-      {
-        key: 'chat',
-        storage: localStorage,
-      },
-    ],
-  },
+  persist: true, // or persist: { key: 'chat', storage: localStorage }
 })

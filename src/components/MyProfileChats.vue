@@ -1,31 +1,31 @@
 <script setup lang="ts">
 import ChatsComponent from './ChatsComponent.vue'
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination'
+// import {
+//   Pagination,
+//   PaginationContent,
+//   PaginationEllipsis,
+//   PaginationItem,
+//   PaginationNext,
+//   PaginationPrevious,
+// } from '@/components/ui/pagination'
 
-import { ref, toRefs, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { supabase } from '@/lib/supabaseClient'
-import { useGetUserStore } from '../stores/current-user-store'
-import ChatMessageComponent from '@/components/ChatMessageComponent.vue'
-import { Icon } from '@iconify/vue'
-import { useChatStore } from '../stores/chat-store'
-import { useGetUsersComposable } from '@/composables/get-users'
-import { useWindowSize } from '@/composables/useWindowSize'
-const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
+// import { toRefs} from 'vue'
+// import { useRouter } from 'vue-router'
+// import { supabase } from '@/lib/supabaseClient'
+// import { useGetUserStore } from '../stores/current-user-store'
+// import ChatMessageComponent from '@/components/ChatMessageComponent.vue'
+// import { Icon } from '@iconify/vue'
+// import { useChatStore } from '../stores/chat-store'
+// import { useGetUsersComposable } from '@/composables/get-users'
+// import { useWindowSize } from '@/composables/useWindowSize'
+// const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
 
-const { users, loading, error, getUsers } = useGetUsersComposable()
+// const { users, loading, error, getUsers } = useGetUsersComposable()
 
-const chatStore = useChatStore()
+// const chatStore = useChatStore()
 
-const userStore = useGetUserStore()
-const { user } = toRefs(userStore)
+// const userStore = useGetUserStore()
+// const { user } = toRefs(userStore)
 // const messages = ref<any | null>(null)
 // const router = useRouter()
 // const chatsIn = ref<any | null>([])

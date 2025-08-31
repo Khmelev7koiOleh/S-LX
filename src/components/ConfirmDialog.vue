@@ -1,19 +1,7 @@
 <script setup lang="ts">
 import { ref, toRefs } from 'vue'
-import { supabase } from '../lib/supabaseClient'
-import { useGetUserStore } from '../stores/current-user-store'
-import { useChatStore } from '../stores/chat-store'
-import { useRouter } from 'vue-router'
 
 import { Icon } from '@iconify/vue'
-
-const chatStore = useChatStore()
-
-const chat = chatStore.currentChat // Always available
-console.log(chat, 'chat')
-const router = useRouter()
-const userStore = useGetUserStore()
-const { user } = toRefs(userStore)
 
 const props = defineProps<{
   message?: string

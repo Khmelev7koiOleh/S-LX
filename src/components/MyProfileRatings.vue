@@ -1,38 +1,41 @@
 <script setup lang="ts">
-import ChatsComponent from './ChatsComponent.vue'
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination'
+// import ChatsComponent from './ChatsComponent.vue'
+// import {
+//   Pagination,
+//   PaginationContent,
+//   PaginationEllipsis,
+//   PaginationItem,
+//   PaginationNext,
+//   PaginationPrevious,
+// } from '@/components/ui/pagination'
 
 import { ref, toRefs, onMounted, computed, onUnmounted } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import { useGetUserStore } from '../stores/current-user-store'
-import ChatMessageComponent from '@/components/ChatMessageComponent.vue'
+// import ChatMessageComponent from '@/components/ChatMessageComponent.vue'
 import { Icon } from '@iconify/vue'
-import UserProfile from './user-profile/UserProfile.vue'
+// import UserProfile from './user-profile/UserProfile.vue'
 import ReusableUserProfile from './ReusableUserProfile.vue'
-import { start } from 'repl'
-import { styleText } from 'util'
-import ReusableFilterComponent from './reusable/ReusableFilterComponent.vue'
-import { useFilterStore } from '../stores/filter-store'
+// import { start } from 'repl'
+// import { styleText } from 'util'
+// import ReusableFilterComponent from './reusable/ReusableFilterComponent.vue'
+// import { useFilterStore } from '../stores/filter-store'
+import { useSupabaseSubscription } from '@/composables/useSupabaseSubscription'
 import { useWindowSize } from '@/composables/useWindowSize'
+import type { Tables } from '@/types/supabase'
 
-const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
-const filterStore = useFilterStore()
+const { isPhone } = useWindowSize()
+const { subscribe, unsubscribe } = useSupabaseSubscription()
+// const filterStore = useFilterStore()
 
-const { selectedCategory } = toRefs(filterStore)
+// const { selectedCategory } = toRefs(filterStore)
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
-const info = ref<any>({})
+const info = ref<Tables<'user'>[]>([])
 const rating = ref<number>(0)
 
 const ratedBy = ref<string[]>([])
-const reviews = ref<any>([])
+// const reviews = ref<any>([])
 
 const getRatedBy = async (targetUserId: string) => {
   console.log('getRatedBy', targetUserId)
@@ -92,50 +95,68 @@ const computedRating = computed(() => {
   if (rating.value === 0 || undefined || null) return ''
   if (rating.value) return rating.value.toFixed(1) + ' / 5'
   else if (!rating.value) return 'You have not been rated yet'
+  else return ''
 })
-let ratingSubscription: any = null
-const subscribeToRatings = (targetUserId: string) => {
-  ratingSubscription = supabase
-    .channel('ratings-channel')
-    .on(
-      'postgres_changes',
-      {
-        event: '*', // or 'INSERT' | 'UPDATE' | 'DELETE'
-        schema: 'public',
-        table: 'ratings',
-        filter: `target_user_id=eq.${targetUserId}`,
-      },
-      (payload) => {
-        console.log('Realtime change:', payload)
-        getAverageRating(targetUserId)
-      },
-    )
-    .subscribe()
-}
+// let ratingSubscription: any = null
+// const subscribeToRatings = (targetUserId: string) => {
+//   ratingSubscription = supabase
+//     .channel('ratings-channel')
+//     .on(
+//       'postgres_changes',
+//       {
+//         event: '*', // or 'INSERT' | 'UPDATE' | 'DELETE'
+//         schema: 'public',
+//         table: 'ratings',
+//         filter: `target_user_id=eq.${targetUserId}`,
+//       },
+//       (payload) => {
+//         console.log('Realtime change:', payload)
+//         getAverageRating(targetUserId)
+//       },
+//     )
+//     .subscribe()
+// }
 
-const unsubscribeFromRatings = async () => {
-  if (ratingSubscription) {
-    await supabase.removeChannel(ratingSubscription)
-  }
-}
-const searchQuery = ref<string>('')
-const filteredAds = ref<any[]>([])
+// const unsubscribeFromRatings = async () => {
+//   if (ratingSubscription) {
+//     await supabase.removeChannel(ratingSubscription)
+//   }
+// }
+// const searchQuery = ref<string>('')
+// const filteredAds = ref<any[]>([])
+// onMounted(async () => {
+//   const { data, error } = await supabase.from('user').select('*').eq('id', user.value.id)
+//   if (data && data.length > 0) {
+//     info.value = data[0]
+//   } else {
+//     // Handle the case where no data is found
+//     console.log('No user data found')
+//   }
+
+//   subscribeToRatings(info.value.id)
+//   getRatedBy(user.value.id)
+//   getAverageRating(info.value.id)
+// })
 onMounted(async () => {
-  const { data, error } = await supabase.from('user').select('*').eq('id', user.value.id)
-  if (data && data.length > 0) {
-    info.value = data[0]
-  } else {
-    // Handle the case where no data is found
-    console.log('No user data found')
-  }
-
-  subscribeToRatings(info.value.id)
+  subscribe(
+    {
+      event: '*',
+      schema: 'public',
+      table: 'ratings',
+      filter: `target_user_id=eq.${user.value.id}`,
+    },
+    (payload) => {
+      console.log('Realtime change:', payload)
+      getAverageRating(user.value.id)
+      getRatedBy(user.value.id)
+    },
+  )
+  getAverageRating(user.value.id)
   getRatedBy(user.value.id)
-  getAverageRating(info.value.id)
 })
 onUnmounted(() => {
   // console.log('onUnmounted')
-  unsubscribeFromRatings()
+  if (unsubscribe) unsubscribe()
 })
 </script>
 
@@ -221,8 +242,8 @@ onUnmounted(() => {
     <!-- {{ info }} -->
     <div class="w-full rounded-sm">
       <div class="w-full flex flex-col justify-center items-center">
-        <div class="w-full flex flex-col gap-4 justify-center items-center p-4">
-          <div v-for="user in info" :key="user" class="w-full">
+        <div class="w-[90%] gap-4 justify-start items-center flex flex-wrap">
+          <div v-for="user in info" :key="user.user_id" class="w-auto">
             <ReusableUserProfile
               v-if="user.user_id"
               :data="user"

@@ -2,8 +2,8 @@
 import { Icon } from '@iconify/vue'
 import { supabase } from '../lib/supabaseClient'
 import { useRoute } from 'vue-router'
-import { ref, onMounted, computed, watch, toRefs } from 'vue'
-import type { AdsType } from '@/types/ads-type'
+import { ref, onMounted, toRefs } from 'vue'
+import type { Tables } from '@/types/supabase'
 
 import { useGetUserStore } from '../stores/current-user-store'
 import Button from './ui/button/Button.vue'
@@ -13,20 +13,20 @@ const isFavorite = ref<boolean>(false)
 const { user } = toRefs(userStore)
 
 const props = defineProps<{
-  title?: string
-  description?: string
-  img?: string
-  price?: number
+  title: string | null
+  description: string | null
+  img: string[] | null
+  price: number | null
   id: string | number
-  user_name?: string
-  created_at?: string
-  type?: string
-  size?: string
-  horisontal?: boolean
-  col?: boolean
-  if_favorite?: boolean
-  if_discount?: boolean
-  discount?: string
+  // user_name?: string
+  created_at: string
+  // type?: string | null
+  // size?: string
+  // horisontal?: boolean
+  // col?: boolean
+  // if_favorite?: boolean | null
+  if_discount: boolean | null
+  discount: number | null
 }>()
 
 const {
@@ -35,25 +35,26 @@ const {
   img,
   price,
   id,
-  user_name,
+
   created_at,
-  type,
-  size,
-  horisontal,
-  col,
-  if_favorite,
+  // type,
+  // size,
+  // horisontal,
+  // col,
+  // if_favorite,
   if_discount,
   discount,
 } = toRefs(props)
 
 const addToFavorites = async (
-  title: string | undefined,
-  description: string | undefined,
-  img: string | undefined,
-  price: number | undefined,
+  title: string | null,
+  description: string | null,
+  img: string | null,
+  price: number | null,
   id: string | number,
-  if_discount: boolean | undefined,
-  discount: string | undefined,
+  if_discount: boolean | null,
+  discount: number | null,
+  created_at: string,
 ) => {
   console.log(title, description, img, price, id, if_discount, discount)
   if (!id) return
@@ -72,6 +73,7 @@ const addToFavorites = async (
       .delete()
       .eq('id', id)
     if (!errorDelete) {
+      console.log(dataDelete)
       isFavorite.value = false
     } else {
       console.log(errorDelete)
@@ -89,7 +91,11 @@ const addToFavorites = async (
       price: price,
       if_discount: if_discount,
       discount: discount,
+      created_at: created_at,
     })
+    if (dataCreate) {
+      console.log(dataCreate)
+    }
     if (!errorCreate) {
       isFavorite.value = true
     } else {
@@ -107,8 +113,11 @@ const getFavorites = async (id: string) => {
     .eq('user_id', user.value.id)
     .maybeSingle()
 
+  if (error) {
+    console.log(error)
+  }
   // console.log(data)
-  if (route.name === 'favorites') {
+  if (route.name === 'favorites ') {
     isFavorite.value = true
   } else {
     isFavorite.value = !!data
@@ -132,7 +141,7 @@ const getFavorites = async (id: string) => {
 // }
 
 onMounted(() => {
-  getFavorites(id.value as string)
+  getFavorites(id.value as Tables<'favorites'>['id'])
 
   supabase
     .channel(`favorites:user:${user.value.id}`)
@@ -145,7 +154,7 @@ onMounted(() => {
         filter: `user_id=eq.${user.value.id}`,
       },
       () => {
-        getFavorites(id.value as string)
+        getFavorites(id.value as Tables<'favorites'>['id'])
       },
     )
     .subscribe()
@@ -156,15 +165,29 @@ onMounted(() => {
   <div class="bg-white">
     <!-- <Button @click.stop.prevent="getFavorites(id as string)"> click</Button> -->
   </div>
+  <!-- <div class="bg-red-500">
+    {{ if_discount }}
+
+    {{ discount }}
+  </div> -->
   <div>
     <Button
       @click.stop.prevent="
-        addToFavorites(title, description, img, price, id, if_discount, discount)
+        addToFavorites(
+          title,
+          description,
+          img ? img[0] : '',
+          price,
+          id,
+          if_discount,
+          discount,
+          created_at,
+        )
       "
       :class="
         isFavorite
-          ? 'text-red-600 rounded-full w-8 h-8 bg-white hover:bg-white shadow '
-          : 'text-black rounded-full w-8 h-8 bg-white hover:bg-white shadow'
+          ? 'text-red-600 rounded-full w-8 h-8 bg-white hover:bg-white shadow cursor-pointer '
+          : 'text-black rounded-full w-8 h-8 bg-white hover:bg-white shadow cursor-pointer '
       "
     >
       <Icon :icon="isFavorite ? 'mdi:heart' : 'mdi:heart'" width="20" height="20" />
