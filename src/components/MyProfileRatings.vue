@@ -270,9 +270,19 @@ onUnmounted(() => {
                   : '  px-4 flex justify-center items-center  gap-1'
               "
             >
-              <p class="text-gray-900 text-3xl md:text-3xl font-semibold">{{ computedRating }}</p>
-              <p class="text-gray-600 text-2xl md:text-2xl font-light">/</p>
-              <p class="text-gray-900 text-md md:text-md font-semibold self-end">5</p>
+              <p class="text-gray-900 text-xl md:text-xl font-semibold">{{ computedRating }}</p>
+              <p
+                v-if="computedRating != 'You have not been rated yet'"
+                class="text-gray-600 text-2xl md:text-2xl font-light"
+              >
+                /
+              </p>
+              <p
+                v-if="computedRating != 'You have not been rated yet'"
+                class="text-gray-900 text-md md:text-md font-semibold self-end"
+              >
+                5
+              </p>
             </div>
 
             <div class="flex justify-center items-center">
@@ -339,6 +349,12 @@ onUnmounted(() => {
     </div> -->
 
     <div class="w-full rounded-sm">
+      <div
+        v-if="info.length == 0"
+        class="w-full flex justify-center items-center text-xl font-semibold"
+      >
+        Nobody has rated you yet
+      </div>
       <div class="w-full flex flex-col justify-center items-center">
         <div class="w-[90%] gap-4 justify-start items-center flex flex-wrap">
           <div v-for="user in info" :key="user.user_id" class="w-auto">
@@ -358,6 +374,7 @@ onUnmounted(() => {
         </div>
       </div>
     </div>
+    <div class="p-4" />
   </div>
 </template>
 

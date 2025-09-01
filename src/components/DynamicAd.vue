@@ -264,7 +264,7 @@ onUnmounted(() => {
     <!-- {{ userData }} -->
     <button
       v-if="user?.id === ad?.user_id"
-      :class="isPhone ? ' absolute top-2 right-2 ' : 'absolute top-8 right-8'"
+      :class="isPhone ? ' absolute top-14 right-2 z-10  ' : 'absolute top-8 right-8 '"
     >
       <ConfirmDialog
         message="Are you sure you want to delete this ad?"
@@ -298,7 +298,7 @@ onUnmounted(() => {
     <div
       :class="
         isPhone
-          ? 'w-full flex flex-col justify-center items-center gap-2 px-[5vw] py-[5vh]'
+          ? 'w-full flex flex-col justify-center items-center gap-2 px-[5vw] py-[1vh]'
           : 'w-full flex flex-row justify-center items-center gap-8 px-[10vw] py-[5vh]'
       "
       v-if="ad"

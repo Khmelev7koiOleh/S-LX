@@ -187,7 +187,7 @@ onUnmounted(() => {
 </script>
 <template>
   <!-- Add deleted chats and profile for every chat user chats with  -->
-  <div class="w-full h-full bg-gray-100 py-4">
+  <div class="w-full h-full bg-gray-200 py-4">
     <div :class="isPhone ? 'w-[100%] mx-auto' : 'w-[60%] mx-auto'">
       <div
         :class="

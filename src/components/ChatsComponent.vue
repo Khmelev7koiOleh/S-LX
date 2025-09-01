@@ -139,6 +139,14 @@ const getPaginatedChats = (page: number) => {
       :default-page="1"
     >
       <div :class="isPhone ? ' mt-4 space-y-2 w-[90vw]' : ' mt-4 space-y-2 w-[60vw]'">
+        <div class="w-full flex justify-center items-center gap-8 pb-2">
+          <div class="w-[50%] flex justify-center items-center">
+            <p class="text-md font-semibold">Name</p>
+          </div>
+          <div class="w-[50%] flex justify-center items-center">
+            <p class="text-md font-semibold">Topic</p>
+          </div>
+        </div>
         <div
           v-for="chat in getPaginatedChats(page)"
           :key="chat.room_id"
@@ -146,10 +154,10 @@ const getPaginatedChats = (page: number) => {
         >
           <!-- <div class="text-white">{{ chat }}</div> -->
           <div @click="goToChat(chat)">
-            <div class="w-full text-white flex justify-between items-center gap-4 px-4">
-              <div class="w-[40%] flex justify-start items-center gap-4 md:px-[2rem]">
-                <div class="w-[24px] h-[24px]">
-                  <Icon icon="material-symbols:chat" width="24" />
+            <div class="w-full text-white flex justify-between items-center gap-4 px-0">
+              <div class="w-[40%] flex justify-start items-center gap-4 md:px-[1rem]">
+                <div class="w-[20px] h-[20px]">
+                  <Icon icon="material-symbols:chat" width="20" height="20" />
                 </div>
                 <div class="w-[34px] h-[34px] object-cover rounded-full">
                   <img
@@ -175,7 +183,6 @@ const getPaginatedChats = (page: number) => {
               </div>
               <div class="w-[40%] flex justify-start items-center gap-4 md:px-[2rem]">
                 <div class="w-full flex justify-start items-center gap-4">
-                  <p>Topic:</p>
                   <div class="truncate">{{ chat.room_topic }}</div>
                 </div>
               </div>

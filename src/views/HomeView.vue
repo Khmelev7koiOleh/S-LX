@@ -197,8 +197,8 @@ onMounted(() => {
         v-if="clickStore.isClicked"
         :class="
           clickStore.isClicked
-            ? 'absolute top-[25%] right-0 translate-0 transition-all duration-500 ease-in-out z-10'
-            : 'absolute top-[25%] right-0 translate-x-full transition-all duration-500 easy-in-out z-10'
+            ? 'fixed bottom-0 right-0 translate-0 transition-all duration-500 ease-in-out z-10 '
+            : 'fixed bottom-0 right-0 translate-x-full transition-all duration-500 easy-in-out z-10'
         "
       >
         <UploadAd />

@@ -18,10 +18,7 @@ import type { Tables } from '@/types/supabase'
 const { isPhone } = useWindowSize()
 const chatStore = useChatStore()
 const { subscribe, unsubscribe } = useSupabaseSubscription()
-// write a type fot the chat const
-// write a type fot the chat const
-// write a type fot the chat const
-// write a type fot the chat const
+
 const chat = chatStore.currentChat // Always available
 console.log(chat, 'chat')
 
@@ -30,7 +27,7 @@ const { user } = toRefs(userStore)
 
 const route = useRoute()
 const id = route.params.id
-const othreUser = ref<Tables<'user'> | null>(null)
+const otherUser = ref<Tables<'user'> | null>(null)
 
 const messages = ref<Tables<'messages'>[]>([])
 const message = ref('')
@@ -226,7 +223,7 @@ const getUser = async (id: string | undefined) => {
   console.log(id)
   const { data } = await supabase.from('user').select('*').eq('user_id', id).maybeSingle()
 
-  othreUser.value = data
+  otherUser.value = data
 }
 
 const scrollToBottom = () => {
@@ -367,7 +364,10 @@ onUnmounted(() => {
           </div>
 
           <textarea
-            @keydown.enter="file !== null ? sendPhoto(id, user.id, file, picDescription) : null"
+            @keydown.enter.shift.stop
+            @keydown.exact.enter="
+              file !== null ? sendPhoto(id, user.id, file, picDescription) : null
+            "
             type="text"
             :rows="picDescription.length > 20 ? 3 : 1"
             placeholder="Add a description"
@@ -400,9 +400,9 @@ onUnmounted(() => {
             <!-- just an empty avatar if there is no image -->
             <img
               :src="
-                othreUser?.img === null
+                otherUser?.img === null
                   ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-                  : othreUser?.img
+                  : otherUser?.img
               "
               alt=""
               width="50"
@@ -412,8 +412,8 @@ onUnmounted(() => {
           </div>
           <div>
             <h1>
-              {{ othreUser?.name }}
-              <p v-if="othreUser?.name === null">Anonymous</p>
+              {{ otherUser?.name }}
+              <p v-if="otherUser?.name === null">Anonymous</p>
             </h1>
           </div>
         </div>
@@ -618,7 +618,8 @@ onUnmounted(() => {
         </div>
 
         <textarea
-          @keydown.enter="sendMessage(id, user.id, message)"
+          @keydown.exact.enter="sendMessage(id, user.id, message)"
+          @keydown.enter.shift.stop
           type="text"
           :rows="message.length > 45 ? 3 : 1"
           placeholder="Message"

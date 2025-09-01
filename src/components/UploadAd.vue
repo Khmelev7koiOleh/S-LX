@@ -156,7 +156,7 @@ watch(if_discount, () => {
 
 <template>
   <div
-    class="p-8 space-y-2 flex flex-col max-w-[80%] mx-auto bg-gray-900 rounded-2xl h-full overflow-auto relative"
+    class="p-8 space-y-2 flex flex-col justify-center items-start gap-1 max-w-[100vw] mx-auto bg-gray-900 h-[calc(100vh-0px)] overflow-auto relative"
   >
     <button
       @click="closeAndReset()"
@@ -174,7 +174,7 @@ watch(if_discount, () => {
 
     <textarea
       v-model="description"
-      :rows="description.length > 30 ? 3 : 1"
+      :rows="description.length > 40 ? 4 : 1"
       type="text"
       placeholder="Description"
       class="w-full p-2 border rounded text-gray-200 placeholder:gray-200"
@@ -218,7 +218,7 @@ watch(if_discount, () => {
       </option>
     </select>
     <div v-if="imageUrl" class="mt-4">
-      <p class="text-sm text-gray-600">Bildvorschau:</p>
+      <p class="text-sm text-gray-600">Preview:</p>
       <img
         :src="imageUrl"
         alt="Preview"
@@ -230,7 +230,7 @@ watch(if_discount, () => {
       type="file"
       multiple
       @change="onFileChange"
-      class="text-gray-200 placeholder:gray-200"
+      class="w-full text-gray-200 placeholder:gray-200"
     />
     <div v-if="uploadError !== '' && !disabledComputed" class="text-center text-md text-red-400">
       {{ uploadError }}
@@ -241,8 +241,8 @@ watch(if_discount, () => {
       @click="[handleUpload(), (uploadError = 'All fields are required')]"
       :class="
         disabledComputed
-          ? 'bg-blue-500 px-4 py-2 rounded text-gray-200 placeholder:gray-200 cursor-pointer'
-          : 'bg-gray-500 px-4 py-2 rounded text-gray-200 placeholder:gray-200'
+          ? 'w-full bg-blue-500 px-4 py-2 my-8  rounded text-gray-200 placeholder:gray-200 cursor-pointer'
+          : 'w-full bg-gray-500 px-4 py-2 my-8 rounded text-gray-200 placeholder:gray-200'
       "
     >
       Upload & Save
