@@ -353,13 +353,14 @@ const steps = [
             :size="isPhone ? '100%' : '400px'"
             :w_container="isPhone ? '100%' : '560px'"
             :h_container="isPhone ? '350px' : '200px'"
-            :horisontal="true"
+            :horisontal="false"
             :col="isPhone ? true : false"
             :is_user_name="true"
             :created_at="ad?.created_at || ''"
             :if_favorite="false"
             :if_discount="ad?.if_discount || null"
             :discount="ad?.discount || null"
+            :discount_banner="true"
           />
         </div>
         <div class="p-4" />

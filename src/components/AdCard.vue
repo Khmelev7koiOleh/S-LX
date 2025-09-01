@@ -20,6 +20,7 @@ const props = defineProps<{
   created_at: string
   if_discount: boolean | null
   discount: number | null
+  discount_banner?: boolean
   type: string | null
   size?: string
   h_size?: string
@@ -136,15 +137,15 @@ const justifyComputed = computed(() => {
       <div
         :class="
           ifHorisontal
-            ? 'w-full h-full flex flex-col justify-between items-center gap-2 '
+            ? 'w-full h-full flex flex-col justify-between items-center gap-2  '
             : 'w-full h-full flex justify-between items-center gap-2 '
         "
       >
         <div
           :class="
             col
-              ? 'w-full flex flex-col gap-3 items-center justify-center  bg-gray-0'
-              : ' w-full flex   items-between justify-center  bg-gray-0 '
+              ? 'w-full flex flex-col gap-3 items-center justify-center  bg-gray-0 '
+              : ' w-full flex items-between justify-center  bg-gray-0 '
           "
         >
           <div
@@ -158,10 +159,7 @@ const justifyComputed = computed(() => {
               :style="{ width: size, height: h_size }"
             />
           </div>
-          <div
-            class="w-full flex flex-col justify-between items-center gap-4"
-            :class="col ? 'py-0' : 'py-4'"
-          >
+          <div class="w-full flex flex-col justify-between items-center gap-4">
             <div class="w-full flex flex-col justify-center items-center gap-4 pl-2">
               <p
                 class="w-full flex flex-wrap justify-start items-center break-all text-md font-semibold px-2"
@@ -180,13 +178,13 @@ const justifyComputed = computed(() => {
             </div>
             <div
               :class="
-                col
-                  ? 'w-full  absolute bottom-0 right-0 flex flex-col justify-end items-end gap-2'
+                horisontal
+                  ? 'w-full  absolute bottom-0 right-0 flex flex-col justify-end items-end gap-2 '
                   : 'w-[100%] flex flex-col justify-end items-end gap-2  '
               "
             >
               <div
-                v-if="if_discount"
+                v-if="if_discount && !discount_banner"
                 class="w-full flex justify-center items-center p-0 bg-red-400"
               >
                 <p class="text-md font-semibold text-white">-{{ computedDiscount }}%</p>
@@ -194,12 +192,12 @@ const justifyComputed = computed(() => {
               <div :class="['w-full flex items-center gap-4 px-4 py-1', justifyComputed]">
                 <p
                   v-if="price"
-                  :class="if_discount ? 'line-through text-md text-red-500 ' : ' py-2 '"
+                  :class="if_discount ? 'line-through text-md text-red-500 ' : ' py-0 '"
                 >
                   {{ price }} €.
                 </p>
 
-                <p v-if="if_discount" class="text-md">{{ discount }} €.</p>
+                <p v-if="discount" class="text-md">{{ discount }} €.</p>
               </div>
             </div>
           </div>

@@ -99,28 +99,22 @@ const PopularComponentData = ref([
   },
 ])
 
-const lorem = ref([
-  {
-    text: 'Lorinctio est ipsam et esse quos',
-  },
-  {
-    text: 'Lorinctio est ipsam et esse quos',
-  },
-  {
-    text: 'Lorinctio est ipsam et esse quos',
-  },
-  {
-    text: 'Lorinctio est ipsam et esse quos',
-  },
-  {
-    text: 'Lorinctio est ipsam et esse quos',
-  },
-  {
-    text: 'Lorinctio est ipsam et esse quos',
-  },
-  {
-    text: 'Lorinctio est ipsam et esse quos',
-  },
+const footerData = ref([
+  { text: 'About Us' },
+  { text: 'Careers' },
+  { text: 'Help & Support' },
+  { text: 'Safety Guidelines' },
+  { text: 'Terms & Conditions' },
+  { text: 'Privacy Policy' },
+])
+const footerDataTwo = ref([
+  { text: 'Contact Us' },
+  { text: 'Advertising' },
+  { text: 'Community Rules' },
+  { text: 'Shipping & Delivery' },
+  { text: 'Returns & Refunds' },
+  { text: 'Mobile App' },
+  { text: 'Site Map' },
 ])
 
 function clickFunction() {
@@ -144,7 +138,7 @@ onMounted(() => {
       <div
         :class="
           isPhone
-            ? ' flex flex-col items-center justify-around gap-8 p-8'
+            ? ' flex flex-col items-center justify-around gap-8 p-4'
             : 'flex flex-row items-center justify-around p-8'
         "
       >
@@ -154,8 +148,8 @@ onMounted(() => {
             v-if="searchQuery"
             :class="
               isPhone
-                ? ' w-[100%] h-[29vh] absolute mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-2  py-2 z-10'
-                : ' w-[100%] h-[29vh] absolute mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-2  py-2 z-10 '
+                ? ' w-[100%] h-[29vh] absolute mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-0  py-2 z-10'
+                : ' w-[100%] h-[29vh] absolute mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-0  py-2 z-10 '
             "
           >
             <li v-for="ad in filteredAds" :key="ad.id">
@@ -166,16 +160,19 @@ onMounted(() => {
                   :price="ad.price"
                   :id="ad.id"
                   :img="[ad.img?.[0] || '']"
-                  :if_discount="null"
-                  :discount="null"
+                  :if_discount="ad.if_discount"
+                  :discount="ad.discount"
+                  :discount_banner="true"
                   :type="ad.type"
-                  :h_size="'70px'"
-                  :size="'100px'"
-                  :horisontal="false"
+                  :h_size="'90px'"
+                  :size="'150px'"
+                  :w_container="isPhone ? '100%' : '100%'"
+                  :h_container="isPhone ? '90px' : '90px'"
+                  :horisontal="true"
                   :col="false"
                   :created_at="ad.created_at"
                   :if_favorite="false"
-                  :schrink="true"
+                  :schrink="false"
                   :start="false"
                   :center="false"
                   :end="true"
@@ -334,24 +331,50 @@ onMounted(() => {
     <div class="w-full border-b border-b-gray-800"></div>
   </main>
   <footer>
-    <div class="text-center text-2xl">Footer</div>
-    <div class="w-full p-8">
-      <div class="flex justify-start items-start gap-8 h-[300px]">
+    <!-- <div class="text-center text-2xl">Footer</div> -->
+    <div class="w-full pt-20 pb-4">
+      <div v-if="isPhone" class="flex justify-center items-start gap-8">
         <Accordion type="single" collapsible>
           <AccordionItem value="item-1">
-            <AccordionTrigger>Is it accessible?</AccordionTrigger>
-            <AccordionContent v-for="l in lorem" :key="l.text"> {{ l.text }} </AccordionContent>
+            <AccordionTrigger>About</AccordionTrigger>
+            <AccordionContent
+              v-for="item in footerData"
+              :key="item.text"
+              class="text-sm text-gray-600 font-semibold"
+            >
+              - {{ item.text }}
+            </AccordionContent>
           </AccordionItem>
         </Accordion>
 
         <Accordion type="single" collapsible>
           <AccordionItem value="item-1">
-            <AccordionTrigger>Is it accessible2?</AccordionTrigger>
-            <AccordionContent v-for="l in lorem" :key="l.text"> {{ l.text }} </AccordionContent>
+            <AccordionTrigger>Help</AccordionTrigger>
+            <AccordionContent
+              v-for="item in footerDataTwo"
+              :key="item.text"
+              class="text-sm text-gray-600 font-semibold"
+            >
+              - {{ item.text }}
+            </AccordionContent>
           </AccordionItem>
         </Accordion>
       </div>
-      <div class="bg-white p-4 text-center text-white">Copyright &copy; 2025</div>
+
+      <div v-else class="w-full flex justify-start items-baseline gap-[15vw] px-[2vw]">
+        <div class="flex flex-col justify-start items-start gap-2">
+          <div v-for="item in footerData" :key="item.text" class="w-full flex flex-col">
+            <div class="text-lg text-gray-600 font-semibold">- {{ item.text }}</div>
+          </div>
+        </div>
+        <div class="w-[200px] flex flex-col justify-start items-start gap-2">
+          <div v-for="item in footerDataTwo" :key="item.text" class="w-full flex flex-col gap-3">
+            <div class="text-lg text-gray-600 font-semibold">- {{ item.text }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-0 text-center text-black">Copyright &copy; 2025</div>
     </div>
   </footer>
 </template>
