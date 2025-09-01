@@ -4,10 +4,11 @@ import { onMounted, ref, toRefs, computed, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient'
 // import type { AdsType } from '@/types/ads-type'
+import { BookUser, Check, CreditCard, Truck } from 'lucide-vue-next'
 import Button from './ui/button/Button.vue'
 import { useGetUserStore } from '@/stores/current-user-store'
 import ChatMessageComponent from './ChatMessageComponent.vue'
-// import AdCard from './AdCard.vue'
+import AdCard from './AdCard.vue'
 import { Card, CardContent } from '@/components/ui/card'
 import {
   Carousel,
@@ -20,6 +21,15 @@ import Autoplay from 'embla-carousel-autoplay'
 import AddFavoritesButton from './AddFavoritesButton.vue'
 // import UserProfile from './user-profile/UserProfile.vue'
 
+import {
+  Stepper,
+  StepperDescription,
+  StepperIndicator,
+  StepperItem,
+  StepperSeparator,
+  StepperTitle,
+  StepperTrigger,
+} from '@/components/ui/stepper'
 import { useChatStore } from '@/stores/chat-store'
 import { Icon } from '@iconify/vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
@@ -47,6 +57,8 @@ const userData = ref<Tables<'user'> | null>(null)
 const chat = ref<Tables<'chat'>[] | null>(null)
 const theMessage = ref<{ msg: string }[]>([])
 const currentRoom = ref<Tables<'chat_rooms'> | null>(null)
+const onDeliveryOpen = ref<boolean>(false)
+const onStepperOpen = ref<boolean>(false)
 // const onCurrentRoomOpen = ref<boolean>(false)
 // const klasse = ref<any[] | null>([])
 // const klasseNew = ref<any[] | null>([])
@@ -257,10 +269,228 @@ onMounted(async () => {
 onUnmounted(() => {
   if (unsubscribe) unsubscribe()
 })
+
+const steps = [
+  { step: 1, title: 'Address', description: 'Add your address', icon: BookUser },
+  { step: 2, title: 'Shipping', description: 'Your order is on its way', icon: Truck },
+  { step: 3, title: 'Payment', description: 'Complete your payment', icon: CreditCard },
+  { step: 4, title: 'Confirmation', description: 'Confirm your order', icon: Check },
+]
 </script>
 
 <template>
   <div class="w-[100vw] h-[100vh] relative">
+    <div
+      v-if="onDeliveryOpen"
+      class="fixed top-0 right-0 h-full z-50 bg-gray-50 overflow-auto"
+      :class="isPhone ? 'w-full' : 'w-[600px]'"
+    >
+      <div class="flex items-center">
+        <button @click="[(onDeliveryOpen = !onDeliveryOpen), (onStepperOpen = false)]" class="p-4">
+          <Icon icon="mdi:arrow-left" width="34" height="34" class="text-gray-900" />
+        </button>
+        <div class="flex justify-center items-center gap-2 px-6">
+          <h1 v-if="!onStepperOpen" class="text-2xl font-semibold">Purchase with delivery</h1>
+          <h1 v-if="onStepperOpen" class="text-2xl font-semibold">Delivery</h1>
+          <Icon icon="mdi:truck-delivery" width="34" height="34" class="text-gray-900" />
+        </div>
+      </div>
+
+      <div
+        class="w-full h-[80%] flex flex-col justify-around items-center px-4"
+        v-if="onStepperOpen"
+      >
+        <div class="w-full flex justify-center items-center gap-4">
+          <Icon icon="icon-park-solid:success" width="34" height="34" class="text-green-500" />
+          <p class="text-2xl text-gray-600">Order placed successfully</p>
+        </div>
+        <Stepper>
+          <StepperItem v-for="item in steps" :key="item.step" class="basis-1/4" :step="item.step">
+            <div class="w-full h-[200px] flex flex-col">
+              <div class="w-full h-[24px] flex justify-center items-start" width="24" height="24">
+                <Icon
+                  v-if="item.step === 1"
+                  icon="icon-park-solid:success"
+                  width="24"
+                  height="24"
+                  class="text-green-500 h-[24px ] w-[24px]"
+                />
+              </div>
+              <StepperTrigger class="w-full flex flex-col justify-baseline items-center">
+                <StepperIndicator>
+                  <component :is="item.icon" class="w-4 h-4" />
+                </StepperIndicator>
+                <div class="flex flex-col">
+                  <StepperTitle>
+                    {{ item.title }}
+                  </StepperTitle>
+                  <StepperDescription>
+                    {{ item.description }}
+                  </StepperDescription>
+                </div>
+              </StepperTrigger>
+            </div>
+            <StepperSeparator
+              v-if="item.step !== steps[steps.length - 1].step"
+              class="w-full h-px"
+            />
+          </StepperItem>
+        </Stepper>
+      </div>
+      <div
+        v-if="!onStepperOpen"
+        class="w-full h-full flex flex-col justify-start items-start gap-4 p-4"
+      >
+        <div class="w-full h-full flex justify-center items-center">
+          <AdCard
+            :title="ad?.title || null"
+            :description="ad?.description || null"
+            :price="ad?.price || null"
+            :id="ad?.id || ''"
+            :img="[ad?.img?.[0] || '']"
+            :type="ad?.type || null"
+            :h_size="isPhone ? '150px' : '200px'"
+            :size="isPhone ? '100%' : '400px'"
+            :w_container="isPhone ? '100%' : '560px'"
+            :h_container="isPhone ? '350px' : '200px'"
+            :horisontal="true"
+            :col="isPhone ? true : false"
+            :is_user_name="true"
+            :created_at="ad?.created_at || ''"
+            :if_favorite="false"
+            :if_discount="ad?.if_discount || null"
+            :discount="ad?.discount || null"
+          />
+        </div>
+        <div class="p-4" />
+        <div class="w-full flex flex-col justify-center items-start">
+          <div class="w-full flex flex-col justify-start items-start gap-4">
+            <p class="text-xl font-semibold text-gray-600">Delivery service</p>
+            <p class="text-sm font-light text-gray-600 pl-2">Chose delivery method</p>
+          </div>
+          <div class="w-full flex flex-col justify-center items-start gap-8 py-8 px-8">
+            <div class="w-full flex justify-start items-center gap-4 shadow-xl p-4">
+              <div>
+                <input
+                  type="checkbox"
+                  class="w-6 h-6 rounded-full border border-black appearance-none relative checked:bg-black checked:border-black checked:before:content-[''] checked:before:w-2 checked:before:h-2 checked:before:bg-white checked:before:rounded-full checked:before:absolute checked:before:top-1/2 checked:before:left-1/2 checked:before:-translate-x-1/2 checked:before:-translate-y-1/2 cursor-pointer"
+                />
+              </div>
+              <div class="w-full flex flex-col justify-center items-start gap-2">
+                <!-- <Icon icon="mdi:truck-delivery" width="34" height="34" class="text-gray-900" /> -->
+                <p class="text-xl font-semibold text-gray-600">DHL</p>
+
+                <p class="text-sm font-light text-gray-600">Delivery time: 2-3 days</p>
+                <p class="text-sm font-light text-gray-600">Cost: $20</p>
+              </div>
+              <Icon
+                icon="fa7-brands:dhl"
+                width="70"
+                height="70"
+                class="w-[70px] h-[70px] self-end text-red-500"
+              />
+            </div>
+
+            <div class="w-full flex justify-start items-center gap-4 shadow-xl p-4">
+              <div>
+                <input
+                  type="checkbox"
+                  class="w-6 h-6 rounded-full border border-black appearance-none relative checked:bg-black checked:border-black checked:before:content-[''] checked:before:w-2 checked:before:h-2 checked:before:bg-white checked:before:rounded-full checked:before:absolute checked:before:top-1/2 checked:before:left-1/2 checked:before:-translate-x-1/2 checked:before:-translate-y-1/2 cursor-pointer"
+                />
+              </div>
+              <div class="w-full flex flex-col justify-center items-start gap-2">
+                <!-- <Icon icon="mdi:truck-delivery" width="34" height="34" class="text-gray-900" /> -->
+                <p class="text-xl font-semibold text-gray-600">FedEx</p>
+
+                <p class="text-sm font-light text-gray-600">Delivery time: 2-3 days</p>
+                <p class="text-sm font-light text-gray-600">Cost: $25</p>
+              </div>
+
+              <Icon
+                icon="simple-icons:fedex"
+                width="70"
+                height="70"
+                class="w-[70px] h-[70px] self-end text-purple-500"
+              />
+            </div>
+            <div class="w-full flex justify-start items-center gap-4 shadow-xl p-4">
+              <div>
+                <input
+                  type="checkbox"
+                  class="w-6 h-6 rounded-full border border-black appearance-none relative checked:bg-black checked:border-black checked:before:content-[''] checked:before:w-2 checked:before:h-2 checked:before:bg-white checked:before:rounded-full checked:before:absolute checked:before:top-1/2 checked:before:left-1/2 checked:before:-translate-x-1/2 checked:before:-translate-y-1/2 cursor-pointer"
+                />
+              </div>
+              <div class="w-full flex flex-col justify-center items-start gap-2">
+                <p class="text-xl font-semibold text-gray-600">UPS</p>
+
+                <p class="text-sm font-light text-gray-600">Delivery time: 2-3 days</p>
+                <p class="text-sm font-light text-gray-600">Cost: $22</p>
+              </div>
+              <Icon
+                icon="fa6-brands:ups"
+                width="50"
+                height="50"
+                class="w-[50px] h-[50px] self-end text-red-500"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="w-full flex flex-col justify-center items-start gap-4 pl-2">
+          <div class="w-full flex flex-col justify-start items-start gap-2 my-8">
+            <div class="text-xl font-semibold text-gray-600">Contact details</div>
+            <p class="text-sm font-light text-gray-600 pl-2">
+              Fill in the recipient's contact details
+            </p>
+          </div>
+          <div class="w-full flex flex-col justify-start items-start gap-8 pl-8">
+            <div class="w-full flex flex-col justify-start items-start gap-4 pl-8">
+              <p class="text-sm font-light text-gray-600 pl-2">Name</p>
+              <input
+                type="text"
+                class="w-[80%] shadow-md px-4 py-2"
+                placeholder="Enter your name"
+              />
+            </div>
+
+            <div class="w-full flex flex-col justify-start items-start gap-4 pl-8">
+              <p class="text-sm font-light text-gray-600 pl-2">Email</p>
+              <input
+                type="text"
+                class="w-[80%] shadow-md px-4 py-2"
+                placeholder="Enter your email"
+              />
+            </div>
+
+            <div class="w-full flex flex-col justify-start items-start gap-4 pl-8">
+              <p class="text-sm font-light text-gray-600 pl-2">Phone number</p>
+              <input
+                type="text"
+                class="w-[80%] shadow-md px-4 py-2"
+                placeholder="Enter your phone number"
+              />
+            </div>
+
+            <div class="w-full flex flex-col justify-start items-start gap-4 pl-8">
+              <p class="text-sm font-light text-gray-600 pl-2">Address</p>
+              <input
+                type="text"
+                class="w-[80%] shadow-md px-4 py-2"
+                placeholder="Enter your address"
+              />
+            </div>
+          </div>
+          <div class="w-full flex justify-center items-center py-8">
+            <button
+              @click="onStepperOpen = true"
+              class="w-full bg-green-500 py-3 rounded-md text-md text-white font-semibold"
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- {{ userData }} -->
     <button
       v-if="user?.id === ad?.user_id"
@@ -411,95 +641,110 @@ onUnmounted(() => {
       <div
         :class="
           isPhone
-            ? 'flex flex-col justify-center items-center gap-4 relative shadow'
-            : 'flex flex-col justify-center items-center gap-4 relative shadow'
+            ? 'flex flex-col justify-center items-center gap-4  '
+            : 'flex flex-col justify-center items-center gap-4  '
         "
       >
         <div
           :class="
             isPhone
-              ? 'w-[95vw] flex flex-col justify-center items-center gap-2 bg-white  p-2 rounded-md'
-              : 'w-[400px]  flex flex-col justify-center items-center gap-2 bg-white  p-2 rounded-md'
+              ? 'flex flex-col justify-center items-center gap-4 relative shadow '
+              : 'flex flex-col justify-center items-center gap-4 relative shadow '
           "
         >
-          <div class="text-xl font-semibold">User</div>
+          <div
+            :class="
+              isPhone
+                ? 'w-[95vw] flex flex-col justify-center items-center gap-2 bg-white  p-2 rounded-md'
+                : 'w-[400px]  flex flex-col justify-center items-center gap-2 bg-white  p-2 rounded-md'
+            "
+          >
+            <div class="text-xl font-semibold">User</div>
 
-          <RouterLink :to="'/user-profile/' + userData?.id">
-            <div class="w-full flex flex-col justify-center items-start">
-              <div class="flex justify-center items-center gap-2">
-                <img
-                  :src="userData?.img ?? ''"
-                  alt=""
-                  width="14"
-                  height="14"
-                  class="w-14 h-14 object-cover rounded-full"
-                />
+            <RouterLink :to="'/user-profile/' + userData?.id">
+              <div class="w-full flex flex-col justify-center items-start">
+                <div class="flex justify-center items-center gap-2">
+                  <img
+                    :src="userData?.img ?? ''"
+                    alt=""
+                    width="14"
+                    height="14"
+                    class="w-14 h-14 object-cover rounded-full"
+                  />
 
-                <div class="w-full flex flex-col justify-center items-start gap-0">
-                  <div class="text-xl">{{ userData?.name }}</div>
-                  <div
-                    :class="
-                      computedRating == 'This user has not been rated yet'
-                        ? 'w-full flex flex-col  justify-start items-center gap-2'
-                        : 'w-full flex  justify-start items-center gap-2'
-                    "
-                  >
+                  <div class="w-full flex flex-col justify-center items-start gap-0">
+                    <div class="text-xl">{{ userData?.name }}</div>
                     <div
                       :class="
                         computedRating == 'This user has not been rated yet'
-                          ? 'text-gray-800 text-md font-semibold'
-                          : 'text-gray-800'
+                          ? 'w-full flex flex-col  justify-start items-center gap-2'
+                          : 'w-full flex  justify-start items-center gap-2'
                       "
                     >
-                      {{ computedRating }}
-                    </div>
-                    <div class="flex justify-start items-center">
-                      <Icon
-                        v-for="(icon, i) in computedStars"
-                        :key="i"
-                        :icon="icon"
-                        width="24"
-                        height="24"
-                        class="text-yellow-400"
-                      />
+                      <div
+                        :class="
+                          computedRating == 'This user has not been rated yet'
+                            ? 'text-gray-800 text-md font-semibold'
+                            : 'text-gray-800'
+                        "
+                      >
+                        {{ computedRating }}
+                      </div>
+                      <div class="flex justify-start items-center">
+                        <Icon
+                          v-for="(icon, i) in computedStars"
+                          :key="i"
+                          :icon="icon"
+                          width="24"
+                          height="24"
+                          class="text-yellow-400"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </RouterLink>
-        </div>
-        <div
-          :class="
-            isPhone
-              ? 'w-[95vw]  flex flex-col justify-center items-center gap-2 bg-white  p-2 rounded-md'
-              : 'w-[400px]  flex flex-col justify-center items-center gap-2 bg-white  p-2 rounded-md'
-          "
-        >
-          <!-- <RouterLink :to="'/chats/' + ad.user_id"> -->
-          <Button
-            @click="
-              (() => {
-                chatStore.onCurrentRoomOpen = true
-                createChatRoom(user.id, ad.user_id ?? '')
-              })()
+            </RouterLink>
+          </div>
+          <div
+            :class="
+              isPhone
+                ? 'w-[95vw]  flex flex-col justify-center items-center gap-2 bg-white  p-2 rounded-md'
+                : 'w-[400px]  flex flex-col justify-center items-center gap-2 bg-white  p-2 rounded-md'
             "
-            class="w-full flex items-center p-2 gap-1 text-black bg-white shadow rounded-lg cursor-pointer hover:text-white"
-            >Message</Button
           >
-          <!-- </RouterLink> -->
-          <Button
-            @click="onPhoneNumberShow = !onPhoneNumberShow"
-            class="w-full p-2 gap-1 text-black bg-white shadow rounded-lg hover:text-white"
-            ><div v-if="!onPhoneNumberShow">Phone number</div>
-            <div v-else class="w-full break-words whitespace-normal">
-              <div v-if="userData?.tel">{{ userData?.tel }}</div>
-              <div v-else class="text-sm font-light break-words">
-                This user has not provided a phone number
+            <!-- <RouterLink :to="'/chats/' + ad.user_id"> -->
+            <Button
+              @click="
+                (() => {
+                  chatStore.onCurrentRoomOpen = true
+                  createChatRoom(user.id, ad.user_id ?? '')
+                })()
+              "
+              class="w-full flex items-center p-2 gap-1 text-black bg-white shadow rounded-lg cursor-pointer hover:text-white"
+              >Message</Button
+            >
+            <!-- </RouterLink> -->
+            <Button
+              @click="onPhoneNumberShow = !onPhoneNumberShow"
+              class="w-full p-2 gap-1 text-black bg-white shadow rounded-lg hover:text-white"
+              ><div v-if="!onPhoneNumberShow">Phone number</div>
+              <div v-else class="w-full break-words whitespace-normal">
+                <div v-if="userData?.tel">{{ userData?.tel }}</div>
+                <div v-else class="text-sm font-light break-words">
+                  This user has not provided a phone number
+                </div>
               </div>
-            </div>
-          </Button>
+            </Button>
+          </div>
         </div>
+        <button
+          @click="onDeliveryOpen = !onDeliveryOpen"
+          class="w-full flex justify-center items-center gap-2 bg-green-500 px-3 py-1.5 rounded-md"
+        >
+          <Icon icon="famicons:bag" width="24" height="24" class="text-white" />
+          <p class="text-lg text-white font-semibold">Buy now</p>
+        </button>
       </div>
     </div>
   </div>

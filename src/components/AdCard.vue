@@ -112,6 +112,26 @@ const justifyComputed = computed(() => {
     :class="` flex justify-center items-center shadow rounded-t-md relative cursor-pointer bg-white `"
     :style="{ width: w_container, height: h_container }"
   >
+    <div v-if="if_favorite" class="absolute top-2 right-2">
+      <AddFavoritesButton
+        :title="title"
+        :description="description"
+        :id="id"
+        :img="[img?.[0] || '']"
+        :price="price"
+        :created_at="created_at"
+        :type="type"
+        :if_discount="if_discount"
+        :discount="discount"
+      />
+      <!-- <Button
+                class="flex items-center w-8 h-8 bg-white rounded-full shadow cursor-pointer text-red-600 hover:text-white hover:bg-red-600"
+                @click.stop="addToFavorites(id)"
+              >
+                <Icon icon="material-symbols:favorite" width="20" height="20" />
+              </Button>
+              -->
+    </div>
     <div class="w-full h-full flex justify-center items-center">
       <div
         :class="
@@ -123,8 +143,8 @@ const justifyComputed = computed(() => {
         <div
           :class="
             col
-              ? 'flex flex-col gap-3 items-center justify-center  bg-gray-0'
-              : 'flex  gap-3 items-center justify-center  bg-gray-0'
+              ? 'w-full flex flex-col gap-3 items-center justify-center  bg-gray-0'
+              : ' w-full flex   items-between justify-center  bg-gray-0 '
           "
         >
           <div
@@ -138,57 +158,52 @@ const justifyComputed = computed(() => {
               :style="{ width: size, height: h_size }"
             />
           </div>
-          <div class="w-full flex flex-col justify-between items-center gap-2">
-            <p
-              class="w-full flex flex-wrap justify-start items-center break-all text-md font-semibold px-2"
-            >
-              {{ title }}
-            </p>
-            <p
+          <div
+            class="w-full flex flex-col justify-between items-center gap-4"
+            :class="col ? 'py-0' : 'py-4'"
+          >
+            <div class="w-full flex flex-col justify-center items-center gap-4 pl-2">
+              <p
+                class="w-full flex flex-wrap justify-start items-center break-all text-md font-semibold px-2"
+              >
+                {{ title }}
+              </p>
+              <p
+                :class="
+                  schrink
+                    ? ' w-[80%] self-start  break-words  px-2 text-sm font-light line-clamp-1'
+                    : ' w-full self-center break-words line-clamp-1 px-2 text-sm font-light'
+                "
+              >
+                {{ description }}
+              </p>
+            </div>
+            <div
               :class="
-                schrink
-                  ? ' w-[80%] self-start  break-words  px-2 text-sm font-light line-clamp-1'
-                  : ' w-full self-center break-words line-clamp-1 px-2 text-sm font-light'
+                col
+                  ? 'w-full  absolute bottom-0 right-0 flex flex-col justify-end items-end gap-2'
+                  : 'w-[100%] flex flex-col justify-end items-end gap-2  '
               "
             >
-              {{ description }}
-            </p>
-            <div v-if="if_favorite" class="absolute top-2 right-2">
-              <AddFavoritesButton
-                :title="title"
-                :description="description"
-                :id="id"
-                :img="[img?.[0] || '']"
-                :price="price"
-                :created_at="created_at"
-                :type="type"
-                :if_discount="if_discount"
-                :discount="discount"
-              />
-              <!-- <Button
-                class="flex items-center w-8 h-8 bg-white rounded-full shadow cursor-pointer text-red-600 hover:text-white hover:bg-red-600"
-                @click.stop="addToFavorites(id)"
+              <div
+                v-if="if_discount"
+                class="w-full flex justify-center items-center p-0 bg-red-400"
               >
-                <Icon icon="material-symbols:favorite" width="20" height="20" />
-              </Button>
-              -->
+                <p class="text-md font-semibold text-white">-{{ computedDiscount }}%</p>
+              </div>
+              <div :class="['w-full flex items-center gap-4 px-4 py-1', justifyComputed]">
+                <p
+                  v-if="price"
+                  :class="if_discount ? 'line-through text-md text-red-500 ' : ' py-2 '"
+                >
+                  {{ price }} €.
+                </p>
+
+                <p v-if="if_discount" class="text-md">{{ discount }} €.</p>
+              </div>
             </div>
           </div>
           <!-- <p>{{ description }}</p> -->
-        </div>
-        <div
-          class="w-full flex flex-col justify-center items-center gap-2 absolute bottom-0 right-0"
-        >
-          <div v-if="if_discount" class="w-full flex justify-center items-center p-0 bg-red-400">
-            <p class="text-md font-semibold text-white">-{{ computedDiscount }}%</p>
-          </div>
-          <div :class="['w-full flex items-center gap-4 px-4 py-1', justifyComputed]">
-            <p :class="if_discount ? 'line-through text-md text-red-500' : 'text-md '">
-              {{ price }} €.
-            </p>
-
-            <p v-if="if_discount" class="text-md">{{ discount }} €.</p>
-          </div>
         </div>
       </div>
     </div>
