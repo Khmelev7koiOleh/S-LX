@@ -56,7 +56,7 @@ watch(onMenuOpen, (val) => {
 
 <template>
   <!-- add numbers to the favorite and chats (how many chats and favorited ads are there) -->
-  <div class="w-full h-[70px] flex justify-around bg-gray-900">
+  <div class="w-full flex justify-around bg-gray-900" :class="isPhone ? 'h-[70px]' : 'h-[80px]'">
     <RouterLink :to="{ name: 'home' }" class="flex items-center justify-center gap-3">
       <div class="flex items-center gap-1">
         <p class="text-6xl font-stretch-50% text-white">S</p>

@@ -6,6 +6,7 @@ import { ref, onMounted, toRefs } from 'vue'
 import { RouterLink } from 'vue-router'
 import AdCard from '../components/AdCard.vue'
 import type { Tables } from '@/types/supabase'
+import { Icon } from '@iconify/vue'
 
 // import { adType } from '@/data/ad-type'
 // import { useRoute } from 'vue-router'
@@ -172,8 +173,17 @@ onMounted(async () => {
 
 <template>
   <div class="bg-gray-50">
+    <div
+      class="w-full flex justify-start items-center gap-4 pt-8"
+      :class="isPhone ? 'px-4' : 'px-20'"
+    >
+      <!-- ads icon -->
+      <Icon icon="famicons:bag" width="40" height="40" class="text-black" />
+      <div class="text-3xl font-semibold">Ads</div>
+    </div>
+
     <!-- <h1 class="text-2xl px-4 py-2">All ads</h1> -->
-    <div class="w-full px-4 py-8">
+    <div class="w-full px-4 pb-8">
       <ReusableFilterComponent
         :items="ads"
         v-model:searchQuery="searchQuery"

@@ -10,7 +10,7 @@ export const adType = [
   { title: 'Exchange', path: '/exchange', icon: 'mdi:swap-horizontal-bold', value: 'exchange' },
   { title: 'Business', path: '/business', icon: 'mdi:business', value: 'business' },
   { title: 'Education', path: '/education', icon: 'mdi:school', value: 'education' },
-  { title: 'Clothing', path: '/clothing', icon: 'fluent-mdl2:shirt', value: 'clothing' },
+  { title: 'Clothing', path: '/clothing', icon: 'bxs:t-shirt', value: 'clothing' },
   { title: 'Household', path: '/household', icon: 'mdi:home', value: 'household' },
   { title: 'For free', path: '/for-free', icon: 'mdi:coin', value: 'for-free' },
   { title: 'Other', path: '/other', icon: 'mdi:account', value: 'other' },

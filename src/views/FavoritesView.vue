@@ -60,7 +60,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="text-2xl font-semibold p-4 pb-8 text-center">Favorites</div>
+  <div
+    class="w-full flex justify-start items-center gap-4 py-8"
+    :class="isPhone ? 'px-4' : 'px-20'"
+  >
+    <Icon icon="mdi:heart" width="40" height="40" class="text-black" />
+    <div class="text-3xl font-semibold">Favorites</div>
+  </div>
 
   <div class="w-full flex justify-center" v-if="favorites?.length === 0">
     <div class="w-full flex flex-col justify-center items-center gap-4">
