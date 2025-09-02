@@ -1,4 +1,3 @@
-<!-- src/views/AdDetail.vue -->
 <script setup lang="ts">
 import { onMounted, ref, toRefs } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -35,8 +34,8 @@ const showPicker = ref<boolean>(false)
 
 const goToChat = (chat: Tables<'chat_rooms'>) => {
   console.log(chat)
-  chatStore.currentChat = chat // Store the chat
-  router.push(`/chats/${chat.room_id}`) // Navigate
+  chatStore.currentChat = chat
+  router.push(`/chats/${chat.room_id}`)
 }
 async function sendMessage(room_id: string, sender_id: string, text: string) {
   console.log(room_id, sender_id, text)
@@ -77,8 +76,6 @@ function subscribeToRoom(room_id: string, callback: (newMessage: string) => void
     .subscribe()
 }
 onMounted(async () => {
-  // transformCheckValue()
-  // await getChat()
   const { data, error } = await supabase.from('ads').select('*').eq('id', route.params.id).single()
 
   if (!error) {
@@ -104,9 +101,8 @@ onMounted(async () => {
     <div @click="goToChat(roomData as Tables<'chat_rooms'>)" class="absolute top-4 right-4">
       <Icon icon="bx:expand" width="28" class="text-white cursor-pointer" />
     </div>
-    <!-- <div class="text-red-500">{{ data.participant_ids[1] }}</div> -->
+
     <div class="w-full flex justify-center items-center gap-4 bg-gray-900 p-1">
-      <!-- some picum pic -->
       <RouterLink :to="'/user-profile/' + data.participant_ids[1]">
         <div class="flex justify-start items-center gap-4 px-2 drop-shadow-[1px_4px_4px_white]">
           <div>
@@ -118,14 +114,12 @@ onMounted(async () => {
               class="w-[50px] h-[50px] border border-black rounded-full"
             />
           </div>
-          <!-- {{ finalParsed }} -->
+
           <div class="text-white">{{ userData.name }}</div>
         </div>
       </RouterLink>
-
-      <!-- <div class="p-4 bg-amber-300">{{ ad?.user_id }}</div> -->
     </div>
-    <!-- {{ data }} -->
+
     <div class="w-full h-[80%] flex flex-col gap-4 p-10 overflow-auto">
       <div v-for="item in data.msg" :key="item">
         {{ item.text }}
@@ -146,9 +140,6 @@ onMounted(async () => {
           "
         >
           {{ item.content }}
-          <!-- <div class="text-xs text-gray-400">
-          {{ item.created_at }}
-        </div> -->
         </div>
       </div>
     </div>

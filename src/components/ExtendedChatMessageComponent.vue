@@ -8,8 +8,7 @@ import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import { Icon } from '@iconify/vue'
 import { useChatStore } from '@/stores/chat-store'
 import EmojiMessageComponent from '@/components/EmojiMessageComponent.vue'
-// import { RealtimeChannel } from '@supabase/supabase-js'
-// import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
+
 import { useSupabaseSubscription } from '@/composables/useSupabaseSubscription'
 import router from '@/router'
 
@@ -19,7 +18,7 @@ const { isPhone } = useWindowSize()
 const chatStore = useChatStore()
 const { subscribe, unsubscribe } = useSupabaseSubscription()
 
-const chat = chatStore.currentChat // Always available
+const chat = chatStore.currentChat
 console.log(chat, 'chat')
 
 const userStore = useGetUserStore()
@@ -44,11 +43,9 @@ const picDescription = ref<string>('')
 const error = ref<string>('')
 const fullSize = ref<boolean>(false)
 const fullSizeVal = ref<string>('')
-// const chatContainer = ref<HTMLElement | null>(null)
+
 const showPickerMessage = ref(false)
 const showPickerImg = ref(false)
-// const onRoomSettingsOpen = ref<boolean>(false)
-// const onDeleteRoomConfirmation = ref<boolean>(false)
 
 const triggerFileInput = () => {
   ;(fileInput.value as HTMLInputElement)?.click()
@@ -58,7 +55,7 @@ const onFileChange = (e: Event) => {
   const target = e.target as HTMLInputElement
   if (target.files && target.files[0]) {
     file.value = target.files[0]
-    fileUrl.value = URL.createObjectURL(file.value) // ✅ Create object URL
+    fileUrl.value = URL.createObjectURL(file.value)
   }
 }
 
@@ -241,31 +238,8 @@ watch(messages, async () => {
   await nextTick()
   scrollToBottom()
 })
-// function subscribeToRoom(room_id: string, callback: (newMessage: any) => void) {
-//   return supabase
-//     .channel(`room:${room_id}`)
-//     .on(
-//       'postgres_changes',
-//       {
-//         event: '*',
-//         schema: 'public',
-//         table: 'messages',
-//         filter: `room_id=eq.${room_id}`,
-//       },
-//       (payload) => callback(payload),
-//     )
-//     .subscribe()
-// }
 
 onMounted(() => {
-  // console.log(chat, 'chat')
-  // console.log('id:', id)
-  // interface RealtimePayloada {
-  //   eventType: string
-  //   new: any
-  //   old: any
-  // }
-  // type MessageRow = Tables<'messages'>
   subscribe<{
     content: string | null
     created_at: string
@@ -287,7 +261,7 @@ onMounted(() => {
 
       if (eventType === 'INSERT') {
         messages.value.push(newMessage)
-        nextTick(() => scrollToBottom()) // this now scrolls smoothly
+        nextTick(() => scrollToBottom())
       }
       if (eventType === 'UPDATE') {
         const index = messages.value.findIndex((msg) => msg.id === newMessage.id)
@@ -302,26 +276,6 @@ onMounted(() => {
     },
   )
 
-  // getAverageRating(ad.value?.user_id ?? '')
-
-  // subscribeToRoom(id, (payload) => {
-  //   const { eventType, new: newMessage, old: oldMessage } = payload
-
-  //   if (eventType === 'INSERT') {
-  //     messages.value.push(newMessage)
-  //     nextTick(() => scrollToBottom()) // this now scrolls smoothly
-  //   }
-  //   if (eventType === 'UPDATE') {
-  //     const index = messages.value.findIndex((msg) => msg.id === newMessage.id)
-  //     if (index !== -1) {
-  //       messages.value[index] = newMessage
-  //     }
-  //   }
-
-  //   if (eventType === 'DELETE') {
-  //     messages.value = messages.value.filter((msg) => msg.id !== oldMessage.id)
-  //   }
-  // })
   getUser(otherUserId.value)
   getMessages()
   getRoom()
@@ -394,10 +348,8 @@ onUnmounted(() => {
     </div>
     <div class="w-full h-[80px] flex justify-between items-center gap-4 bg-black text-white">
       <RouterLink :to="'/user-profile/' + otherUserId">
-        <!-- some picum pic -->
         <div class="flex justify-start items-center gap-4 px-8 py-1">
           <div class="w-[50px] h-[50px]">
-            <!-- just an empty avatar if there is no image -->
             <img
               :src="
                 otherUser?.img === null
@@ -421,8 +373,6 @@ onUnmounted(() => {
       <Button
         class="absolute top-center right-1 bg-transparent p-0 rounded-full hover:bg-transparent"
       >
-        <!-- Delete this ad
-      <Icon icon="mdi:trash-can" class="w-[20px] h-[20px] text-red-500" /> -->
         <ConfirmDialog
           message="Are you sure you want to delete this chat?"
           confirmText="Delete"
@@ -582,7 +532,6 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- footer part -->
     <div
       class="w-full h-[100px] flex gap-8 justify-center fixed bottom-0 left-0 bg-gray-50 p-2 z-10"
     >
@@ -596,10 +545,8 @@ onUnmounted(() => {
         "
       >
         <div class="relative inline-block">
-          <!-- Hidden file input -->
           <input type="file" ref="fileInput" @change="onFileChange" class="hidden" />
 
-          <!-- Clickable icon triggers input -->
           <Icon
             @click="triggerFileInput"
             icon="mdi:image"

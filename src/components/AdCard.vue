@@ -1,15 +1,7 @@
 <script setup lang="ts">
-// import { Icon } from '@iconify/vue'
-// import { supabase } from '../lib/supabaseClient'
-
 import { computed, toRefs } from 'vue'
-// import type { AdsType } from '@/types/ads-type'
 
-// import { useGetUserStore } from '../stores/current-user-store'
-// import Button from './ui/button/Button.vue'
 import AddFavoritesButton from './AddFavoritesButton.vue'
-// const userStore = useGetUserStore()
-// const { user } = toRefs(userStore)
 
 const props = defineProps<{
   title: string | null
@@ -65,36 +57,14 @@ const ifHorisontal = computed(() => {
     return false
   }
 })
-// const emit = defineEmits(['navigate'])
-
-// function goToAd() {
-//   emit('navigate', id.value)
-// }
-
-// const addToFavorites = async (id: string) => {
-//   console.log(id)
-//   const { data, error } = await supabase.from('favorites').insert({
-//     user_id: user.value.id,
-//     ad_id: id,
-//     img: img.value,
-//   })
-
-//   if (error) {
-//     console.log(error)
-//   }
-// }
-// const computeDiscount = computed(() => {
-//   return Math.floor(price.value / discount.value)
-// })
-
 const computedDiscount = computed(() => {
   const original = price.value === null ? null : parseFloat(price.value.toString())
   const discounted = discount.value === null ? null : parseFloat(discount.value.toString())
 
   if (!original || !discounted || original <= discounted) return 0
 
-  const percent = ((original - discounted) / original) * 100
-  return Math.round(percent) // round to nearest integer
+  const percent = ((original - discounted) / discounted) * 100
+  return Math.round(percent)
 })
 
 const justifyComputed = computed(() => {
@@ -103,9 +73,6 @@ const justifyComputed = computed(() => {
   if (end.value) return 'justify-end'
   return 'justify-center'
 })
-// const reduceToEight = computed(() => {
-//   return ads.value.slice(0, 8)
-// })
 </script>
 
 <template>
@@ -125,13 +92,6 @@ const justifyComputed = computed(() => {
         :if_discount="if_discount"
         :discount="discount"
       />
-      <!-- <Button
-                class="flex items-center w-8 h-8 bg-white rounded-full shadow cursor-pointer text-red-600 hover:text-white hover:bg-red-600"
-                @click.stop="addToFavorites(id)"
-              >
-                <Icon icon="material-symbols:favorite" width="20" height="20" />
-              </Button>
-              -->
     </div>
     <div class="w-full h-full flex justify-center items-center">
       <div
@@ -160,7 +120,7 @@ const justifyComputed = computed(() => {
             />
           </div>
           <div class="w-full flex flex-col justify-between items-center gap-4">
-            <div class="w-full flex flex-col justify-center items-center gap-4 pl-2">
+            <div class="w-full flex flex-col justify-center items-center gap-2 pl-2">
               <p
                 class="w-full flex flex-wrap justify-start items-center break-all text-md font-semibold px-2"
               >
@@ -187,21 +147,34 @@ const justifyComputed = computed(() => {
                 v-if="if_discount && !discount_banner"
                 class="w-full flex justify-center items-center p-0 bg-red-400"
               >
-                <p class="text-md font-semibold text-white">-{{ computedDiscount }}%</p>
+                <p
+                  v-if="price !== null && discount !== null && price > discount"
+                  class="text-md font-semibold text-white"
+                >
+                  - {{ computedDiscount }}%
+                </p>
               </div>
-              <div :class="['w-full flex items-center gap-4 px-4 py-1', justifyComputed]">
+              <div :class="['w-full flex items-center gap-4 px-4 ', justifyComputed]">
                 <p
                   v-if="price"
-                  :class="if_discount ? 'line-through text-md text-red-500 ' : ' py-0 '"
+                  :class="
+                    if_discount && price !== null && discount !== null && price > discount
+                      ? 'line-through text-md text-red-500 '
+                      : '  text-md py-0 '
+                  "
                 >
                   {{ price }} €.
                 </p>
 
-                <p v-if="discount" class="text-md">{{ discount }} €.</p>
+                <p
+                  v-if="discount && price !== null && discount !== null && price > discount"
+                  class="text-md"
+                >
+                  {{ discount }} €.
+                </p>
               </div>
             </div>
           </div>
-          <!-- <p>{{ description }}</p> -->
         </div>
       </div>
     </div>

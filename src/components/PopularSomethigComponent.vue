@@ -26,28 +26,7 @@ const props = defineProps({
   },
 })
 const { data } = toRefs(props)
-// const mediaIcons = ref([
-//   {
-//     icon: 'mdi:facebook',
-//     width: '34',
-//     height: '34',
-//   },
-//   {
-//     icon: 'mdi:instagram',
-//     width: '34',
-//     height: '34',
-//   },
-//   {
-//     icon: 'mdi:twitter',
-//     width: '34',
-//     height: '34',
-//   },
-// ])
-// const getValueOff = (ref: string) => {
-//   console.log(ref)
-//   selectedCategory.value = ref
-//   router.push(`/about/`)
-// }
+
 const handleCategory = (category: string) => {
   getValueOf(category)
 }

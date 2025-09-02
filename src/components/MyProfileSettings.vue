@@ -6,7 +6,6 @@
         : 'bg-gray-900  min-w-[100vw] w-full min-h-[100vh] h-full'
     "
   >
-    <!-- <div :class="darkMode ? 'border border-gray-950' : 'border border-gray-50'" /> -->
     <div class="w-full flex justify-center items-center gap-0 p-8">
       <div
         :class="
@@ -18,16 +17,6 @@
         Dark mode
       </div>
 
-      <!-- <button
-        @click="darkMode = !darkMode"
-        :class="
-          darkMode
-            ? ' w-12 h-12 flex justify-center items-center bg-black text-white rounded-full'
-            : ' w-12 h-12 flex justify-center items-center bg-white text-black rounded-full'
-        "
-      >
-        <Icon icon="mdi:theme-light-dark" width="34" />
-      </button> -->
       <div class="w-fit flex justify-center items-center">
         <Switch
           class="w-16 h-8 flex justify-center items-center"

@@ -65,9 +65,7 @@ onMounted(() => {
         </RouterLink>
       </div>
     </div>
-    <!-- <AdCard :data="ads" /> -->
   </div>
-  <!-- <div class="text-white bg-black p-4">{{ ads }}</div> -->
 </template>
 
 <style scoped></style>

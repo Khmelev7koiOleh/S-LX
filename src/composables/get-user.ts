@@ -1,4 +1,3 @@
-// composables/getUserComposable.ts
 import { supabase } from '../lib/supabaseClient'
 import { ref } from 'vue'
 import type { Tables } from '@/types/supabase'
@@ -13,18 +12,15 @@ export function useGetUserComposable() {
     error.value = null
 
     try {
-      const { data, error: fetchError } = await supabase
-        .from('user') // <--- THIS removes the need to cast
-        .select('*')
-        .in('user_id', ids)
+      const { data, error: fetchError } = await supabase.from('user').select('*').in('user_id', ids)
 
       if (fetchError) throw fetchError
-      user.value = data ?? [] // data is already typed as Tables<'user'>[]
+      user.value = data ?? []
 
       return user.value
     } catch (err) {
       error.value = (err as Error).message
-      user.value = [] // ensure state is consistent
+      user.value = []
       return []
     } finally {
       loading.value = false

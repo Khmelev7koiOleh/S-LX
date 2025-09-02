@@ -18,22 +18,6 @@ const props = defineProps({
   selectedCategory: { type: String, required: false },
 })
 
-// const props = defineProps<{
-//   items: Tables<'ads'>[]
-//   searchQuery: string
-//   selectedCategory: string
-// }>()
-
-// interface ItemType {
-//   id: number
-//   title: string
-//   description: string
-//   price: string
-//   discount: string
-//   if_discount: boolean
-//   created_at: string
-//   type: string
-// }
 const { items } = toRefs(props)
 const emit = defineEmits(['update:searchQuery', 'update:selectedCategory', 'update:filteredItems'])
 
@@ -111,11 +95,8 @@ watch(filteredItems, (newVal) => {
 
 <template>
   <div class="bg-gray-50">
-    <!-- <h1 class="text-2xl px-4 py-2">All ads</h1> -->
     <div class="w-full flex flex-col justify-start items-end gap-2 px-4 py-12">
-      <!-- <div class="w-full flex justify-end">
-      <button class="p-2 bg-fuchsia-500" @click="onFilterOpen = !onFilterOpen">Filter</button>
-    </div> -->
+      >
 
       <div class="w-full flex justify-center items-center gap-2">
         <div
@@ -234,7 +215,6 @@ watch(filteredItems, (newVal) => {
                 "
                 @click="filterRemove"
               >
-                <!-- <Icon v-if="isPhone" icon="bi:arrow-counterclockwise" width="24" height="24" /> -->
                 <p
                   :class="
                     searchQuery == '' &&

@@ -13,7 +13,6 @@ const props = defineProps<{
 }>()
 const { message, confirmText, cancelText, item, icon } = toRefs(props)
 
-// const emit = defineEmits(['confirm', 'cancel'])
 const emit = defineEmits<{
   (e: 'confirm'): void
   (e: 'cancel'): void
@@ -39,15 +38,6 @@ const cancel = () => {
   emit('cancel')
   toggle()
 }
-
-// const deleteAd = async (id: string) => {
-//   console.log(id)
-//   // const { error } = await supabase.from('ads').delete().eq('id', id)
-//   // if (error) console.log(error)
-//   // else {
-//   //   router.push({ name: 'about' })
-//   // }
-// }
 </script>
 <template>
   <div class="relative">

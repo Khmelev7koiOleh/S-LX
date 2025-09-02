@@ -2,7 +2,7 @@
 import { ref, toRefs, onMounted, onUnmounted } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import { useGetUserStore } from '@/stores/current-user-store'
-// import type { UserType } from '@/types/user-type'
+
 import type { Tables } from '@/types/supabase'
 import { Icon } from '@iconify/vue'
 import { useSupabaseSubscription } from '@/composables/useSupabaseSubscription'
@@ -16,7 +16,7 @@ const { subscribe, unsubscribe } = useSupabaseSubscription()
 
 const onAddInfo = ref<boolean>(false)
 const onEditInfo = ref<boolean>(false)
-// const getUser = supabase.auth.getUser()
+
 const description = ref<string>('')
 const location = ref<string>('')
 const tel = ref<string>('')
@@ -124,25 +124,7 @@ const openEdit = async () => {
   onEditInfo.value = !onEditInfo.value
 }
 
-// function subscribeToProfile(user_id: string, callback: (newMessage: any) => void) {
-//   console.log(user_id)
-//   return supabase
-//     .channel(`room:${user_id}`)
-//     .on(
-//       'postgres_changes',
-//       {
-//         event: '*',
-//         schema: 'public',
-//         table: 'user',
-//         filter: `user_id=eq.${user_id}`,
-//       },
-//       (payload) => callback(payload.new),
-//     )
-//     .subscribe()
-// }
 onMounted(async () => {
-  // transformCheckValue()
-  // await getChat()
   const { data, error } = await supabase
     .from('user')
     .select('*')
@@ -165,10 +147,6 @@ onMounted(async () => {
       getInfo(user.value.id)
     },
   )
-  // subscribeToProfile(user.value.id, (newMessage) => {
-  //   console.log('Neue Nachricht:', newMessage)
-  //   getInfo(user.value.id)
-  // })
 })
 onMounted(() => {
   getInfo(user.value.id)
@@ -178,15 +156,8 @@ onUnmounted(() => {
     unsubscribe()
   }
 })
-
-// function handleEdit() {
-//   if (file.value !== null) {
-//     editInfo(name.value, description.value, location.value, tel.value, file.value)
-//   }
-// }
 </script>
 <template>
-  <!-- Add deleted chats and profile for every chat user chats with  -->
   <div class="w-full h-full bg-gray-200 py-4">
     <div :class="isPhone ? 'w-[100%] mx-auto' : 'w-[60%] mx-auto'">
       <div
@@ -211,11 +182,9 @@ onUnmounted(() => {
             <div class="text-md text-gray-800 font-mono truncate">{{ info.email }}</div>
           </div>
         </div>
-        <!-- <div class="px-4 py-2 text-md text-gray-800 rounded-lg font-mono">{{ user.id }}</div> -->
       </div>
     </div>
 
-    <!-- add section -->
     <div
       :class="
         isPhone
@@ -286,7 +255,6 @@ onUnmounted(() => {
             class="h-[100px] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 shadow border border-gray-200"
           ></div>
 
-          <!--  edit section -->
           <div
             v-if="onEditInfo"
             :class="isPhone ? 'w-1/1 mx-auto p-4 bg-gray-100' : 'w-1/2 mx-auto p-4 bg-gray-100'"
@@ -353,7 +321,7 @@ onUnmounted(() => {
                 >
                   Cancel
                 </button>
-                <!-- make the enter key work -->
+
                 <button
                   @click="
                     file !== null

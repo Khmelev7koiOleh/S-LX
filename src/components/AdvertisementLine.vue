@@ -22,14 +22,6 @@
           More Details
         </button>
       </div>
-      <!-- <div class="flex flex-col justify-center items-center gap-4">
-        <p class="text-sm font-light">S'LX communities in social networks:</p> -->
-      <!-- <div class="flex gap-4">
-          <div v-for="icon in mediaIcons" :key="icon.icon">
-            <Icon :icon="icon.icon" :width="icon.width" :height="icon.height" />
-          </div>
-        </div> -->
-      <!-- </div> -->
     </div>
   </div>
 </template>
