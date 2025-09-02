@@ -109,7 +109,7 @@ onMounted(() => {
       <div
         :class="
           isPhone
-            ? ' flex flex-col items-center justify-around gap-8 p-4'
+            ? ' flex flex-col items-center justify-around gap-8 '
             : 'flex flex-row items-center justify-around p-8'
         "
       >

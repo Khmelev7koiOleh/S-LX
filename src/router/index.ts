@@ -1,10 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-// Optional: keep home static if it's lightweight and critical
+import DynamicAd from '../components/DynamicAd.vue'
+// import ChatMessageComponent from '../components/ChatMessageComponent.vue'
 import HomeView from '../views/HomeView.vue'
+import Check from '../components/ExtendedChatMessageComponent.vue'
+import UserProfile from '../components/user-profile/UserProfile.vue'
 
-// Helper for lazy imports
-const lazy = (path: string) => () => import(path)
+// import AboutView from '../views/AboutView.vue'
+// import ContactView from '../views/ContactView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,83 +20,92 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: lazy('../views/LoginView.vue'),
+      component: () => import('../views/LoginView.vue'),
     },
     {
       path: '/chats',
       name: 'chats',
-      component: lazy('../views/ChatsView.vue'),
+      component: () => import('../views/ChatsView.vue'),
     },
+
     {
       path: '/ads',
       name: 'ads',
-      component: lazy('../views/AllAdsView.vue'),
+
+      component: () => import('../views/AllAdsView.vue'),
     },
     {
       path: '/favorites',
       name: 'favorites',
-      component: lazy('../views/FavoritesView.vue'),
+      component: () => import('../views/FavoritesView.vue'),
     },
     {
       path: '/profile',
       name: 'profile',
-      component: lazy('../views/ProfileView.vue'),
+      component: () => import('../views/ProfileView.vue'),
       children: [
         {
           path: 'my-profile-ads',
           name: 'my-profile-ads',
           components: {
-            main: lazy('../components/MyAdsProfile.vue'),
+            main: () => import('../components/MyAdsProfile.vue'),
           },
         },
         {
           path: 'my-profile-profile',
           name: 'my-profile-profile',
           components: {
-            main: lazy('../components/MyProfileProfile.vue'),
+            main: () => import('../components/MyProfileProfile.vue'),
           },
         },
         {
           path: 'my-profile-settings',
           name: 'my-profile-settings',
           components: {
-            main: lazy('../components/MyProfileSettings.vue'),
+            main: () => import('../components/MyProfileSettings.vue'),
           },
         },
         {
           path: 'my-profile-chats',
           name: 'my-profile-chats',
           components: {
-            main: lazy('../components/MyProfileChats.vue'),
+            main: () => import('../components/MyProfileChats.vue'),
           },
         },
         {
           path: 'my-profile-ratings',
           name: 'my-profile-ratings',
           components: {
-            main: lazy('../components/MyProfileRatings.vue'),
+            main: () => import('../components/MyProfileRatings.vue'),
           },
         },
       ],
     },
     {
-      path: '/ad/:id',
+      path: '/ad/:id', // dynamic route
       name: 'AdDetail',
-      component: lazy('../components/DynamicAd.vue'),
+      component: DynamicAd,
       props: true,
     },
     {
-      path: '/chats/:id',
+      path: '/chats/:id', // dynamic route
       name: 'Check',
-      component: lazy('../components/ExtendedChatMessageComponent.vue'),
+      component: Check,
       props: true,
     },
     {
-      path: '/user-profile/:id',
+      path: '/user-profile/:id', // dynamic route
       name: 'UserProfile',
-      component: lazy('../components/user-profile/UserProfile.vue'),
+      component: UserProfile,
       props: true,
     },
+
+    // {
+    //   path: '/chats/:id', // dynamic route
+    //   name: 'chat',
+    //   component: ChatMessageComponent,
+    //   props: true,
+    // },
   ],
 })
 
