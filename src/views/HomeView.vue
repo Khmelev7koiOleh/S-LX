@@ -105,15 +105,15 @@ onMounted(() => {
 
 <template>
   <main class="bg-gray-100">
-    <div class="w-[100%]">
+    <div class="w-[100vw]">
       <div
         :class="
           isPhone
-            ? ' flex flex-col items-center justify-around gap-8 '
+            ? ' w-[90%] mx-auto flex flex-col items-center justify-center gap-8 p-4  '
             : 'flex flex-row items-center justify-around p-8'
         "
       >
-        <div :class="isPhone ? 'w-full relative  bg-amber-200' : 'relative w-1/2 bg-amber-200'">
+        <div :class="isPhone ? 'w-[100%] mx-auto relative   ' : 'relative w-1/2 bg-amber-200'">
           <Search v-model="searchQuery" />
           <ul
             v-if="searchQuery"
@@ -165,8 +165,8 @@ onMounted(() => {
         v-if="clickStore.isClicked"
         :class="
           clickStore.isClicked
-            ? 'fixed bottom-0 right-0 translate-0 transition-all duration-500 ease-in-out z-10 '
-            : 'fixed bottom-0 right-0 translate-x-full transition-all duration-500 easy-in-out z-10'
+            ? 'fixed bottom-0 right-0 translate-0 transition-all duration-500 ease-in-out z-10 overflow-auto '
+            : 'fixed bottom-0 right-0 translate-x-full transition-all duration-500 easy-in-out z-10 overflow-auto'
         "
       >
         <UploadAd />

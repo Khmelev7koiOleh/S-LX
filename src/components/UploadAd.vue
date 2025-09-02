@@ -7,6 +7,9 @@ import { useGetUserStore } from '@/stores/current-user-store'
 import { adType } from '@/data/ad-type'
 import { Icon } from '@iconify/vue'
 
+import { useWindowSize } from '@/composables/useWindowSize'
+const { isPhone } = useWindowSize()
+
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
 
@@ -135,20 +138,22 @@ watch(if_discount, () => {
 
 <template>
   <div
-    class="p-8 space-y-2 flex flex-col justify-center items-start gap-1 max-w-[100vw] mx-auto bg-gray-900 h-[calc(100vh-0px)] overflow-auto relative"
+    class="p-8 space-y-4 flex flex-col justify-end items-start gap-1 max-w-[100vw] mx-auto bg-gray-50 h-[calc(100vh-0px)] overflow-auto relative"
+    :class="isPhone ? 'w-[100vw]' : 'w-full'"
   >
     <button
       @click="closeAndReset()"
-      class="absolute top-4 left-4 text-gray-200 placeholder:gray-200"
+      class="absolute top-8 left-6 text-gray-900 placeholder:gray-200 flex items-center gap-6"
     >
       <Icon icon="material-symbols:arrow-back" width="24" height="24" />
+      <p class="text-gray-600 text-lg font-semibold">Post your ad</p>
     </button>
     <br />
     <input
       v-model="title"
       type="text"
       placeholder="Title"
-      class="w-full p-2 border rounded text-gray-200 placeholder:gray-200"
+      class="w-full p-2 border rounded text-gray-900 placeholder:gray-900"
     />
 
     <textarea
@@ -156,7 +161,7 @@ watch(if_discount, () => {
       :rows="description.length > 40 ? 4 : 1"
       type="text"
       placeholder="Description"
-      class="w-full p-2 border rounded text-gray-200 placeholder:gray-200"
+      class="w-full p-2 border rounded text-gray-900 placeholder:gray-900"
     >
     </textarea>
 
@@ -164,17 +169,17 @@ watch(if_discount, () => {
       v-model="price"
       type="text"
       placeholder="Price"
-      class="w-full p-2 border rounded text-gray-200 placeholder:gray-200"
+      class="w-full p-2 border rounded text-gray-900 placeholder:gray-900"
     />
 
     <div class="flex gap-2">
-      <p class="text-gray-200 placeholder:gray-200">Add Discount</p>
+      <p class="text-gray-900 placeholder:gray-900">Add Discount</p>
 
       <input
         v-model="if_discount"
         type="checkbox"
         placeholder="If Discount"
-        class="p-2 border rounded text-gray-200 placeholder:gray-200"
+        class="p-2 border rounded text-gray-900 placeholder:gray-900"
       />
     </div>
 
@@ -183,13 +188,13 @@ watch(if_discount, () => {
       v-model="discount"
       type="text"
       placeholder="Discount price"
-      class="w-full p-2 border rounded text-gray-200 placeholder:gray-200"
+      class="w-full p-2 border rounded text-gray-900 placeholder:gray-900"
     />
     <select
       v-model="type"
       @change="typeValue(type)"
       placeholder="Type"
-      class="w-full p-2 border rounded text-gray-200 placeholder:gray-200"
+      class="w-full p-2 border rounded text-gray-900 placeholder:gray-900"
     >
       <option disabled value="">Select type</option>
       <option v-for="tp in adType" :key="tp.value" :value="tp.value">
@@ -201,7 +206,7 @@ watch(if_discount, () => {
       <img
         :src="imageUrl"
         alt="Preview"
-        class="w-48 h-auto mt-2 rounded text-gray-200 placeholder:gray-200"
+        class="w-48 h-auto mt-2 rounded text-gray-900 placeholder:gray-900"
       />
     </div>
     <input
@@ -209,7 +214,7 @@ watch(if_discount, () => {
       type="file"
       multiple
       @change="onFileChange"
-      class="w-full text-gray-200 placeholder:gray-200"
+      class="w-full text-gray-900 placeholder:gray-900"
     />
     <div v-if="errorMessage" class="text-red-600 text-md font-light">{{ errorMessage }}</div>
     <div v-if="uploadError !== '' && !disabledComputed" class="text-center text-md text-red-400">
