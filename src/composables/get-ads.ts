@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabaseClient'
 import { onMounted, ref } from 'vue'
-// import type { AdsType } from '@/types/ads-type'
+
 import type { Tables } from '@/types/supabase'
 
 export function getAllAds() {

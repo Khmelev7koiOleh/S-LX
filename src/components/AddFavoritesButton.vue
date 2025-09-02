@@ -18,13 +18,9 @@ const props = defineProps<{
   img: string[] | null
   price: number | null
   id: string | number
-  // user_name?: string
+
   created_at: string
-  // type?: string | null
-  // size?: string
-  // horisontal?: boolean
-  // col?: boolean
-  // if_favorite?: boolean | null
+
   if_discount: boolean | null
   discount: number | null
 }>()
@@ -37,11 +33,7 @@ const {
   id,
 
   created_at,
-  // type,
-  // size,
-  // horisontal,
-  // col,
-  // if_favorite,
+
   if_discount,
   discount,
 } = toRefs(props)
@@ -124,22 +116,6 @@ const getFavorites = async (id: string) => {
   }
 }
 
-// function subscribeToRoom(id: string, callback: (newMessage: any) => void) {
-//   return supabase
-//     .channel(`favorites:user:${user.value.id}`)
-//     .on(
-//       'postgres_changes',
-//       {
-//         event: '*',
-//         schema: 'public',
-//         table: 'favorites',
-//         filter: `user_id=eq.${user.value.id}`,
-//       },
-//       (payload) => callback(payload.new),
-//     )
-//     .subscribe()
-// }
-
 onMounted(() => {
   getFavorites(id.value as Tables<'favorites'>['id'])
 
@@ -162,14 +138,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="bg-white">
-    <!-- <Button @click.stop.prevent="getFavorites(id as string)"> click</Button> -->
-  </div>
-  <!-- <div class="bg-red-500">
-    {{ if_discount }}
+  <div class="bg-white"></div>
 
-    {{ discount }}
-  </div> -->
   <div>
     <Button
       @click.stop.prevent="

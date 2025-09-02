@@ -1,13 +1,10 @@
-// composables/upload.ts
 import { supabase } from '@/lib/supabaseClient'
 
 export async function uploadImage(file: File, path: string) {
-  const { data, error } = await supabase.storage
-    .from('ads') // Bucket-Name
-    .upload(path, file, {
-      cacheControl: '3600',
-      upsert: true,
-    })
+  const { data, error } = await supabase.storage.from('ads').upload(path, file, {
+    cacheControl: '3600',
+    upsert: true,
+  })
 
   if (error) {
     console.error('Upload failed:', error.message)

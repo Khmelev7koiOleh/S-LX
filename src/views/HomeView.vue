@@ -7,22 +7,20 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-// import { supabase } from '../lib/supabaseClient'
-import Search from '@/components/icons/Search.vue'
-import AddAnAd from '@/components/icons/AddAnAd.vue'
+
+import Search from '@/components/parts/SearchPart.vue'
+import AddAnAd from '@/components/parts/AddAnAd.vue'
 import { adType } from '@/data/ad-type'
-// import type { AdsType } from '@/types/ads-type'
+
 import { useClickFunctionStore } from '@/stores/click-function-store'
 import UploadAd from '@/components/UploadAd.vue'
 import { getAllAds } from '../composables/get-ads'
 import AdCard from '../components/AdCard.vue'
 import { useRouter } from 'vue-router'
-// import { useFilterStore } from '../stores/filter-store'
+
 import AdvertisementBanner from '@/components/AdvertisementBanner.vue'
 import AdvertisementLine from '@/components/AdvertisementLine.vue'
 import PopularSomethigComponent from '@/components/PopularSomethigComponent.vue'
-
-// import { useGetUserStore } from '../stores/current-user-store'
 import { useWindowSize } from '@/composables/useWindowSize'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -33,44 +31,17 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel'
 import Autoplay from 'embla-carousel-autoplay'
-// import { Database } from '@/types/supabase'
+
 import { useGetAdCategory } from '../composables/get-ad-category'
 import type { Tables } from '@/types/supabase'
-// import { useGetUserComposable } from '../composables/get-user'
-// <const { user: userw, loading, error, getUser } = useGetUserComposable()>
-
-// const frf = async () => {
-//   await getUser(['ab8818d9-1a18-4eaa-9981-4c40562c014a', 'a4066069-bff7-43a9-b6f7-775906b8fde9'])
-//   console.log(userw.value)
-// }
-// onMounted(() => {
-//   frf()
-//   console.log(userw.value)
-// })
-// console.log(userw.value) // Typed as Tables<'user'>[]
 
 const { isPhone, isLaptop } = useWindowSize()
 
-// const userStore = useGetUserStore()
-// const { user } = toRefs(userStore)
 const { getValueOf } = useGetAdCategory()
 const router = useRouter()
 const { ads } = getAllAds()
 
-// interface adType {
-//   id: number
-//   title: string
-//   description: string
-//   price: string
-//   discount: string
-//   if_discount: boolean
-//   type: string
-// }
-
-// const filterStore = useFilterStore()
-
-// const { selectedCategory } = toRefs(filterStore)
-const clickStore = useClickFunctionStore() // Access the store
+const clickStore = useClickFunctionStore()
 
 const searchQuery = ref<string>('')
 
@@ -118,7 +89,7 @@ const footerDataTwo = ref([
 ])
 
 function clickFunction() {
-  clickStore.isClicked = !clickStore.isClicked // Call the action to toggle isClicked
+  clickStore.isClicked = !clickStore.isClicked
 }
 
 const randomReducedAds = computed(() => {
@@ -331,7 +302,6 @@ onMounted(() => {
     <div class="w-full border-b border-b-gray-800"></div>
   </main>
   <footer>
-    <!-- <div class="text-center text-2xl">Footer</div> -->
     <div class="w-full pt-20 pb-4">
       <div v-if="isPhone" class="flex justify-center items-start gap-8">
         <Accordion type="single" collapsible>

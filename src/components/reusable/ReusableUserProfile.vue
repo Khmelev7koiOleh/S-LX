@@ -2,41 +2,40 @@
 import { ref, toRefs, onMounted, onUnmounted, computed } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import { useGetUserStore } from '@/stores/current-user-store'
-// import type { UserType } from '@/types/user-type'
 
 import { Icon } from '@iconify/vue'
-// import ReusableUserProfile from './ReusableUserProfile.vue'
+
 import type { Tables } from '@/types/supabase'
 import { useRouter } from 'vue-router'
 import { useSupabaseSubscription } from '@/composables/useSupabaseSubscription'
 import { useChatStore } from '@/stores/chat-store'
 import Button from '@/components/ui/button/Button.vue'
+import { useGetAverageRating } from '@/composables/get-average-rating'
+import { useRateUser } from '@/composables/rate-user'
 import { useWindowSize } from '@/composables/useWindowSize'
-// import type { RealtimeChannel } from '@supabase/supabase-js'
+import { useRatingsStore } from '@/stores/rating-store'
+
 const { isPhone } = useWindowSize()
+const userStore = useGetUserStore()
+const { user } = toRefs(userStore)
 const { subscribe, unsubscribe } = useSupabaseSubscription()
+const { getAverageRating } = useGetAverageRating()
 
 const chatStore = useChatStore()
 
-// const chat = chatStore.currentChat // Always available
-
 const router = useRouter()
-const userStore = useGetUserStore()
-const { user } = toRefs(userStore)
-// const allStars = ref(5)
+
 const isEmail = ref<boolean>(false)
 const isRating = ref<boolean>(false)
 const isChatButton = ref<boolean>(false)
 const isMainInfo = ref<boolean>(false)
-// const getUser = supabase.auth.getUser()
-// const description = ref<string>('')
-// const location = ref<string>('')
-// const tel = ref<string>('')
+
 const currentRoom = ref<Tables<'chat_rooms'> | null>(null)
-// const imageUrl = ref<string>('')
-// const file = ref<File | null>(null)
+
 const onHintOpen = ref<boolean>(false)
-const rating = ref<number>(0)
+const ratingStore = useRatingsStore()
+const rating = computed(() => ratingStore.rating)
+
 const info = ref<Tables<'user'>>({
   created_at: '',
   name: '',
@@ -88,16 +87,17 @@ const props = defineProps({
   },
 })
 const { data, start, center, end, bg, routerOn } = toRefs(props)
+const { rateUser } = useRateUser()
 // console.log(data.value)
 info.value = data.value
 const goToChat = (chat: Tables<'chat_rooms'>) => {
   console.log(chat)
-  chatStore.currentChat = chat // Store the chat
-  router.push(`/chats/${chat.room_id}`) // Navigate
+  chatStore.currentChat = chat
+  router.push(`/chats/${chat.room_id}`)
 }
 async function createChatRoom(user1_id: string, user2_id: string) {
   console.log(user1_id, user2_id)
-  const room_id = [user1_id, user2_id].sort().join('_') // Eindeutige ID (z. B. "user1_user2")
+  const room_id = [user1_id, user2_id].sort().join('_')
   const { data: dataCheck } = await supabase
     .from('chat_rooms')
     .select('*')
@@ -131,58 +131,6 @@ async function createChatRoom(user1_id: string, user2_id: string) {
   return dataCheck
 }
 
-const rateUser = async (targetUserId: string, userId: string, rating: number) => {
-  console.log('rateUser', targetUserId, 'by', userId, 'with rating', rating)
-  const { data: dataGet } = await supabase
-    .from('ratings')
-    .select('*')
-    .eq('target_user_id', targetUserId)
-    .eq('rated_by', userId)
-
-  const info = dataGet![0]
-  if (info !== undefined && userId === info.rated_by) {
-    const { data, error } = await supabase
-      .from('ratings')
-      .update({ rating: rating })
-      .eq('target_user_id', targetUserId)
-      .eq('rated_by', userId)
-
-    if (error) {
-      console.error('Rating error:', error)
-    } else {
-      console.log('Rating saved:', data)
-    }
-    return
-  }
-  const { data, error } = await supabase.from('ratings').insert([
-    {
-      target_user_id: targetUserId,
-      rated_by: userId,
-      rating: rating,
-    },
-  ])
-
-  if (error) {
-    console.error('Rating error:', error)
-  } else {
-    console.log('Rating saved:', data)
-  }
-}
-
-const getAverageRating = async (targetUserId: string | number) => {
-  console.log('getAverageRating', targetUserId)
-
-  const { data, error } = await supabase
-    .from('ratings')
-    .select('*')
-    .eq('target_user_id', targetUserId)
-  console.log(data)
-  if (data) {
-    rating.value = data.reduce((acc, rating) => acc + rating.rating, 0) / data.length
-  } else {
-    console.log(error)
-  }
-}
 const computedStars = computed(() => {
   const stars = []
   const fullStars = Math.floor(rating.value)
@@ -219,31 +167,7 @@ const goToProfile = (id: string) => {
     return
   }
 }
-// let ratingSubscription: any = null
-// const subscribeToRatings = (targetUserId: string) => {
-//   ratingSubscription = supabase
-//     .channel('ratings-channel')
-//     .on(
-//       'postgres_changes',
-//       {
-//         event: '*', // or 'INSERT' | 'UPDATE' | 'DELETE'
-//         schema: 'public',
-//         table: 'ratings',
-//         filter: `target_user_id=eq.${targetUserId}`,
-//       },
-//       (payload) => {
-//         console.log('Realtime change:', payload)
-//         getAverageRating(targetUserId)
-//       },
-//     )
-//     .subscribe()
-// }
 
-// const unsubscribeFromRatings = async () => {
-//   if (ratingSubscription) {
-//     await supabase.removeChannel(ratingSubscription)
-//   }
-// }
 const hideProfileData = () => {
   if (props.is_visable) {
     {
@@ -254,23 +178,9 @@ const hideProfileData = () => {
     }
   } else return
 }
-// const getUsers = async (id: string) => {
-//   console.log(id)
-//   const { data: userData, error } = await supabase.from('user').select('*').eq('id', id)
-//   console.log(userData)
-//   if (userData && userData.length > 0) {
-//     console.log(userData)
-//     info.value = userData[0]
-//     console.log(info.value)
-//   } else {
-//     // Handle the case where no data is found
-//     console.log(info.value)
-//     console.log('No user data found')
-//   }
-// }
 
 onMounted(async () => {
-  getAverageRating(props.data.id)
+  ratingStore.id = props.data.id
   subscribe(
     {
       event: '*',
@@ -278,25 +188,20 @@ onMounted(async () => {
       table: 'ratings',
       filter: `target_user_id=eq.${props.data.id}`,
     },
-    (payload) => {
+    async (payload) => {
       console.log('Realtime change:', payload)
-      getAverageRating(props.data.id)
+      await getAverageRating(props.data.id)
     },
   )
-  // subscribeToRatings(props.data.id)
+  await getAverageRating(props.data.id)
 })
 
 onUnmounted(() => {
   if (unsubscribe) unsubscribe()
-  // unsubscribeFromRatings()
 })
 </script>
 
 <template>
-  <!-- <div>{{ data }}</div>
-
-  <br /> -->
-
   <div @click.stop.prevent="hideProfileData()" class="w-full h-full py-0 px-0 md:py-4 md:px-0">
     <div
       :class="[
@@ -343,22 +248,14 @@ onUnmounted(() => {
                 <div
                   :class="
                     computedRating == 'This user has not been rated yet'
-                      ? ' text-gray-800 text-sm md:text-md font-semibold '
-                      : 'text-gray-800'
+                      ? ' text-gray-800 text-sm md:text-sm font-light '
+                      : 'text-gray-800 text-sm md:text-sm font-light'
                   "
                 >
                   {{ computedRating }}
                 </div>
-                <!-- @click="rateUser(info.id, user.id, i + 1)"
-                 for
-                 bottom
-                 one
-                 -->
-                <div
-                  v-if="computedRating == 'This user has not been rated yet' ? false : true"
-                  class="flex justify-start items-center"
-                >
-                  <!-- not i + 1 -->
+
+                <div class="flex justify-start items-center">
                   <Icon
                     v-for="(icon, i) in computedStars"
                     @click="rateUser(info.id, user.id, i + 1)"
@@ -383,7 +280,7 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-      <!-- <div>{{ main_info_confirm }}</div> -->
+
       <div
         v-if="
           main_info && isPhone ? main_info_confirm : true && props.is_visable ? isMainInfo : true

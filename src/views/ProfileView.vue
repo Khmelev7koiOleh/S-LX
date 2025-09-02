@@ -3,11 +3,7 @@ import { ref, onMounted } from 'vue'
 import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { useWindowSize } from '@/composables/useWindowSize'
 const { isPhone } = useWindowSize()
-// import { useGetUserStore } from '@/stores/current-user-store'
-// import { useWindowSize } from '@/composables/useWindowSize'
-// const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
-// const userStore = useGetUserStore()
-// const { user } = toRefs(userStore)
+
 interface usersDataType {
   name: string
   path: string
@@ -26,10 +22,7 @@ const currentProfileTap = ref('Profile')
 const getValue = (val: string) => {
   currentProfileTap.value = val
 }
-// const profileProfileClick = () => {
-//   currentProfileTap.value = 'Profile'
 
-// }
 onMounted(() => {
   currentProfileTap.value = 'Profile'
   router.push('/profile/my-profile-profile')

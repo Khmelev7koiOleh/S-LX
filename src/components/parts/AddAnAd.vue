@@ -3,7 +3,7 @@ import { defineProps } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useWindowSize } from '@/composables/useWindowSize'
 
-const { width, height, isPhone, isTablet, isLaptop } = useWindowSize()
+const { isPhone } = useWindowSize()
 
 interface Title {
   title: string

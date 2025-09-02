@@ -19,7 +19,8 @@ const discount = ref<string>('')
 const if_discount = ref<boolean>(false)
 const type = ref<string>('')
 const files = ref<File[]>([])
-// const file = ref<File | null>(null)
+const errorMessage = ref<string>('')
+
 const imageUrl = ref<string>('')
 const uploadError = ref<string>('')
 const fileInputRef = ref<HTMLInputElement | null>(null)
@@ -71,53 +72,31 @@ const handleUpload = async () => {
     type: type.value,
     img: imageUrls.value,
     user_id: user.value.id,
-    discount: discount.value || '', // provide a default value
-    if_discount: if_discount.value ?? false, // provide a default value of false
+    discount: discount.value || '',
+    if_discount: if_discount.value ?? false,
   }
-  // Save all image URLs into the `img` field as an array
+
   const { error: insertError, data: insertData } = await supabase.from('ads').insert(newAd)
   if (insertError) {
-    console.error('Fehler beim Speichern:', insertError.message)
+    let friendlyMessage = 'Something went wrong. Please try again.'
+
+    if (insertError.message.includes('invalid input syntax for type numeric')) {
+      friendlyMessage = 'Please enter a valid number.'
+    } else if (insertError.message.includes('duplicate key')) {
+      friendlyMessage = 'This item already exists.'
+    } else if (insertError.message.includes('null value')) {
+      friendlyMessage = 'Required fields cannot be empty.'
+    }
+
+    console.error('Insert error:', insertError.message)
+    errorMessage.value = friendlyMessage
   } else {
     // reset()
     clickStore.isClicked = !clickStore.isClicked
-    console.log('Anzeige gespeichert:', insertData)
+    console.log('insertData:', insertData)
   }
 }
 
-// const filePath = `user-${Date.now()}+${file.value.name}.jpg`
-
-// const { data: uploadData, error: uploadError } = await supabase.storage
-//   .from('ads')
-//   .upload(filePath, file.value)
-
-// if (uploadError) {
-//   console.error('Upload fehlgeschlagen:', uploadError.message)
-//   return
-// }
-
-// const { data: publicData } = supabase.storage.from('ads').getPublicUrl(filePath)
-
-// imageUrl.value = publicData.publicUrl
-
-// // Nach erfolgreichem Upload: Daten speichern
-// const { error: insertError, data: insertData } = await supabase.from('ads').insert({
-//   title: title.value,
-//   description: description.value,
-//   price: price.value,
-//   discount: discount.value,
-//   if_discount: if_discount.value,
-//   type: type.value,
-//   img: imageUrl.value,
-//   user_id: user.value.id,
-// })
-
-// if (insertError) {
-//   console.error('Fehler beim Speichern:', insertError.message)
-// } else {
-//   clickStore.isClicked = !clickStore.isClicked
-//   console.log('Anzeige gespeichert:', insertData)
-// }
 const disabledComputed = computed(() => {
   if (title.value && description.value && price.value && type.value && files.value.length) {
     return true
@@ -232,6 +211,7 @@ watch(if_discount, () => {
       @change="onFileChange"
       class="w-full text-gray-200 placeholder:gray-200"
     />
+    <div v-if="errorMessage" class="text-red-600 text-md font-light">{{ errorMessage }}</div>
     <div v-if="uploadError !== '' && !disabledComputed" class="text-center text-md text-red-400">
       {{ uploadError }}
     </div>

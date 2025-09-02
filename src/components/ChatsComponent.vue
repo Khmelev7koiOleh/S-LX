@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// import ChatsComponent from './ChatsComponent.vue'
 import {
   Pagination,
   PaginationContent,
@@ -13,7 +12,7 @@ import { ref, toRefs, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient'
 import { useGetUserStore } from '../stores/current-user-store'
-// import ChatMessageComponent from '@/components/ChatMessageComponent.vue'
+
 import { Icon } from '@iconify/vue'
 import { useChatStore } from '../stores/chat-store'
 import { useGetUsersComposable } from '@/composables/get-users'
@@ -29,19 +28,11 @@ const userStore = useGetUserStore()
 
 const { user } = toRefs(userStore)
 
-// const messages = ref<any | null>(null)
 const router = useRouter()
 
-// from   chatsIn
-
 const chatsIn = ref<Tables<'chat_rooms'>[] | null>([])
-/*************  ✨ Windsurf Command ⭐  *************/
-/**
- * Fetches chat rooms the current user is participating in.
- * @returns {Promise<Array>} An array of chat room objects.
- * @throws {Error} If an error occurs while fetching chat rooms.
- */
-/*******  58ef3a0d-27fa-4780-b1de-4828639ce2ba  *******/ const getRoomsCurrentUserIn = async () => {
+
+const getRoomsCurrentUserIn = async () => {
   const { data, error } = await supabase
     .from('chat_rooms')
     .select('*')
@@ -59,13 +50,6 @@ const goToChat = (chat: Tables<'chat_rooms'>) => {
   chatStore.currentChat = chat // Store the chat
   router.push(`/chats/${chat.room_id}`) // Navigate
 }
-// const getChatsValue = async (val: any) => {
-//   console.log(val)
-//   const { data, error } = await supabase.from('messages').select('*').eq('room_id', val)
-//   console.log(data)
-//   messages.value = data
-//   return data
-// }
 
 const ids = new Set<string>()
 onMounted(async () => {
@@ -81,12 +65,6 @@ onMounted(async () => {
 })
 const itemsPerPage = 5
 
-// const myPersonalChats = chatsIn.value.filter(
-//   (chat) =>
-//     chat.participant_ids[0] === chat.participant_ids[1] &&
-//     chat.participant_ids[0] === user.value.id,
-// )
-// console.log(myPersonalChats)
 const enrichedChats = computed(() => {
   let personalChat = ''
   if (!chatsIn?.value?.length || !users.value.length || !user.value) return []
@@ -127,9 +105,7 @@ const getPaginatedChats = (page: number) => {
 </script>
 
 <template>
-  <div class="w-full flex flex-col mx-auto px-4">
-    <!-- <div>{{ enrichedChats }}</div> -->
-  </div>
+  <div class="w-full flex flex-col mx-auto px-4"></div>
   <div class="p-10">
     <Pagination
       class="w-full flex flex-col justify-center items-center gap-10"
@@ -152,7 +128,6 @@ const getPaginatedChats = (page: number) => {
           :key="chat.room_id"
           class="bg-black border p-2 rounded-md"
         >
-          <!-- <div class="text-white">{{ chat }}</div> -->
           <div @click="goToChat(chat)">
             <div class="w-full text-white flex justify-between items-center gap-4 px-0">
               <div class="w-[40%] flex justify-start items-center gap-4 md:px-[1rem]">

@@ -3,7 +3,6 @@ import EmojiPicker from 'vue3-emoji-picker'
 import 'vue3-emoji-picker/css'
 import { Icon } from '@iconify/vue'
 
-// Props
 const props = defineProps<{
   modelValue: string
   showPicker?: boolean
@@ -11,7 +10,7 @@ const props = defineProps<{
 interface Emoji {
   i: string
 }
-// Emits
+
 const emit = defineEmits(['update:modelValue', 'update:showPicker'])
 const togglePicker = () => {
   emit('update:showPicker', !props.showPicker)

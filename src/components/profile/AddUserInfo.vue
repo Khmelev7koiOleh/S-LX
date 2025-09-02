@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, defineEmits, defineProps } from 'vue'
+import { ref, defineEmits, defineProps } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 
 const props = defineProps<{
@@ -25,7 +25,7 @@ const handleCancel = () => {
 }
 
 const handleSubmit = async () => {
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('user')
     .update({
       description: description.value,

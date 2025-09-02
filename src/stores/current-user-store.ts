@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { supabase } from '../lib/supabaseClient'
 import type { Router } from 'vue-router'
-// import type { UserType } from '@/types/user-type'
+
 import type { Tables } from '@/types/supabase'
 
 export const useGetUserStore = defineStore(
@@ -23,7 +23,6 @@ export const useGetUserStore = defineStore(
     const backendError = ref<string[]>([])
 
     const signOut = async (router: Router) => {
-      // signout
       const { error } = await supabase.auth.signOut()
       if (error) {
         backendError.value = [error.message]
@@ -81,7 +80,7 @@ export const useGetUserStore = defineStore(
           name: user_metadata?.name || '',
           email: email as string,
           id: id as string,
-          img: user_metadata?.img || '', // fallback if not set
+          img: user_metadata?.img || '',
           description: '',
           location: '',
           tel: '',
@@ -105,7 +104,7 @@ export const useGetUserStore = defineStore(
         console.error('Login failed:', error.message)
       } else {
         const currentUser = await supabase.auth.getUser()
-        // console.log(currentUser.data.user?.id)
+
         const { data: currentUserQ } = await supabase
           .from('user')
           .select('*')
@@ -115,10 +114,6 @@ export const useGetUserStore = defineStore(
         }
 
         if (currentUser.data.user && currentUserQ) {
-          // const { email, id, user_metadata } = currentUser.data.user
-
-          // console.log(email, name, id)
-
           const {} = await supabase
             .from('user')
             .update({
@@ -129,13 +124,13 @@ export const useGetUserStore = defineStore(
               location: currentUserQ[0].location,
               tel: currentUserQ[0].tel,
             })
-            .eq('user_id', currentUserQ[0].user_id) // This is your WHERE condition
+            .eq('user_id', currentUserQ[0].user_id)
 
           user.value = {
             name: currentUserQ[0].name || '',
             email: currentUserQ[0].email as string,
             id: currentUserQ[0].user_id as string,
-            img: currentUserQ[0].img || '', // fallback if not set
+            img: currentUserQ[0].img || '',
             description: currentUserQ[0].description || '',
             location: currentUserQ[0].location || '',
             tel: currentUserQ[0].tel || '',

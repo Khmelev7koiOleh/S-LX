@@ -1,9 +1,8 @@
-<!-- src/views/AdDetail.vue -->
 <script setup lang="ts">
 import { onMounted, ref, toRefs, computed, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient'
-// import type { AdsType } from '@/types/ads-type'
+
 import { BookUser, Check, CreditCard, Truck } from 'lucide-vue-next'
 import Button from './ui/button/Button.vue'
 import { useGetUserStore } from '@/stores/current-user-store'
@@ -19,7 +18,6 @@ import {
 } from '@/components/ui/carousel'
 import Autoplay from 'embla-carousel-autoplay'
 import AddFavoritesButton from './AddFavoritesButton.vue'
-// import UserProfile from './user-profile/UserProfile.vue'
 
 import {
   Stepper,
@@ -36,22 +34,23 @@ import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import type { Tables } from '@/types/supabase'
 import { useGetAdCategory } from '../composables/get-ad-category'
 import { useSupabaseSubscription } from '@/composables/useSupabaseSubscription'
+import { useRateUser } from '@/composables/rate-user'
+import { useRatingsStore } from '@/stores/rating-store'
 import { useWindowSize } from '@/composables/useWindowSize'
 const { isPhone } = useWindowSize()
 const { subscribe, unsubscribe } = useSupabaseSubscription()
 const chatStore = useChatStore()
+const { rateUser } = useRateUser()
 const { getValueOf } = useGetAdCategory()
-// interface CurrentRoom {
-//   room_id: string
-//   // Add other properties of currentRoom here
-// }
+
 const userStore = useGetUserStore()
 const { user } = toRefs(userStore)
-// const message = ref('')
-// const room = ref('general')
+
 const router = useRouter()
 const route = useRoute()
-// const adq = ref<Tables<'ads'>[]>([])
+
+const ratingStore = useRatingsStore()
+const ratingId = computed(() => ratingStore.id)
 const ad = ref<Tables<'ads'> | null>(null)
 const userData = ref<Tables<'user'> | null>(null)
 const chat = ref<Tables<'chat'>[] | null>(null)
@@ -59,71 +58,14 @@ const theMessage = ref<{ msg: string }[]>([])
 const currentRoom = ref<Tables<'chat_rooms'> | null>(null)
 const onDeliveryOpen = ref<boolean>(false)
 const onStepperOpen = ref<boolean>(false)
-// const onCurrentRoomOpen = ref<boolean>(false)
-// const klasse = ref<any[] | null>([])
-// const klasseNew = ref<any[] | null>([])
-// const adImg = ref<string[] | null>([])
+
 const rating = ref<number>(0)
 const onPhoneNumberShow = ref<boolean>(false)
-// let ratingSubscription: any = null
-
-// async function getOrCreateConversation(user_1, user_2) {
-//   const sorted = [user_1, user_2].sort() // sorts alphabetically
-//   const room_id = `${sorted[0]}_${sorted[1]}`
-
-//   console.log('room_id', room_id)
-
-//   const { data: existingConvo, error } = await supabase
-//     .from('chat')
-//     .select('*')
-
-//     .eq('room_id', room_id)
-//     .maybeSingle()
-//   theMessage.value = existingConvo
-//   klasse.value = existingConvo
-
-//   if (existingConvo) return existingConvo
-
-//   // Falls nicht, neuen Chat erstellen
-//   const { data: newConvo, error: createError } = await supabase
-//     .from('chat')
-//     .insert([
-//       {
-//         user_name: 'just a name',
-//         room_id: room_id,
-//         content: 'text and smth else',
-//         participants: [user_1, user_2], // [user_1, user_2],
-//         msg: [{ sender_id: user_1, text: message.value, timestamp: new Date().toISOString() }],
-//         // msg: [message.value],
-//       },
-//     ])
-//     .select()
-//     .single()
-//   console.log('newConvo', newConvo)
-//   klasseNew.value = newConvo
-//   return newConvo
-// }
 
 const getChat = async () => {
   const { data } = await supabase.from('chat').select('*')
   if (data) chat.value = data
 }
-
-// const sendMessageToMessage = async (id: string, message: string) => {
-//   console.log(id, message)
-
-//   const { data, error } = await supabase.from('chat').insert([
-//     {
-//       user_name: 'just a namewfwefwgw',
-//       content: message,
-//       room_id: ad.value?.user_id + '_' + user.value.id,
-//       participants: [{ participant_1: user.value.id }, { participant_2: id }],
-//       check: [{ messages: message }],
-//     },
-//   ])
-//   console.log('data', data)
-//   if (error) console.error('Error sending message:', error)
-// }
 
 async function createChatRoom(user1_id: string, user2_id: string) {
   console.log(user1_id, user2_id)
@@ -218,30 +160,9 @@ const handleCategory = (category: string) => {
   getValueOf(category)
 }
 
-// const subscribeToRatings = (targetUserId: string | number) => {
-//   ratingSubscription = supabase
-//     .channel('ratings-channel')
-//     .on(
-//       'postgres_changes',
-//       {
-//         event: '*', // or 'INSERT' | 'UPDATE' | 'DELETE'
-//         schema: 'public',
-//         table: 'ratings',
-//         filter: `target_user_id=eq.${targetUserId}`,
-//       },
-//       (payload) => {
-//         console.log('Realtime change:', payload)
-//         getAverageRating(targetUserId)
-//       },
-//     )
-//     .subscribe()
-// }
-// const unsubscribeFromRatings = async () => {
-//   if (unsubscribe) unsubscribe()
-// }
-
 onMounted(async () => {
   await getChat()
+
   const { data, error } = await supabase.from('ads').select('*').eq('id', route.params.id).single()
 
   if (!error) {
@@ -249,8 +170,7 @@ onMounted(async () => {
     userData.value = data ?? []
   }
   await getUser()
-  // adImg.value = ad.value?.img ? ad.value?.img : null
-  // subscribeToRatings(ad.value?.user_id)
+
   subscribe(
     {
       event: '*',
@@ -260,7 +180,7 @@ onMounted(async () => {
     },
     (payload) => {
       console.log('Realtime change:', payload)
-      getAverageRating(ad.value?.user_id ?? '')
+      getAverageRating(ratingId.value as string)
     },
   )
 
@@ -297,12 +217,14 @@ const steps = [
       </div>
 
       <div
-        class="w-full h-[80%] flex flex-col justify-around items-center px-4"
+        class="w-full h-[100%] flex flex-col justify-center items-center gap-[5vh] px-4"
         v-if="onStepperOpen"
       >
-        <div class="w-full flex justify-center items-center gap-4">
-          <Icon icon="icon-park-solid:success" width="34" height="34" class="text-green-500" />
-          <p class="text-2xl text-gray-600">Order placed successfully</p>
+        <div class="w-full flex flex-col justify-center items-center gap-4">
+          <div class="w-full flex justify-center items-center gap-4">
+            <Icon icon="icon-park-solid:success" width="34" height="34" class="text-green-500" />
+            <p class="text-2xl text-gray-600">Order placed successfully</p>
+          </div>
         </div>
         <Stepper>
           <StepperItem v-for="item in steps" :key="item.step" class="basis-1/4" :step="item.step">
@@ -336,6 +258,35 @@ const steps = [
             />
           </StepperItem>
         </Stepper>
+        <div class="w-full flex flex-col justify-center items-center gap-8">
+          <div class="text-sm font-light text-gray-600 underline">Rate this user</div>
+          <div class="flex justify-center items-center gap-2">
+            <img
+              :src="userData?.img ?? ''"
+              alt=""
+              class="w-20 h-20 object-cover rounded-full"
+              width="20"
+              height="20"
+            />
+            <div class="flex flex-col justify-center items-start gap-2">
+              <div class="text-xl font-semibold text-gray-600">{{ userData?.name }}</div>
+              <div class="text-md font-light text-gray-600">{{ userData?.email }}</div>
+            </div>
+          </div>
+
+          <div class="flex justify-start items-center">
+            <!-- not i + 1 -->
+            <Icon
+              v-for="(icon, i) in computedStars"
+              @click="rateUser(ratingId as string, user.id, i + 1)"
+              :key="i"
+              :icon="icon"
+              width="34"
+              height="34"
+              class="text-yellow-400"
+            />
+          </div>
+        </div>
       </div>
       <div
         v-if="!onStepperOpen"
@@ -378,7 +329,6 @@ const steps = [
                 />
               </div>
               <div class="w-full flex flex-col justify-center items-start gap-2">
-                <!-- <Icon icon="mdi:truck-delivery" width="34" height="34" class="text-gray-900" /> -->
                 <p class="text-xl font-semibold text-gray-600">DHL</p>
 
                 <p class="text-sm font-light text-gray-600">Delivery time: 2-3 days</p>
@@ -400,7 +350,6 @@ const steps = [
                 />
               </div>
               <div class="w-full flex flex-col justify-center items-start gap-2">
-                <!-- <Icon icon="mdi:truck-delivery" width="34" height="34" class="text-gray-900" /> -->
                 <p class="text-xl font-semibold text-gray-600">FedEx</p>
 
                 <p class="text-sm font-light text-gray-600">Delivery time: 2-3 days</p>
@@ -492,7 +441,7 @@ const steps = [
         </div>
       </div>
     </div>
-    <!-- {{ userData }} -->
+
     <button
       v-if="user?.id === ad?.user_id"
       :class="isPhone ? ' absolute top-14 right-2 z-10  ' : 'absolute top-8 right-8 '"
@@ -507,10 +456,7 @@ const steps = [
         @confirm="() => ad?.id && deleteAd(ad?.id)"
       />
     </button>
-    <!--
-    <div class="p-10 bg-amber-800">
-      {{ adImg }}
-    </div> -->
+
     <div
       v-if="currentRoom && chatStore.onCurrentRoomOpen"
       class="w-1/3 h-full absolute right-0 flex flex-col justify-center items-center"
@@ -691,7 +637,7 @@ const steps = [
                       >
                         {{ computedRating }}
                       </div>
-                      <div class="flex justify-start items-center">
+                      <div class="flex justify-start items-center" @click.stop.prevent="">
                         <Icon
                           v-for="(icon, i) in computedStars"
                           :key="i"
@@ -714,7 +660,6 @@ const steps = [
                 : 'w-[400px]  flex flex-col justify-center items-center gap-2 bg-white  p-2 rounded-md'
             "
           >
-            <!-- <RouterLink :to="'/chats/' + ad.user_id"> -->
             <Button
               @click="
                 (() => {
@@ -725,7 +670,7 @@ const steps = [
               class="w-full flex items-center p-2 gap-1 text-black bg-white shadow rounded-lg cursor-pointer hover:text-white"
               >Message</Button
             >
-            <!-- </RouterLink> -->
+
             <Button
               @click="onPhoneNumberShow = !onPhoneNumberShow"
               class="w-full p-2 gap-1 text-black bg-white shadow rounded-lg hover:text-white"
@@ -740,7 +685,7 @@ const steps = [
           </div>
         </div>
         <button
-          @click="onDeliveryOpen = !onDeliveryOpen"
+          @click="[(onDeliveryOpen = !onDeliveryOpen), (ratingStore.id = ad.user_id)]"
           class="w-full flex justify-center items-center gap-2 bg-green-500 px-3 py-1.5 rounded-md"
         >
           <Icon icon="famicons:bag" width="24" height="24" class="text-white" />
