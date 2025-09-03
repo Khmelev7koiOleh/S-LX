@@ -7,7 +7,6 @@ import { Icon } from '@iconify/vue'
 
 import ReusableUserProfile from './reusable/ReusableUserProfile.vue'
 
-import { Button } from '@/components/ui/button'
 import { useSupabaseSubscription } from '@/composables/useSupabaseSubscription'
 import { useWindowSize } from '@/composables/useWindowSize'
 import type { Tables } from '@/types/supabase'

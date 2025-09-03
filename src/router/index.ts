@@ -1,13 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import DynamicAd from '../components/DynamicAd.vue'
-// import ChatMessageComponent from '../components/ChatMessageComponent.vue'
+// Static import only if critical and very small
 import HomeView from '../views/HomeView.vue'
-import Check from '../components/ExtendedChatMessageComponent.vue'
-import UserProfile from '../components/user-profile/UserProfile.vue'
-
-// import AboutView from '../views/AboutView.vue'
-// import ContactView from '../views/ContactView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,92 +14,83 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: () => import('../views/LoginView.vue'),
+      component: () => import('@/views/LoginView.vue'),
     },
     {
       path: '/chats',
       name: 'chats',
-      component: () => import('../views/ChatsView.vue'),
+      component: () => import('@/views/ChatsView.vue'),
     },
-
     {
       path: '/ads',
       name: 'ads',
-
-      component: () => import('../views/AllAdsView.vue'),
+      component: () => import('@/views/AllAdsView.vue'),
     },
     {
       path: '/favorites',
       name: 'favorites',
-      component: () => import('../views/FavoritesView.vue'),
+      component: () => import('@/views/FavoritesView.vue'),
     },
     {
       path: '/profile',
       name: 'profile',
-      component: () => import('../views/ProfileView.vue'),
+      component: () => import('@/views/ProfileView.vue'),
       children: [
         {
           path: 'my-profile-ads',
           name: 'my-profile-ads',
           components: {
-            main: () => import('../components/MyAdsProfile.vue'),
+            main: () => import('@/components/MyAdsProfile.vue'),
           },
         },
         {
           path: 'my-profile-profile',
           name: 'my-profile-profile',
           components: {
-            main: () => import('../components/MyProfileProfile.vue'),
+            main: () => import('@/components/MyProfileProfile.vue'),
           },
         },
         {
           path: 'my-profile-settings',
           name: 'my-profile-settings',
           components: {
-            main: () => import('../components/MyProfileSettings.vue'),
+            main: () => import('@/components/MyProfileSettings.vue'),
           },
         },
         {
           path: 'my-profile-chats',
           name: 'my-profile-chats',
           components: {
-            main: () => import('../components/MyProfileChats.vue'),
+            main: () => import('@/components/MyProfileChats.vue'),
           },
         },
         {
           path: 'my-profile-ratings',
           name: 'my-profile-ratings',
           components: {
-            main: () => import('../components/MyProfileRatings.vue'),
+            main: () => import('@/components/MyProfileRatings.vue'),
           },
         },
       ],
     },
     {
-      path: '/ad/:id', // dynamic route
+      path: '/ad/:id',
       name: 'AdDetail',
-      component: DynamicAd,
+      component: () => import('@/components/DynamicAd.vue'),
       props: true,
     },
     {
-      path: '/chats/:id', // dynamic route
+      path: '/chats/:id',
       name: 'Check',
-      component: Check,
+      component: () => import('@/components/ExtendedChatMessageComponent.vue'),
       props: true,
     },
     {
-      path: '/user-profile/:id', // dynamic route
+      path: '/user-profile/:id',
       name: 'UserProfile',
-      component: UserProfile,
+      component: () => import('@/components/user-profile/UserProfile.vue'),
       props: true,
     },
-
-    // {
-    //   path: '/chats/:id', // dynamic route
-    //   name: 'chat',
-    //   component: ChatMessageComponent,
-    //   props: true,
-    // },
   ],
 })
 
