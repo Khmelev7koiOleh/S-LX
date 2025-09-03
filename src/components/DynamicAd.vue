@@ -48,7 +48,7 @@ const { user } = toRefs(userStore)
 
 const router = useRouter()
 const route = useRoute()
-
+const onRateUserOpen = ref<boolean>(false)
 const ratingStore = useRatingsStore()
 const ratingId = computed(() => ratingStore.id)
 const ad = ref<Tables<'ads'> | null>(null)
@@ -203,10 +203,17 @@ onUnmounted(() => {
       :class="isPhone ? 'w-full' : 'w-[600px]'"
     >
       <div class="flex items-center">
-        <button @click="[(onDeliveryOpen = !onDeliveryOpen), (onStepperOpen = false)]" class="p-4">
+        <button
+          v-if="!onStepperOpen"
+          @click="[(onDeliveryOpen = !onDeliveryOpen), (onStepperOpen = false)]"
+          class="p-4"
+        >
           <Icon icon="mdi:arrow-left" width="34" height="34" class="text-gray-900" />
         </button>
-        <div class="flex justify-center items-center gap-2 px-2">
+        <div
+          class="flex justify-center items-center gap-2"
+          :class="onStepperOpen ? 'py-4 pl-6' : 'pl-2'"
+        >
           <h1 v-if="!onStepperOpen" class="text-2xl font-semibold">Purchase with delivery</h1>
           <h1 v-if="onStepperOpen" class="text-2xl font-semibold">Delivery</h1>
           <Icon icon="mdi:truck-delivery" width="34" height="34" class="text-gray-900" />
@@ -255,37 +262,67 @@ onUnmounted(() => {
             />
           </StepperItem>
         </Stepper>
-        <div class="w-full flex flex-col justify-center items-center gap-8">
-          <div class="text-sm font-light text-gray-600 underline">Rate this user</div>
-          <div class="flex justify-center items-center gap-2">
-            <img
-              :src="userData?.img ?? ''"
-              alt=""
-              class="w-20 h-20 object-cover rounded-full"
-              width="20"
-              height="20"
-            />
-            <div class="flex flex-col justify-center items-start gap-2">
-              <div class="text-xl font-semibold text-gray-600">{{ userData?.name }}</div>
-              <div class="text-md font-light text-gray-600">{{ userData?.email }}</div>
-            </div>
-          </div>
 
-          <div class="flex justify-start items-center gap-2">
-            <p class="text-md font-semibold text-gray-600">{{ computedRating }}</p>
-            <!-- not i + 1 -->
-            <div class="flex justify-start items-center">
-              <Icon
-                v-for="(icon, i) in computedStars"
-                @click="rateUser(ratingId as string, user.id, i + 1)"
-                :key="i"
-                :icon="icon"
-                width="34"
-                height="34"
-                class="text-yellow-400"
+        <transition name="slide-fade">
+          <div v-if="onRateUserOpen" class="w-full flex flex-col justify-center items-center gap-8">
+            <div class="text-sm font-light text-gray-600 underline">Rate this user</div>
+            <div class="flex justify-center items-center gap-2">
+              <img
+                :src="userData?.img ?? ''"
+                alt=""
+                class="w-20 h-20 object-cover rounded-full"
+                width="20"
+                height="20"
               />
+              <div class="flex flex-col justify-center items-start gap-2">
+                <div class="text-xl font-semibold text-gray-600">{{ userData?.name }}</div>
+                <div class="text-md font-light text-gray-600">{{ userData?.email }}</div>
+              </div>
+            </div>
+
+            <div class="flex justify-start items-center gap-2">
+              <p class="text-md font-semibold text-gray-600">{{ computedRating }}</p>
+              <div class="flex justify-start items-center">
+                <Icon
+                  v-for="(icon, i) in computedStars"
+                  @click="rateUser(ratingId as string, user.id, i + 1)"
+                  :key="i"
+                  :icon="icon"
+                  width="34"
+                  height="34"
+                  class="text-yellow-400 cursor-pointer"
+                />
+              </div>
             </div>
           </div>
+        </transition>
+
+        <div
+          class="w-full flex justify-center items-center gap-4"
+          :class="isPhone ? 'flex-col' : 'flex-row'"
+        >
+          <Button
+            @click="onRateUserOpen = !onRateUserOpen"
+            class="flex justify-center items-center gap-2 bg-green-500 px-3 py-1.5 rounded-md"
+            :class="isPhone ? 'w-[90%]' : 'w-[40%]'"
+          >
+            <Icon
+              :icon="onRateUserOpen ? 'material-symbols:cancel' : 'radix-icons:star'"
+              width="24"
+              height="24"
+              class="text-white"
+            />
+            <p v-if="!onRateUserOpen" class="text-lg text-white font-semibold">Rate user</p>
+            <p v-if="onRateUserOpen" class="text-lg text-white font-semibold">Close</p>
+          </Button>
+          <Button
+            @click="[(onDeliveryOpen = !onDeliveryOpen), (onStepperOpen = false)]"
+            class="flex justify-center items-center gap-2 bg-gray-500 px-3 py-1.5 rounded-md"
+            :class="isPhone ? 'w-[90%]' : 'w-[40%]'"
+          >
+            <Icon icon="material-symbols:cancel" width="24" height="24" class="text-white" />
+            <p class="text-lg text-white font-semibold">Ignore</p>
+          </Button>
         </div>
       </div>
       <div
@@ -695,3 +732,22 @@ onUnmounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.slide-fade-enter-to,
+.slide-fade-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>
