@@ -206,7 +206,7 @@ onUnmounted(() => {
         <button @click="[(onDeliveryOpen = !onDeliveryOpen), (onStepperOpen = false)]" class="p-4">
           <Icon icon="mdi:arrow-left" width="34" height="34" class="text-gray-900" />
         </button>
-        <div class="flex justify-center items-center gap-2 px-6">
+        <div class="flex justify-center items-center gap-2 px-2">
           <h1 v-if="!onStepperOpen" class="text-2xl font-semibold">Purchase with delivery</h1>
           <h1 v-if="onStepperOpen" class="text-2xl font-semibold">Delivery</h1>
           <Icon icon="mdi:truck-delivery" width="34" height="34" class="text-gray-900" />
