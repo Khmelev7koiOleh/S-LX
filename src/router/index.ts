@@ -40,7 +40,7 @@ const router = createRouter({
           path: 'my-profile-ads',
           name: 'my-profile-ads',
           components: {
-            main: () => import('@/components/MyAdsProfile.vue'),
+            main: () => import('@/components/MyProfileAds.vue'),
           },
         },
         {

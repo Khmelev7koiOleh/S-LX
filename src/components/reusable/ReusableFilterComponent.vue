@@ -96,8 +96,6 @@ watch(filteredItems, (newVal) => {
 <template>
   <div class="bg-gray-50">
     <div class="w-full flex flex-col justify-start items-end gap-2 px-4 py-12">
-      >
-
       <div class="w-full flex justify-center items-center gap-2">
         <div
           :class="

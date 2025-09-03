@@ -59,9 +59,14 @@ const currentRoom = ref<Tables<'chat_rooms'> | null>(null)
 const onDeliveryOpen = ref<boolean>(false)
 const onStepperOpen = ref<boolean>(false)
 
-const rating = ref<number>(0)
+const rating = computed(() => ratingStore.rating)
 const onPhoneNumberShow = ref<boolean>(false)
-
+const steps = [
+  { step: 1, title: 'Address', description: 'Add your address', icon: BookUser },
+  { step: 2, title: 'Shipping', description: 'Your order is on its way', icon: Truck },
+  { step: 3, title: 'Payment', description: 'Complete your payment', icon: CreditCard },
+  { step: 4, title: 'Confirmation', description: 'Confirm your order', icon: Check },
+]
 const getChat = async () => {
   const { data } = await supabase.from('chat').select('*')
   if (data) chat.value = data
@@ -112,7 +117,7 @@ const getAverageRating = async (targetUserId: string | number) => {
     .select('*')
     .eq('target_user_id', targetUserId)
   if (data) {
-    rating.value = data.reduce((acc, rating) => acc + rating.rating, 0) / data.length
+    ratingStore.rating = data.reduce((acc, rating) => acc + rating.rating, 0) / data.length
   } else {
     console.log(error)
   }
@@ -170,32 +175,24 @@ onMounted(async () => {
     userData.value = data ?? []
   }
   await getUser()
+  await getAverageRating(ratingId.value as string)
 
   subscribe(
     {
       event: '*',
       schema: 'public',
       table: 'ratings',
-      filter: `target_user_id=eq.${ad.value?.user_id}`,
+      filter: `*`,
     },
-    (payload) => {
+    async (payload) => {
       console.log('Realtime change:', payload)
-      getAverageRating(ratingId.value as string)
+      await getAverageRating(ratingId.value as string)
     },
   )
-
-  getAverageRating(ad.value?.user_id ?? '')
 })
 onUnmounted(() => {
   if (unsubscribe) unsubscribe()
 })
-
-const steps = [
-  { step: 1, title: 'Address', description: 'Add your address', icon: BookUser },
-  { step: 2, title: 'Shipping', description: 'Your order is on its way', icon: Truck },
-  { step: 3, title: 'Payment', description: 'Complete your payment', icon: CreditCard },
-  { step: 4, title: 'Confirmation', description: 'Confirm your order', icon: Check },
-]
 </script>
 
 <template>
@@ -274,17 +271,20 @@ const steps = [
             </div>
           </div>
 
-          <div class="flex justify-start items-center">
+          <div class="flex justify-start items-center gap-2">
+            <p class="text-md font-semibold text-gray-600">{{ computedRating }}</p>
             <!-- not i + 1 -->
-            <Icon
-              v-for="(icon, i) in computedStars"
-              @click="rateUser(ratingId as string, user.id, i + 1)"
-              :key="i"
-              :icon="icon"
-              width="34"
-              height="34"
-              class="text-yellow-400"
-            />
+            <div class="flex justify-start items-center">
+              <Icon
+                v-for="(icon, i) in computedStars"
+                @click="rateUser(ratingId as string, user.id, i + 1)"
+                :key="i"
+                :icon="icon"
+                width="34"
+                height="34"
+                class="text-yellow-400"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -610,13 +610,13 @@ const steps = [
 
             <RouterLink :to="'/user-profile/' + userData?.id">
               <div class="w-full flex flex-col justify-center items-start">
-                <div class="flex justify-center items-center gap-2">
+                <div class="w-full flex justify-center items-center gap-2">
                   <img
                     :src="userData?.img ?? ''"
                     alt=""
                     width="14"
                     height="14"
-                    class="w-14 h-14 object-cover rounded-full"
+                    class="w-14 h-14 min-w-14 min-h-14 object-cover rounded-full"
                   />
 
                   <div class="w-full flex flex-col justify-center items-start gap-0">
