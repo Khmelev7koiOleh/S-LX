@@ -115,13 +115,16 @@ const getPaginatedChats = (page: number) => {
       :default-page="1"
     >
       <div :class="isPhone ? ' mt-4 space-y-2 w-[90vw]' : ' mt-4 space-y-2 w-[60vw]'">
-        <div class="w-full flex justify-center items-center gap-8 pb-2">
+        <div v-if="chatsIn?.length" class="w-full flex justify-center items-center gap-8 pb-2">
           <div class="w-[50%] flex justify-center items-center">
             <p class="text-md font-semibold">Name</p>
           </div>
           <div class="w-[50%] flex justify-center items-center">
             <p class="text-md font-semibold">Topic</p>
           </div>
+        </div>
+        <div v-if="!chatsIn?.length" class="w-full flex justify-center items-center">
+          <p class="text-xl font-semibold text-gray-600">You have no chats yet</p>
         </div>
         <div
           v-for="chat in getPaginatedChats(page)"
