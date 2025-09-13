@@ -1,5 +1,5 @@
 <template>
-  <div>default comp</div>
+  <div>default component</div>
 </template>
 
 <script setup lang="ts"></script>
