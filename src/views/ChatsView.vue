@@ -1,14 +1,8 @@
 <script setup lang="ts">
-// import { ref } from 'vue'
-import ChatRoomCreate from '@/components/ChatRoomCreate.vue'
-import ChatsComponent from '@/components/ChatsComponent.vue'
-import Button from '@/components/ui/button/Button.vue'
 import { useWindowSize } from '@/composables/useWindowSize'
 import { RouterLink, RouterView } from 'vue-router'
 import { Icon } from '@iconify/vue'
 const { isPhone } = useWindowSize()
-// const onChatRoomCreateOpen = ref<boolean>(false)
-// const onChatsComponentOpen = ref<boolean>(true)
 </script>
 
 <template>

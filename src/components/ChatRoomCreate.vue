@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, toRefs } from 'vue'
-import { RouterLink } from 'vue-router'
+
 import { Button } from '@/components/ui/button'
 import {
   Pagination,
@@ -11,7 +11,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { supabase } from '../lib/supabaseClient'
-import { v4 as uuid } from 'uuid'
+
 import { Icon } from '@iconify/vue'
 import { useGetUserStore } from '../stores/current-user-store'
 import type { Tables } from '@/types/supabase'

@@ -71,7 +71,7 @@ const handleUpload = async () => {
       type: string
       img: string[]
       user_id: string
-      discount: string
+      discount: string | null
       if_discount: boolean
     }
     const newAd: NewAd = {

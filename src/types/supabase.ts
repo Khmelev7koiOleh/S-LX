@@ -182,6 +182,8 @@ export type Database = {
           pic: string | null
           room_id: string
           sender_id: string | null
+          user_name?: string
+          user_img?: string
         }
         Insert: {
           content?: string | null
@@ -190,6 +192,8 @@ export type Database = {
           pic?: string | null
           room_id: string
           sender_id?: string | null
+          user_name?: string
+          user_img?: string
         }
         Update: {
           content?: string | null
@@ -198,6 +202,8 @@ export type Database = {
           pic?: string | null
           room_id?: string
           sender_id?: string | null
+          user_name?: string
+          user_img?: string
         }
         Relationships: []
       }
@@ -236,7 +242,6 @@ export type Database = {
           name: string | null
           tel: string | null
           user_id: string
-          user_img: string | null
         }
         Insert: {
           created_at?: string
@@ -248,7 +253,6 @@ export type Database = {
           name?: string | null
           tel?: string | null
           user_id: string
-          user_img?: string | null
         }
         Update: {
           created_at?: string
@@ -260,7 +264,6 @@ export type Database = {
           name?: string | null
           tel?: string | null
           user_id?: string
-          user_img?: string | null
         }
         Relationships: []
       }

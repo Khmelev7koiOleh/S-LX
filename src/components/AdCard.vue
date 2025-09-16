@@ -109,13 +109,13 @@ const justifyComputed = computed(() => {
           "
         >
           <div
-            class="min-w-[5rem] bg-transparent object-cover overflow-hidden h-full rounded-t-sm"
+            class="min-w-[5rem] bg-transparent overflow-hidden h-full rounded-t-sm"
             :style="{ width: size, height: h_size }"
           >
             <img
               :src="img?.[0] || undefined"
               alt=""
-              class="w-full h-full object-cover"
+              class="w-full h-full object-contain"
               :style="{ width: size, height: h_size }"
             />
           </div>
@@ -154,7 +154,10 @@ const justifyComputed = computed(() => {
                   - {{ computedDiscount }}%
                 </p>
               </div>
-              <div :class="['w-full flex items-center gap-4 px-4 ', justifyComputed]">
+              <div
+                v-if="price !== 0"
+                :class="['w-full flex items-center gap-4 px-4 ', justifyComputed]"
+              >
                 <p
                   v-if="price"
                   :class="
@@ -172,6 +175,9 @@ const justifyComputed = computed(() => {
                 >
                   {{ discount }} €.
                 </p>
+              </div>
+              <div v-else class="w-full h-[50px] flex justify-center items-center bg-amber-400">
+                <p class="text-lg font-semibold text-white">For free</p>
               </div>
             </div>
           </div>
