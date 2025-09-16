@@ -20,6 +20,27 @@ const router = createRouter({
       path: '/chats',
       name: 'chats',
       component: () => import('@/views/ChatsView.vue'),
+      children: [
+        {
+          path: '',
+          redirect: '/chats/my-chat-chats',
+        },
+        {
+          path: 'my-chat-chats',
+          name: 'my-chat-chats',
+          components: {
+            main: () => import('@/components/ChatsComponent.vue'),
+          },
+        },
+
+        {
+          path: 'my-chat-rooms',
+          name: 'my-chat-rooms',
+          components: {
+            main: () => import('@/components/ChatRoomCreate.vue'),
+          },
+        },
+      ],
     },
     {
       path: '/ads',

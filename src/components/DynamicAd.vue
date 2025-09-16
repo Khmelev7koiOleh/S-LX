@@ -321,7 +321,7 @@ onUnmounted(() => {
             :class="isPhone ? 'w-[90%]' : 'w-[40%]'"
           >
             <Icon icon="material-symbols:cancel" width="24" height="24" class="text-white" />
-            <p class="text-lg text-white font-semibold">Ignore</p>
+            <p class="text-lg text-white font-semibold">Leave</p>
           </Button>
         </div>
       </div>

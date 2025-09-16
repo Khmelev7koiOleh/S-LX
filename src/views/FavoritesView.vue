@@ -86,7 +86,7 @@ onMounted(() => {
     :class="
       isPhone
         ? ' w-full grid grid-cols-2 justify-center items-center gap-4  '
-        : ' w-full grid grid-cols-4 p-[2rem] justify-center items-center'
+        : ' w-full grid grid-cols-4 p-[2rem] justify-center items-center gap-4 '
     "
   >
     <div
