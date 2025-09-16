@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, toRefs, computed, watch, nextTick } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { supabase } from '../lib/supabaseClient'
 import { useGetUserStore } from '@/stores/current-user-store'
 import Button from './ui/button/Button.vue'
@@ -10,14 +10,13 @@ import { useChatStore } from '@/stores/chat-store'
 import EmojiMessageComponent from '@/components/EmojiMessageComponent.vue'
 
 import { useSupabaseSubscription } from '@/composables/useSupabaseSubscription'
-import router from '@/router'
 
 import { useWindowSize } from '@/composables/useWindowSize'
 import type { Tables } from '@/types/supabase'
 const { isPhone } = useWindowSize()
 const chatStore = useChatStore()
 const { subscribe, unsubscribe } = useSupabaseSubscription()
-
+const router = useRouter()
 const chat = chatStore.currentChat
 console.log(chat, 'chat')
 
@@ -26,6 +25,7 @@ const { user } = toRefs(userStore)
 
 const route = useRoute()
 const id = route.params.id
+console.log(id, 'id')
 const otherUser = ref<Tables<'user'> | null>(null)
 
 const messages = ref<Tables<'messages'>[]>([])
@@ -43,7 +43,7 @@ const picDescription = ref<string>('')
 const error = ref<string>('')
 const fullSize = ref<boolean>(false)
 const fullSizeVal = ref<string>('')
-
+const isGroup = ref<boolean>(false)
 const showPickerMessage = ref(false)
 const showPickerImg = ref(false)
 
@@ -66,7 +66,7 @@ const deleteRoom = async (room_id: string) => {
   if (roomError || messageError) {
     console.log(error)
   }
-  router.push({ name: 'chats' })
+  router.push('/chats')
 }
 
 const getMessages = async () => {
@@ -93,6 +93,8 @@ const sendMessage = async (room_id: string | string[], sender_id: string, text: 
       room_id: room_id,
       sender_id: sender_id,
       content: text,
+      user_img: user.value.img,
+      user_name: user.value.name,
     },
   ])
   if (error) {
@@ -149,6 +151,8 @@ const sendPhoto = async (
     sender_id: sender_id,
     content: description,
     pic: fileUrl.value,
+    user_img: user.value.img,
+    user_name: user.value.name,
   })
   const reset = () => {
     picDescription.value = ''
@@ -201,8 +205,9 @@ const updateMessage = async (
 
 const getRoom = async () => {
   const { data } = await supabase.from('chat_rooms').select('*').eq('room_id', id)
-
+  console.log(data)
   certainRoom.value = data
+  isGroup.value = data?.[0].is_group ? true : false
 }
 
 const otherUserId = computed(() => {
@@ -276,9 +281,11 @@ onMounted(() => {
     },
   )
 
-  getUser(otherUserId.value)
   getMessages()
   getRoom()
+  if (isGroup.value === false) {
+    getUser(otherUserId.value)
+  }
 
   scrollToBottom()
 })
@@ -347,7 +354,7 @@ onUnmounted(() => {
       </div>
     </div>
     <div class="w-full h-[80px] flex justify-between items-center gap-4 bg-black text-white">
-      <RouterLink :to="'/user-profile/' + otherUserId">
+      <RouterLink v-if="!isGroup" :to="'/user-profile/' + otherUserId">
         <div class="flex justify-start items-center gap-4 px-8 py-1">
           <div class="w-[50px] h-[50px]">
             <img
@@ -370,26 +377,52 @@ onUnmounted(() => {
           </div>
         </div>
       </RouterLink>
-      <Button
-        class="absolute top-center right-1 bg-transparent p-0 rounded-full hover:bg-transparent"
+      <div
+        v-else
+        v-for="item in certainRoom"
+        :key="item.room_id"
+        class="w-full flex justify-start items-center gap-4 px-8 py-1"
       >
-        <ConfirmDialog
-          message="Are you sure you want to delete this chat?"
-          confirmText="Delete"
-          cancelText="Cancel"
-          item="chat"
-          icon="mdi:dots-vertical"
-          text_color="text-white"
-          @confirm="() => deleteRoom(id as string)"
-        />
-      </Button>
+        <!-- img of group of people or avatars -->
+        <div class="w-[50px] h-[50px]">
+          <img
+            :src="'data:image/png;base64,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'"
+            alt=""
+            width="50"
+            height="50"
+            class="border border-black w-[50px] h-[50px] object-cover rounded-full"
+          />
+        </div>
+        <p>{{ item.room_topic }}</p>
+      </div>
+
+      <div
+        class="absolute top-center right-1 bg-transparent p-0 rounded-full hover:bg-transparent"
+        v-for="item in certainRoom"
+        :key="item.room_id"
+      >
+        <Button
+          v-if="!item.is_group || (item.is_group === true && item.admin === user.id)"
+          class="bg-transparent p-0 rounded-full hover:bg-transparent"
+        >
+          <ConfirmDialog
+            message="Are you sure you want to delete this chat?"
+            confirmText="Delete"
+            cancelText="Cancel"
+            item="chat"
+            icon="mdi:dots-vertical"
+            text_color="text-white"
+            @confirm="() => deleteRoom(id as string)"
+          />
+        </Button>
+      </div>
     </div>
 
     <div
       id="messages-container"
       :class="
         isPhone
-          ? 'w-full overflow-y-auto h-[80vh] px-2  py-[5%] pb-[10%] z-10 transition-all transform duration-1000'
+          ? 'w-full overflow-y-auto h-[80vh] px-2  py-[15%] pb-[10%] z-10 transition-all transform duration-1000'
           : 'w-full overflow-y-auto h-[80vh] px-20 py-[5%] pb-[10%] z-10 transition-all transform duration-1000l'
       "
     >
@@ -400,13 +433,47 @@ onUnmounted(() => {
           "
           class="w-fit h-fit flex justify-end"
         >
+          <RouterLink
+            :to="'/user-profile/' + item.sender_id"
+            v-if="item.sender_id !== user.id"
+            class="pr-2 flex justify-center items-end gap-2"
+          >
+            <img
+              v-if="item.user_img"
+              :src="item.user_img"
+              alt=""
+              width="40"
+              height="40"
+              class="w-[40px] h-[40px] rounded-full"
+            />
+          </RouterLink>
+
+          <!-- add users photo i am chating with -->
+
           <div
             :class="
               item.sender_id === user.id
-                ? 'text-right  bg-green-700 text-gray-300  rounded-lg w-fit flex flex-wrap justify-end   max-w-fit md:max-w-[60vw] relative'
-                : 'text-left bg-gray-600 text-gray-300  rounded-lg w-fit flex justify-start max-w-fit md:max-w-[60vw] '
+                ? 'min-w-[100px] text-right  bg-green-700 text-gray-300  rounded-lg w-fit flex flex-wrap justify-end   max-w-fit md:max-w-[60vw] relative'
+                : ' min-w-[100px] text-left bg-gray-800 text-gray-300  rounded-lg w-fit flex justify-start max-w-fit md:max-w-[60vw] relative'
             "
           >
+            <RouterLink
+              :to="'/user-profile/' + item.sender_id"
+              v-if="item.sender_id !== user.id && item.user_name"
+              class="px-4 w-fit min-w-[200px] flex justify-start items-center gap-2 absolute bottom-full left-0"
+            >
+              <div
+                v-for="i in certainRoom"
+                :key="i.room_id"
+                class="w-full flex justify-start items-center gap-1"
+              >
+                <p v-if="i.admin === item.sender_id" class="text-red-600 text-sm font-semibold">
+                  admin
+                </p>
+
+                <p class="text-black text-sm md:text-md font-light">~{{ item.user_name }}</p>
+              </div>
+            </RouterLink>
             <div
               @click="toggleMessagePanel(item.id)"
               v-if="item.sender_id === user.id"
@@ -475,6 +542,7 @@ onUnmounted(() => {
                 </div>
               </div>
             </div>
+
             <div class="w-full h-full flex flex-col justify-center items-center">
               <div
                 v-if="item.pic !== null"

@@ -35,68 +35,76 @@ const onFileChange = (e: Event) => {
   }
 }
 const imageUrls = ref<string[]>([])
+const isUploading = ref(false) // track upload state
 
 const handleUpload = async () => {
+  if (isUploading.value) {
+    console.log('Upload already in progress')
+    return
+  }
+
   if (!files.value.length) {
     console.error('Bitte wähle mindestens ein Bild aus.')
     return
   }
 
+  isUploading.value = true
   imageUrls.value = []
 
-  for (const file of files.value) {
-    const filePath = `user-${Date.now()}-${file.name}`
+  try {
+    for (const file of files.value) {
+      const filePath = `user-${Date.now()}-${file.name}`
+      const { error: uploadError } = await supabase.storage.from('ads').upload(filePath, file)
 
-    const { error: uploadError } = await supabase.storage.from('ads').upload(filePath, file)
+      if (uploadError) {
+        console.error(`Fehler beim Hochladen von ${file.name}:`, uploadError.message)
+        continue
+      }
 
-    if (uploadError) {
-      console.error(`Fehler beim Hochladen von ${file.name}:`, uploadError.message)
-      continue
+      const { data: publicData } = supabase.storage.from('ads').getPublicUrl(filePath)
+      imageUrls.value.push(publicData.publicUrl)
+    }
+    interface NewAd {
+      title: string
+      description: string
+      price: string
+      type: string
+      img: string[]
+      user_id: string
+      discount: string
+      if_discount: boolean
+    }
+    const newAd: NewAd = {
+      title: title.value,
+      description: description.value,
+      price: price.value,
+      type: type.value,
+      img: imageUrls.value,
+      user_id: user.value.id,
+      discount: discount.value || null,
+      if_discount: if_discount.value ?? false,
     }
 
-    const { data: publicData } = supabase.storage.from('ads').getPublicUrl(filePath)
+    const { error: insertError, data: insertData } = await supabase.from('ads').insert(newAd)
 
-    imageUrls.value.push(publicData.publicUrl)
-  }
-  interface NewAd {
-    title: string
-    description: string
-    price: string
-    discount?: string
-    if_discount: boolean
-    type: string
-    img: string[]
-    user_id: string
-  }
-  const newAd: NewAd = {
-    title: title.value,
-    description: description.value,
-    price: price.value,
-    type: type.value,
-    img: imageUrls.value,
-    user_id: user.value.id,
-    discount: discount.value || '',
-    if_discount: if_discount.value ?? false,
-  }
+    if (insertError) {
+      let friendlyMessage = 'Something went wrong. Please try again.'
+      if (insertError.message.includes('invalid input syntax for type numeric')) {
+        friendlyMessage = 'Please enter a valid number.'
+      } else if (insertError.message.includes('duplicate key')) {
+        friendlyMessage = 'This item already exists.'
+      } else if (insertError.message.includes('null value')) {
+        friendlyMessage = 'Required fields cannot be empty.'
+      }
 
-  const { error: insertError, data: insertData } = await supabase.from('ads').insert(newAd)
-  if (insertError) {
-    let friendlyMessage = 'Something went wrong. Please try again.'
-
-    if (insertError.message.includes('invalid input syntax for type numeric')) {
-      friendlyMessage = 'Please enter a valid number.'
-    } else if (insertError.message.includes('duplicate key')) {
-      friendlyMessage = 'This item already exists.'
-    } else if (insertError.message.includes('null value')) {
-      friendlyMessage = 'Required fields cannot be empty.'
+      console.error('Insert error:', insertError.message)
+      errorMessage.value = friendlyMessage
+    } else {
+      clickStore.isClicked = !clickStore.isClicked
+      console.log('insertData:', insertData)
     }
-
-    console.error('Insert error:', insertError.message)
-    errorMessage.value = friendlyMessage
-  } else {
-    // reset()
-    clickStore.isClicked = !clickStore.isClicked
-    console.log('insertData:', insertData)
+  } finally {
+    isUploading.value = false // reset state no matter what
   }
 }
 

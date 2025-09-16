@@ -87,6 +87,8 @@ export type Database = {
           participant_ids: string[] | null
           room_id: string
           room_topic: string | null
+          is_group: boolean
+          admin: string | null
         }
         Insert: {
           created_at?: string
@@ -94,6 +96,8 @@ export type Database = {
           participant_ids?: string[] | null
           room_id: string
           room_topic?: string | null
+          is_group?: boolean
+          admin?: string | null
         }
         Update: {
           created_at?: string
@@ -101,6 +105,8 @@ export type Database = {
           participant_ids?: string[] | null
           room_id?: string
           room_topic?: string | null
+          is_group?: boolean
+          admin?: string | null
         }
         Relationships: []
       }
@@ -230,6 +236,7 @@ export type Database = {
           name: string | null
           tel: string | null
           user_id: string
+          user_img: string | null
         }
         Insert: {
           created_at?: string
@@ -241,6 +248,7 @@ export type Database = {
           name?: string | null
           tel?: string | null
           user_id: string
+          user_img?: string | null
         }
         Update: {
           created_at?: string
@@ -252,6 +260,7 @@ export type Database = {
           name?: string | null
           tel?: string | null
           user_id?: string
+          user_img?: string | null
         }
         Relationships: []
       }

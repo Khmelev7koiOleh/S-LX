@@ -97,14 +97,14 @@ const justifyComputed = computed(() => {
       <div
         :class="
           ifHorisontal
-            ? 'w-full h-full flex flex-col justify-between items-center gap-2  '
+            ? 'w-full h-full flex flex-col justify-between items-center gap-2 '
             : 'w-full h-full flex justify-between items-center gap-2 '
         "
       >
         <div
           :class="
             col
-              ? 'w-full flex flex-col gap-3 items-center justify-center  bg-gray-0 '
+              ? 'w-full flex flex-col gap-3 items-center justify-center  bg-gray-0  '
               : ' w-full flex items-between justify-center  bg-gray-0 '
           "
         >
@@ -119,7 +119,7 @@ const justifyComputed = computed(() => {
               :style="{ width: size, height: h_size }"
             />
           </div>
-          <div class="w-full flex flex-col justify-between items-center gap-4">
+          <div class="w-full flex flex-col justify-between items-center gap-4 py-3">
             <div class="w-full flex flex-col justify-center items-center gap-2 pl-2">
               <p
                 class="w-full flex flex-wrap justify-start items-center break-all text-md font-semibold px-2"
