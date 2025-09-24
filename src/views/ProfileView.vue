@@ -29,7 +29,7 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div class="bg-gray-100">
+  <div class="bg-gray-50">
     <div class="w-full text-gray-800 flex justify-center">
       <div class="w-full flex justify-center px-4 py-4">
         <!-- <p class="text-gray-800 text-xl font-mono">{{ currentProfileTap }}</p> -->

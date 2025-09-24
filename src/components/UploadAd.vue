@@ -146,8 +146,8 @@ watch(if_discount, () => {
 
 <template>
   <div
-    class="p-8 space-y-4 flex flex-col justify-end items-start gap-1 max-w-[100vw] mx-auto bg-gray-50 h-[calc(100vh-0px)] overflow-auto relative"
-    :class="isPhone ? 'w-[100vw]' : 'w-full'"
+    class="flex flex-col justify-center items-start gap-1 max-w-[100vw] mx-auto bg-white overflow-auto relative"
+    :class="isPhone ? 'w-[100vw] h-[calc(100vh-70px)]' : 'w-full h-[calc(100vh-0px)]'"
   >
     <button
       @click="closeAndReset()"
@@ -157,76 +157,99 @@ watch(if_discount, () => {
       <p class="text-gray-600 text-lg font-semibold">Post your ad</p>
     </button>
     <br />
-    <input
-      v-model="title"
-      type="text"
-      placeholder="Title"
-      class="w-full p-2 border rounded text-gray-900 placeholder:gray-900"
-    />
 
-    <textarea
-      v-model="description"
-      :rows="description.length > 40 ? 4 : 1"
-      type="text"
-      placeholder="Description"
-      class="w-full p-2 border rounded text-gray-900 placeholder:gray-900"
+    <div
+      class="p-8 md:p-4 space-y-4 flex flex-col justify-center items-start gap-1 max-w-[100vw] mx-auto bg-[#f79812] overflow-auto relative rounded-md"
+      :class="isPhone ? 'w-[90vw]' : 'w-[95%]'"
     >
-    </textarea>
+      <div class="w-full flex flex-col justify-start items-start gap-2">
+        <p class="text-gray-900 text-sm font-semibold">Title</p>
+        <input
+          v-model="title"
+          type="text"
+          placeholder="Add Title"
+          class="w-full p-2 border rounded text-gray-900 placeholder:text-gray-900 placeholder:text-sm border-gray-900"
+        />
+      </div>
 
-    <input
-      v-model="price"
-      type="text"
-      placeholder="Price"
-      class="w-full p-2 border rounded text-gray-900 placeholder:gray-900"
-    />
+      <div class="w-full flex flex-col justify-start items-start gap-2">
+        <p class="text-gray-900 text-sm font-semibold">Description</p>
+        <textarea
+          v-model="description"
+          :rows="description.length > 40 ? 4 : 1"
+          type="text"
+          placeholder="Description"
+          class="w-full p-2 border rounded text-gray-900 placeholder:text-gray-900 placeholder:text-sm border-gray-900"
+        >
+        </textarea>
+      </div>
 
-    <div class="flex gap-2">
-      <p class="text-gray-900 placeholder:gray-900">Add Discount</p>
+      <div class="w-full flex flex-col justify-start items-start gap-2">
+        <p class="text-gray-900 text-sm font-semibold">Price</p>
+        <input
+          v-model="price"
+          type="text"
+          placeholder="Price"
+          class="w-full p-2 border rounded text-gray-900 placeholder:text-gray-900 placeholder:text-sm border-gray-900"
+        />
+      </div>
+      <div class="w-full flex flex-col justify-start items-start gap-2">
+        <p class="text-gray-900 text-sm font-semibold">Type</p>
+        <select
+          v-model="type"
+          @change="typeValue(type)"
+          placeholder="Type"
+          class="w-full p-2 border rounded text-gray-900 placeholder:text-gray-900 placeholder:text-sm border-gray-900"
+        >
+          <option disabled value="">Select type</option>
+          <option v-for="tp in adType" :key="tp.value" :value="tp.value">
+            {{ tp.title }}
+          </option>
+        </select>
+      </div>
 
-      <input
-        v-model="if_discount"
-        type="checkbox"
-        placeholder="If Discount"
-        class="p-2 border rounded text-gray-900 placeholder:gray-900"
-      />
-    </div>
+      <div class="w-full flex flex-col justify-start items-start gap-2">
+        <p v-if="if_discount" class="text-gray-900 text-sm font-semibold">Discount</p>
+        <input
+          v-if="if_discount"
+          v-model="discount"
+          type="text"
+          placeholder="Discount price"
+          class="w-full p-2 border rounded text-gray-900 placeholder:text-gray-900 placeholder:text-sm border-gray-900"
+        />
+      </div>
 
-    <input
-      v-if="if_discount"
-      v-model="discount"
-      type="text"
-      placeholder="Discount price"
-      class="w-full p-2 border rounded text-gray-900 placeholder:gray-900"
-    />
-    <select
-      v-model="type"
-      @change="typeValue(type)"
-      placeholder="Type"
-      class="w-full p-2 border rounded text-gray-900 placeholder:gray-900"
-    >
-      <option disabled value="">Select type</option>
-      <option v-for="tp in adType" :key="tp.value" :value="tp.value">
-        {{ tp.title }}
-      </option>
-    </select>
-    <div v-if="imageUrl" class="mt-4">
-      <p class="text-sm text-gray-600">Preview:</p>
-      <img
-        :src="imageUrl"
-        alt="Preview"
-        class="w-48 h-auto mt-2 rounded text-gray-900 placeholder:gray-900"
-      />
-    </div>
-    <input
-      ref="fileInputRef"
-      type="file"
-      multiple
-      @change="onFileChange"
-      class="w-full text-gray-900 placeholder:gray-900"
-    />
-    <div v-if="errorMessage" class="text-red-600 text-md font-light">{{ errorMessage }}</div>
-    <div v-if="uploadError !== '' && !disabledComputed" class="text-center text-md text-red-400">
-      {{ uploadError }}
+      <div class="flex gap-2">
+        <p class="text-gray-900 placeholder:gray-900">Add Discount</p>
+
+        <input
+          v-model="if_discount"
+          type="checkbox"
+          placeholder="If Discount"
+          class="p-2 border rounded text-gray-900 placeholder:gray-900"
+        />
+      </div>
+
+      <div v-if="imageUrl" class="mt-4">
+        <p class="text-sm text-gray-600">Preview:</p>
+        <img :src="imageUrl" alt="Preview" class="w-48 h-auto mt-2 rounded text-gray-900" />
+      </div>
+
+      <div class="w-full flex flex-col justify-start items-start gap-2">
+        <p v-if="if_discount" class="text-gray-900 text-sm font-semibold">Image</p>
+        <input
+          ref="fileInputRef"
+          type="file"
+          multiple
+          @change="onFileChange"
+          class="w-full text-gray-900 placeholder:text-gray-900 placeholder:text-sm border border-gray-900"
+        />
+      </div>
+
+      <div v-if="errorMessage" class="text-red-600 text-md font-light">{{ errorMessage }}</div>
+      <div v-if="uploadError !== '' && !disabledComputed" class="text-center text-md text-red-400">
+        {{ uploadError }}
+      </div>
     </div>
     <button
       type="submit"
@@ -234,8 +257,8 @@ watch(if_discount, () => {
       @click="[handleUpload(), (uploadError = 'All fields are required')]"
       :class="
         disabledComputed
-          ? 'w-full bg-blue-500 px-4 py-2 my-8  rounded text-gray-200 placeholder:gray-200 cursor-pointer'
-          : 'w-full bg-gray-500 px-4 py-2 my-8 rounded text-gray-200 placeholder:gray-200'
+          ? 'w-[100%] absolute bottom-1 left-0 bg-blue-500 px-4 py-3 mt-4  rounded text-gray-200 font-semibold placeholder:gray-200 cursor-pointer'
+          : 'w-[100%] absolute bottom-1 left-0 bg-gray-500 px-4 py-3 mt-4 rounded text-lg text-gray-200  font-semibold  placeholder:gray-200 cursor-pointer'
       "
     >
       Upload & Save
@@ -248,5 +271,22 @@ input[type='file'] {
   border: 1px solid #ccc;
   padding: 8px;
   border-radius: 4px;
+}
+
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.slide-fade-enter-to,
+.slide-fade-leave-from {
+  opacity: 1;
+  transform: translateY(0);
 }
 </style>
