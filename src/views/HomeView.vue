@@ -175,7 +175,7 @@ onMounted(() => {
       <div
         :class="
           isPhone
-            ? 'w-[95%] min-h-[50vh] mx-auto flex flex-col justify-center items-center  m-4'
+            ? 'w-[100%] min-h-[50vh] mx-auto flex flex-col justify-center items-center  m-4'
             : 'w-[95%] min-h-[50vh] mx-auto bg-amber-500 rounded-xl m-4'
         "
       >
@@ -226,16 +226,16 @@ onMounted(() => {
               :key="ad.title"
               :class="
                 isPhone
-                  ? 'basis-1/3 flex flex-col items-center justify-center gap-3 p-4'
+                  ? ' basis-1/3 flex flex-col items-center justify-center gap-3 p-4'
                   : 'flex flex-col items-center justify-center gap-3 bg-amber-500 rounded-full p-4'
               "
             >
-              <div class="p-1">
+              <div class="p-0">
                 <Card class="bg-transparent border-none shadow-none">
                   <CardContent
-                    class="w-[100px] flex flex-col aspect-square items-center justify-center gap-3 p-1"
+                    class="w-[100px] flex flex-col aspect-square items-center justify-center gap-3"
                   >
-                    <div class="shadow p-2 rounded-full">
+                    <div class="shadow rounded-full">
                       <Icon :icon="ad.icon" width="34" height="34 " class="bg-black text-white" />
                     </div>
                     <p class="text-white">{{ ad.title }}</p>
