@@ -165,8 +165,8 @@ onMounted(() => {
         v-if="clickStore.isClicked"
         :class="
           clickStore.isClicked
-            ? 'fixed bottom-0 right-0 translate-0 transition-all duration-500 ease-in-out z-10 overflow-auto '
-            : 'fixed bottom-0 right-0 translate-x-full transition-all duration-500 easy-in-out z-10 overflow-auto'
+            ? 'fixed bottom-0 right-0 translate-0 transition-all duration-500 ease-in-out z-50 overflow-auto '
+            : 'fixed bottom-0 right-0 translate-x-full transition-all duration-500 easy-in-out z-50 overflow-auto'
         "
       >
         <UploadAd />
@@ -179,7 +179,7 @@ onMounted(() => {
             : 'w-[95%] min-h-[50vh] mx-auto bg-amber-500 rounded-xl m-4'
         "
       >
-        <p class="text-2xl text-gray-800 font-semibold pb-12 pt-4 w-full text-center">
+        <p class="text-2xl text-gray-700 font-semibold pb-12 pt-4 w-full text-center">
           Sections on the S'LX service
         </p>
 
@@ -188,14 +188,15 @@ onMounted(() => {
           :class="
             isPhone
               ? 'w-full    p-0'
-              : 'w-full flex flex-wrap justify-start items-center gap-12 p-8'
+              : 'w-full flex flex-wrap justify-start items-center gap-10 p-8'
           "
         >
           <li @click="handleCategory(ad.value)" v-for="ad in adType" :key="ad.title">
             <div
-              class="flex flex-col items-center justify-center gap-3 bg-amber-500 rounded-full p-4"
+              class="w-full flex flex-col items-center justify-center gap-3 bg-amber-500 rounded-full p-4 text-gray-700 hover:text-gray-900"
             >
-              <Icon :icon="ad.icon" width="34" height="34" />{{ ad.title }}
+              <Icon :icon="ad.icon" width="34" height="34" />
+              <p class="text-lgfont-semibold">{{ ad.title }}</p>
             </div>
           </li>
         </ul>
@@ -210,10 +211,10 @@ onMounted(() => {
               delay: 2000,
             }),
           ]"
-          class="relative w-full"
+          class="relative w-full bg-gray-950"
         >
           <div class="p-2">
-            <div class="absolute bottom-full right-[20%]">
+            <div class="absolute top-0 my-5 right-[20%] z-10">
               <CarouselPrevious />
               <CarouselNext />
             </div>
@@ -235,9 +236,9 @@ onMounted(() => {
                     class="w-[100px] flex flex-col aspect-square items-center justify-center gap-3 p-1"
                   >
                     <div class="shadow p-2 rounded-full">
-                      <Icon :icon="ad.icon" width="34" height="34" />
+                      <Icon :icon="ad.icon" width="34" height="34 " class="bg-black text-white" />
                     </div>
-                    {{ ad.title }}
+                    <p class="text-white">{{ ad.title }}</p>
                   </CardContent>
                 </Card>
               </div>
@@ -252,7 +253,7 @@ onMounted(() => {
         <ul
           :class="
             isPhone
-              ? ' w-full  grid grid-cols-2 justify-center items-center gap-4  py-8 '
+              ? ' w-full  grid grid-cols-2 justify-center items-center gap-4  py-8 px-4 '
               : ' w-full grid grid-cols-4 gap-4 p-20 justify-center items-center  py-2'
           "
         >

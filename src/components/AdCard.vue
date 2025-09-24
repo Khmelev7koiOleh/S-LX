@@ -156,14 +156,14 @@ const justifyComputed = computed(() => {
               </div>
               <div
                 v-if="price !== 0"
-                :class="['w-full flex items-center gap-4 px-4 ', justifyComputed]"
+                :class="['w-full flex items-center justify-center gap-4   ', justifyComputed]"
               >
                 <p
                   v-if="price"
                   :class="
                     if_discount && price !== null && discount !== null && price > discount
                       ? 'line-through text-md text-red-500 '
-                      : '  text-md py-0 '
+                      : '  w-full flex items-center justify-center text-md py-0 bg-black  text-white'
                   "
                 >
                   {{ price }} €.
@@ -176,8 +176,8 @@ const justifyComputed = computed(() => {
                   {{ discount }} €.
                 </p>
               </div>
-              <div v-else class="w-full h-[50px] flex justify-center items-center bg-amber-400">
-                <p class="text-lg font-semibold text-white">For free</p>
+              <div v-else class="w-full flex justify-center items-center bg-amber-400">
+                <p class="text-md font-semibold text-white">For free</p>
               </div>
             </div>
           </div>

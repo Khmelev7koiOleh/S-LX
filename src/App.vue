@@ -24,6 +24,6 @@ onMounted(async () => {
 </script>
 
 <template>
-  <TopNav v-if="user.id" :data="navLinks" />
-  <div><RouterView /></div>
+  <TopNav v-if="user.id !== ''" :data="navLinks" />
+  <div class="pt-[80px]"><RouterView /></div>
 </template>
