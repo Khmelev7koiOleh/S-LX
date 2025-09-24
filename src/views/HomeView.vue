@@ -119,7 +119,7 @@ onMounted(() => {
             v-if="searchQuery"
             :class="
               isPhone
-                ? ' w-[100%] h-[29vh] absolute mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-0  py-2 z-10'
+                ? ' w-[100%] h-[29vh] absolute mt-2 flex flex-col gap-4 bg-white rounded-lg overflow-auto px-0  py-2 z-10'
                 : ' w-[100%] h-[29vh] absolute mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-0  py-2 z-10 '
             "
           >
