@@ -13,6 +13,9 @@ import { useSupabaseSubscription } from '@/composables/useSupabaseSubscription'
 
 import { useWindowSize } from '@/composables/useWindowSize'
 import type { Tables } from '@/types/supabase'
+
+import 'vue-sonner/style.css' // needed for styling
+import { toast } from 'vue-sonner'
 const { isPhone } = useWindowSize()
 const chatStore = useChatStore()
 const { subscribe, unsubscribe } = useSupabaseSubscription()
@@ -67,6 +70,11 @@ const deleteRoom = async (room_id: string) => {
     console.log(error)
   }
   router.push('/chats')
+  if (certainRoom.value?.[0].is_group === true) {
+    toast.success(`${certainRoom.value?.[0].room_topic} room has been deleted`)
+  } else {
+    toast.success(`${chat?.room_topic} chat has been deleted`)
+  }
 }
 
 const getMessages = async () => {
@@ -353,7 +361,9 @@ onUnmounted(() => {
         </div>
       </div>
     </div>
-    <div class="w-full h-[80px] flex justify-between items-center gap-4 bg-black text-white">
+    <div
+      class="w-full h-[80px] fixed top-[70px] flex justify-between items-center gap-4 bg-black text-white z-40"
+    >
       <RouterLink v-if="!isGroup" :to="'/user-profile/' + otherUserId">
         <div class="flex justify-start items-center gap-4 px-8 py-1">
           <div class="w-[50px] h-[50px]">

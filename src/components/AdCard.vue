@@ -77,10 +77,10 @@ const justifyComputed = computed(() => {
 
 <template>
   <div
-    :class="` flex justify-center items-center shadow rounded-t-md relative cursor-pointer bg-white `"
+    :class="` flex justify-center items-center shadow rounded-md relative cursor-pointer bg-white `"
     :style="{ width: w_container, height: h_container }"
   >
-    <div v-if="if_favorite" class="absolute top-2 right-2">
+    <div v-if="if_favorite" class="absolute top-2 right-2 z-30">
       <AddFavoritesButton
         :title="title"
         :description="description"
@@ -95,31 +95,45 @@ const justifyComputed = computed(() => {
     </div>
     <div class="w-full h-full flex justify-center items-center">
       <div
-        :class="
+        :class="[
           ifHorisontal
-            ? 'w-full h-full flex flex-col justify-between items-center gap-2 '
-            : 'w-full h-full flex justify-between items-center gap-2 '
-        "
+            ? '  w-full h-full flex flex-col justify-between items-center gap-2 '
+            : 'w-full h-full flex justify-between items-center gap-2 ',
+          col ? 'relative' : '',
+        ]"
       >
         <div
           :class="
             col
               ? 'w-full flex flex-col gap-3 items-center justify-center  bg-gray-0  '
-              : ' w-full flex items-between justify-center  bg-gray-0 '
+              : ' w-full flex items-between justify-center  bg-gray-0  '
           "
         >
           <div
-            class="min-w-[5rem] bg-transparent overflow-hidden h-full rounded-t-sm"
+            class="min-w-[5rem] overflow-hidden h-full rounded-t-sm"
             :style="{ width: size, height: h_size }"
           >
+            <!-- here -->
             <img
+              v-if="img?.[0]"
               :src="img?.[0] || undefined"
               alt=""
-              class="w-full h-full object-contain"
+              class="w-full h-full object-cover"
+              :style="{ width: size, height: h_size }"
+            />
+
+            <img
+              v-else
+              src="https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg"
+              alt=""
+              class="w-full h-full object-cover"
               :style="{ width: size, height: h_size }"
             />
           </div>
-          <div class="w-full flex flex-col justify-between items-center gap-4 py-3">
+          <div
+            class="w-full flex flex-col justify-between items-center gap-4 py-3"
+            :class="col ? '' : 'relative'"
+          >
             <div class="w-full flex flex-col justify-center items-center gap-2 pl-2">
               <p
                 class="w-full flex flex-wrap justify-start items-center break-all text-md font-semibold px-2"
@@ -139,7 +153,7 @@ const justifyComputed = computed(() => {
             <div
               :class="
                 horisontal
-                  ? 'w-full  absolute bottom-0 right-0 flex flex-col justify-end items-end gap-2 '
+                  ? 'w-[100%] absolute bottom-0 right-0 flex flex-col justify-end items-end gap-2 '
                   : 'w-[100%] flex flex-col justify-end items-end gap-2  '
               "
             >
@@ -156,15 +170,20 @@ const justifyComputed = computed(() => {
               </div>
               <div
                 v-if="price !== 0"
-                :class="['w-full flex items-center justify-center gap-4   ', justifyComputed]"
+                :class="[
+                  'w-full flex items-center justify-center gap-4   ',
+                  justifyComputed,
+                  col ? '' : '',
+                ]"
               >
                 <p
                   v-if="price"
-                  :class="
+                  :class="[
                     if_discount && price !== null && discount !== null && price > discount
                       ? 'line-through text-md text-red-500 '
-                      : '  w-full flex items-center justify-center text-md py-0 bg-black  text-white'
-                  "
+                      : '  w-full flex items-start justify-center text-md py-0 bg-black   text-white',
+                    col ? 'rounded-b-md' : '',
+                  ]"
                 >
                   {{ price }} €.
                 </p>
@@ -176,6 +195,8 @@ const justifyComputed = computed(() => {
                   {{ discount }} €.
                 </p>
               </div>
+              <!-- :h_size="isPhone ? '120px' : '200px'"
+                :size="isPhone ? '180px' : '300px'" -->
               <div v-else class="w-full flex justify-center items-center bg-amber-400">
                 <p class="text-md font-semibold text-white">For free</p>
               </div>

@@ -104,12 +104,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="bg-gray-100">
+  <main class="bg-gray-50">
     <div class="w-[100vw]">
       <div
         :class="
           isPhone
-            ? ' w-[90%] mx-auto flex flex-col items-center justify-center gap-8 p-4  '
+            ? ' w-[100%] mx-auto flex flex-col items-center justify-center gap-8 p-4  '
             : 'flex flex-row items-center justify-around p-8'
         "
       >
@@ -117,11 +117,12 @@ onMounted(() => {
           <Search v-model="searchQuery" />
           <ul
             v-if="searchQuery"
-            :class="
+            :class="[
               isPhone
-                ? ' w-[100%] h-[29vh] absolute mt-2 flex flex-col gap-4 bg-white rounded-lg overflow-auto px-0  py-2 z-10'
-                : ' w-[100%] h-[29vh] absolute mt-2 flex flex-col gap-1 bg-white rounded-lg overflow-auto px-0  py-2 z-10 '
-            "
+                ? ' w-[100%] absolute mt-2 flex flex-col gap-4 bg-white rounded-lg overflow-auto px-2  py-4 z-40'
+                : ' w-[100%]  absolute mt-2 flex flex-col gap-4 bg-white rounded-lg  overflow-auto px-2  py-4 z-40 ',
+              filteredAds.length === 0 ? ' h-fit' : ' h-[29vh]',
+            ]"
           >
             <li v-for="ad in filteredAds" :key="ad.id">
               <RouterLink :to="`/ad/${ad.id}`">
@@ -135,8 +136,8 @@ onMounted(() => {
                   :discount="ad.discount"
                   :discount_banner="true"
                   :type="ad.type"
-                  :h_size="'90px'"
-                  :size="'150px'"
+                  :h_size="isPhone ? '90px' : '90px'"
+                  :size="isPhone ? '150px' : '150px'"
                   :w_container="isPhone ? '100%' : '100%'"
                   :h_container="isPhone ? '90px' : '90px'"
                   :horisontal="true"
@@ -145,8 +146,8 @@ onMounted(() => {
                   :if_favorite="false"
                   :schrink="false"
                   :start="false"
-                  :center="false"
-                  :end="true"
+                  :center="true"
+                  :end="false"
                 />
               </RouterLink>
             </li>
@@ -211,7 +212,7 @@ onMounted(() => {
               delay: 2000,
             }),
           ]"
-          class="relative w-full bg-gray-950"
+          class="relative w-full bg-transparent"
         >
           <div class="p-2">
             <div class="absolute top-0 my-5 right-[20%] z-10">
@@ -233,12 +234,17 @@ onMounted(() => {
               <div class="p-0">
                 <Card class="bg-transparent border-none shadow-none">
                   <CardContent
-                    class="w-[100px] flex flex-col aspect-square items-center justify-center gap-3"
+                    class="w-[100px] flex flex-col aspect-square items-center justify-center gap-3 text-center"
                   >
                     <div class="shadow rounded-full">
-                      <Icon :icon="ad.icon" width="34" height="34 " class="bg-black text-white" />
+                      <Icon
+                        :icon="ad.icon"
+                        width="34"
+                        height="34 "
+                        class="bg-transparent text-black"
+                      />
                     </div>
-                    <p class="text-white">{{ ad.title }}</p>
+                    <p class="text-black">{{ ad.title }}</p>
                   </CardContent>
                 </Card>
               </div>

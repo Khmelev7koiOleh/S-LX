@@ -7,6 +7,8 @@ import { useGetUserStore } from '@/stores/current-user-store'
 import { adType } from '@/data/ad-type'
 import { Icon } from '@iconify/vue'
 
+import 'vue-sonner/style.css' // needed for styling
+import { toast } from 'vue-sonner'
 import { useWindowSize } from '@/composables/useWindowSize'
 const { isPhone } = useWindowSize()
 
@@ -105,11 +107,19 @@ const handleUpload = async () => {
     }
   } finally {
     isUploading.value = false // reset state no matter what
+    toast.success('Ad has been uploaded')
   }
 }
 
 const disabledComputed = computed(() => {
-  if (title.value && description.value && price.value && type.value && files.value.length) {
+  if (
+    title.value &&
+    description.value &&
+    price.value &&
+    type.value &&
+    files.value.length &&
+    (if_discount.value === false || (if_discount.value === true && discount.value !== ''))
+  ) {
     return true
   } else {
     return false
@@ -159,8 +169,8 @@ watch(if_discount, () => {
     <br />
 
     <div
-      class="p-8 md:p-4 space-y-4 flex flex-col justify-center items-start gap-1 max-w-[100vw] mx-auto bg-[#f79812] overflow-auto relative rounded-md"
-      :class="isPhone ? 'w-[90vw]' : 'w-[95%]'"
+      class="p-8 md:p-4 space-y-4 flex flex-col justify-center items-start gap-1 max-w-[100vw] mx-auto overflow-auto relative rounded-md"
+      :class="isPhone ? 'w-[90vw]  shadow' : 'w-[95%] bg-[#f79812]'"
     >
       <div class="w-full flex flex-col justify-start items-start gap-2">
         <p class="text-gray-900 text-sm font-semibold">Title</p>
@@ -257,7 +267,7 @@ watch(if_discount, () => {
       @click="[handleUpload(), (uploadError = 'All fields are required')]"
       :class="
         disabledComputed
-          ? 'w-[100%] absolute bottom-1 left-0 bg-blue-500 px-4 py-3 mt-4  rounded text-gray-200 font-semibold placeholder:gray-200 cursor-pointer'
+          ? 'w-[100%] absolute bottom-1 left-0 bg-green-500 px-4 py-3 mt-4  rounded text-gray-200 font-semibold placeholder:gray-200 cursor-pointer'
           : 'w-[100%] absolute bottom-1 left-0 bg-gray-500 px-4 py-3 mt-4 rounded text-lg text-gray-200  font-semibold  placeholder:gray-200 cursor-pointer'
       "
     >

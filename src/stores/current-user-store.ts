@@ -21,7 +21,19 @@ export const useGetUserStore = defineStore(
     })
 
     const backendError = ref<string[]>([])
-
+    const reset = () => {
+      user.value = {
+        name: '',
+        email: '',
+        id: '',
+        img: '',
+        description: '',
+        location: '',
+        tel: '',
+        user_id: '',
+        created_at: '',
+      }
+    }
     const signOut = async (router: Router) => {
       const { error } = await supabase.auth.signOut()
       if (error) {
@@ -143,7 +155,7 @@ export const useGetUserStore = defineStore(
         router.push('/')
       }
     }
-    return { user, signIn, signUp, signOut, backendError }
+    return { user, signIn, signUp, signOut, backendError, reset }
   },
   { persist: true },
 )

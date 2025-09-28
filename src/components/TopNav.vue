@@ -4,7 +4,8 @@ import { defineProps } from 'vue'
 import { ref, toRefs, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Button } from './ui/button'
-
+import 'vue-sonner/style.css' // needed for styling
+import { toast } from 'vue-sonner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -33,6 +34,7 @@ const isHovered = ref<string | null | boolean>(null)
 const handleSignOut = () => {
   userStore.signOut(router)
   onMenuOpen.value = false
+  toast.success('You have been signed out')
 }
 const burgerMenuComputed = computed(() => {
   if (!isPhone.value) {
@@ -55,7 +57,7 @@ watch(onMenuOpen, (val) => {
 
 <template>
   <div
-    class="w-[100vw] fixed top-0 left-0 flex justify-around bg-gray-50 z-50"
+    class="w-[100vw] fixed top-0 left-0 flex justify-around bg-gray-100 z-50"
     :class="isPhone ? 'h-[70px]' : 'h-[80px]'"
   >
     <RouterLink :to="{ name: 'home' }" class="flex items-center justify-center gap-3">
@@ -84,7 +86,11 @@ watch(onMenuOpen, (val) => {
           class="text-black"
         />
       </div>
-      <RouterLink :to="{ name: 'home' }" class="w-full flex items-center justify-center gap-0">
+      <RouterLink
+        v-if="isPhone"
+        :to="{ name: 'home' }"
+        class="w-full flex items-center justify-center gap-0"
+      >
         <img src="/public/logo.png" alt="" width="130" height="130" class="w-[130px] h-[130px]" />
       </RouterLink>
       <div

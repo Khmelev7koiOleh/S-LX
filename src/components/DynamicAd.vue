@@ -37,6 +37,7 @@ import { useSupabaseSubscription } from '@/composables/useSupabaseSubscription'
 import { useRateUser } from '@/composables/rate-user'
 import { useRatingsStore } from '@/stores/rating-store'
 import { useWindowSize } from '@/composables/useWindowSize'
+import { toast } from 'vue-sonner'
 const { isPhone } = useWindowSize()
 const { subscribe, unsubscribe } = useSupabaseSubscription()
 const chatStore = useChatStore()
@@ -106,6 +107,7 @@ const deleteAd = async (id: string) => {
   if (error) console.log(error)
   else {
     router.push({ name: 'ads' })
+    toast.success(`${ad?.value?.title} ad has been deleted`)
   }
 }
 

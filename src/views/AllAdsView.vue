@@ -96,6 +96,9 @@ onMounted(async () => {
           </RouterLink>
         </div>
       </div>
+      <div v-if="filteredAds.length === 0" class="text-center text-2xl font-bold">
+        Nothing found
+      </div>
       <br /><br /><br /><br />
     </div>
   </div>

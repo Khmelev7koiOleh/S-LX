@@ -4,7 +4,8 @@ import { supabase } from '../lib/supabaseClient'
 import { useRoute } from 'vue-router'
 import { ref, onMounted, toRefs } from 'vue'
 import type { Tables } from '@/types/supabase'
-
+import 'vue-sonner/style.css' // needed for styling
+import { toast } from 'vue-sonner'
 import { useGetUserStore } from '../stores/current-user-store'
 import Button from './ui/button/Button.vue'
 const userStore = useGetUserStore()
@@ -67,6 +68,7 @@ const addToFavorites = async (
     if (!errorDelete) {
       console.log(dataDelete)
       isFavorite.value = false
+      toast.success(`${title} ad has been removed from favorites`)
     } else {
       console.log(errorDelete)
     }
@@ -89,6 +91,7 @@ const addToFavorites = async (
       console.log(dataCreate)
     }
     if (!errorCreate) {
+      toast.success(`${title} Ad has been added to favorites`)
       isFavorite.value = true
     } else {
       console.log(errorCreate)

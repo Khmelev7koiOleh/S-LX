@@ -7,6 +7,7 @@ import { useRouter } from 'vue-router'
 import Button from '@/components/ui/button/Button.vue'
 
 const userStore = useGetUserStore()
+
 const { backendError } = toRefs(userStore)
 const name = ref('')
 const email = ref('')

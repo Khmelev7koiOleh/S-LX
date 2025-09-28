@@ -158,7 +158,7 @@ onUnmounted(() => {
 })
 </script>
 <template>
-  <div class="w-full h-full bg-gray-200 py-4">
+  <div class="w-full h-full bg-gray-50 py-4">
     <div :class="isPhone ? 'w-[100%] mx-auto' : 'w-[60%] mx-auto'">
       <div
         :class="

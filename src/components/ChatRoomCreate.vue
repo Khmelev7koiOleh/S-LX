@@ -18,6 +18,9 @@ import type { Tables } from '@/types/supabase'
 import { useChatStore } from '../stores/chat-store'
 import { useWindowSize } from '../composables/useWindowSize'
 import { useRouter } from 'vue-router'
+
+import 'vue-sonner/style.css' // needed for styling
+import { toast } from 'vue-sonner'
 const { isPhone } = useWindowSize()
 const router = useRouter()
 const chatStore = useChatStore()
@@ -61,7 +64,9 @@ async function createChatRoom(user_id: string) {
 
   if (data) {
     router.push(`/chats/${room_id}`) // Navigate
+    toast.success(`${roomName.value} room has been created`)
   }
+
   // goToChat(room_id as unknown as Tables<'chat_rooms'>)
   // currentRoom.value = data
 

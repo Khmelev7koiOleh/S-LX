@@ -39,10 +39,10 @@ watch(input, (val) => {
         v-model="input"
         type="text"
         placeholder="What are you looking for?"
-        class="w-full pr-3 py-2 pl-10 border border-gray-400 rounded-lg rounded-r-none focus:outline-none"
+        class="w-full pr-3 py-2 pl-10 border border-gray-400 rounded-lg focus:outline-none placeholder:text-gray-700 placeholder:text-sm placeholder:font-semibold"
       />
     </div>
-    <div class="bg-blue-950 rounded-r-md p-2.5 text-white border border-blue-950">Search</div>
+    <!-- <div class="bg-blue-950 rounded-r-md p-2 text-white border border-blue-950">Search</div> -->
   </div>
 </template>
 
