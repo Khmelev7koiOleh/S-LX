@@ -155,6 +155,7 @@ watch(if_discount, () => {
 </script>
 
 <template>
+  <!-- changes -->
   <div
     class="flex flex-col justify-center items-start gap-1 max-w-[100vw] mx-auto bg-white overflow-auto relative"
     :class="isPhone ? 'w-[100vw] h-[calc(100vh-70px)]' : 'w-full h-[calc(100vh-0px)]'"
