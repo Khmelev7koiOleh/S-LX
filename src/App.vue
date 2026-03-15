@@ -46,7 +46,7 @@ watch(
 
 <template>
   <TopNav v-if="user && user.id && route.path !== '/login'" :data="navLinks" />
-
+  <!-- <div class="bg-red-500 text-2xl text-black">{{ user && user.id }}e</div> -->
   <div :class="user && user.id ? 'pt-[80px]' : 'pt-[0px]'">
     <Toaster />
     <RouterView />

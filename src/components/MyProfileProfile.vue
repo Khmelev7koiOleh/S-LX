@@ -115,13 +115,16 @@ const openEdit = async () => {
   description.value = info.value?.description ?? ''
   location.value = info.value?.location ?? ''
   tel.value = info.value?.tel ?? ''
-  imageUrl.value = info.value?.img
+  imageUrl.value = info.value?.img ?? null
+  onEditInfo.value = !onEditInfo.value
+  console.log(info.value?.img)
+  // if (!info.value?.img) return
+
   if (info.value?.img) {
     const response = await fetch(info.value?.img)
     const blob = await response.blob()
     file.value = new File([blob], 'image.jpg', { type: blob.type })
   }
-  onEditInfo.value = !onEditInfo.value
 }
 
 onMounted(async () => {
