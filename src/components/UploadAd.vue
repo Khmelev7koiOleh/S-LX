@@ -171,7 +171,7 @@ watch(if_discount, () => {
 
     <div
       class="p-8 md:p-4 space-y-4 flex flex-col justify-center items-start gap-1 max-w-[100vw] mx-auto overflow-auto relative rounded-md"
-      :class="isPhone ? 'w-[90vw]  shadow' : 'w-[95%] bg-[#f79812]'"
+      :class="isPhone ? 'w-[90vw]  shadow' : 'w-[95%] bg-[#ffffff] shadow-md'"
     >
       <div class="w-full flex flex-col justify-start items-start gap-2">
         <p class="text-gray-900 text-sm font-semibold">Title</p>
