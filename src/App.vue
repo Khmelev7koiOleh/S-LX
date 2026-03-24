@@ -45,6 +45,7 @@ watch(
 </script>
 
 <template>
+  <!-- a comment to test git diff -->
   <TopNav v-if="user && user.id && route.path !== '/login'" :data="navLinks" />
 
   <div :class="user && user.id ? 'pt-[80px]' : 'pt-[0px]'">
