@@ -56,78 +56,53 @@ export const useGetUserStore = defineStore(
     }
 
     const signUp = async (name: string, email: string, password: string, router: Router) => {
-      console.log('Signing up:', name, email)
-
-      // 1️⃣ Sign up user with Supabase Auth
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
+      console.log(name, email, password, router)
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
         options: {
           data: {
-            name,
             img: 'https://sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png',
+            name: name,
           },
         },
       })
+      console.log(data)
+      const {} = await supabase.from('user').insert({
+        id: data.user?.id,
+        name: name,
+        email: email,
+        img: 'https://sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png',
+        user_id: data.user?.id,
+        description: '',
+        location: '',
+        tel: '',
+      })
 
-      if (signUpError) {
-        console.error('SignUp failed:', signUpError.message)
-        backendError.value = [signUpError.message]
-        return
-      }
+      if (error) {
+        backendError.value = [error.message]
+        console.error('Login failed:', error.message)
+      } else {
+        const currentUser = await supabase.auth.getUser()
+        console.log(currentUser)
 
-      if (!signUpData.user) {
-        console.error('No user returned from signUp')
-        backendError.value = ['SignUp did not return a user']
-        return
-      }
+        const { email, id, user_metadata } = currentUser.data.user ?? {}
 
-      const userId = signUpData.user.id
-
-      // 2️⃣ Insert profile into users table
-      const { data: userData, error: insertError } = await supabase
-        .from('users')
-        .insert({
-          user_id: userId,
-          id: userId, // optional if your table has an "id" column
-          name,
-          email,
-          img: 'https://sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png',
+        user.value = {
+          name: user_metadata?.name || '',
+          email: email as string,
+          id: id as string,
+          img: user_metadata?.img || '',
           description: '',
           location: '',
           tel: '',
-        })
-        .select()
-        .single() // select() + single() ensures we get the inserted row back
+          user_id: id as string,
+          created_at: '',
+        }
 
-      if (insertError) {
-        console.error('Insert user failed:', insertError.message)
-        backendError.value = [insertError.message]
-        return
+        console.log('Login success:', data.session)
+        router.push('/')
       }
-
-      // 3️⃣ Get current user (optional, but useful for session info)
-      const { data: currentUserData } = await supabase.auth.getUser()
-
-      const { user_metadata, email: userEmail, id } = currentUserData.data.user ?? {}
-
-      // 4️⃣ Update your reactive user object
-      user.value = {
-        name: user_metadata?.name || userData.name || '',
-        email: userEmail || userData.email,
-        id: id || userData.user_id,
-        img: user_metadata?.img || userData.img || '',
-        description: userData.description || '',
-        location: userData.location || '',
-        tel: userData.tel || '',
-        user_id: id || userData.user_id,
-        created_at: userData.created_at || '',
-      }
-
-      console.log('SignUp & profile creation successful:', user.value)
-
-      // 5️⃣ Redirect
-      router.push('/')
     }
     const signIn = async (email: string, password: string, router: Router) => {
       console.log(email, password)
