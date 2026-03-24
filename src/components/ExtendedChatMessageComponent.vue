@@ -107,7 +107,6 @@ const sendMessage = async (room_id: string | string[], sender_id: string, text: 
   ])
   if (error) {
     console.log(error)
-    console.log(room_id, sender_id, text, user.value.img, user.value.name)
   } else {
     message.value = ''
     errorMessage.value = ''
