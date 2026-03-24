@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, toRefs, watch, computed } from 'vue'
-
+import { safeFileName } from '@/composables/safeFileName'
 import { supabase } from '@/lib/supabaseClient'
 import { useClickFunctionStore } from '@/stores/click-function-store'
 import { useGetUserStore } from '@/stores/current-user-store'
@@ -55,7 +55,8 @@ const handleUpload = async () => {
 
   try {
     for (const file of files.value) {
-      const filePath = `user-${Date.now()}-${file.name}`
+      const safeName = safeFileName(file.name)
+      const filePath = `user-${Date.now()}-${safeName}`
       const { error: uploadError } = await supabase.storage.from('ads').upload(filePath, file)
 
       if (uploadError) {

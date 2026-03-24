@@ -56,52 +56,73 @@ export const useGetUserStore = defineStore(
     }
 
     const signUp = async (name: string, email: string, password: string, router: Router) => {
-      console.log(email, password)
-      const { data, error } = await supabase.auth.signUp({
-        email: email,
-        password: password,
-        options: {
-          data: {
-            img: 'https://sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png',
-            name: name,
+      const defaultImg = 'https://sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png'
+
+      try {
+        // 1️⃣ Sign up the user
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              name,
+              img: defaultImg,
+            },
           },
-        },
-      })
+        })
 
-      const {} = await supabase.from('user').insert({
-        id: data.user?.id,
-        name: name,
-        email: email,
-        img: 'https://sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png',
-        user_id: data.user?.id,
-        description: '',
-        location: '',
-        tel: '',
-      })
+        if (error) {
+          console.error('Signup failed:', error.message)
+          backendError.value = [error.message]
+          return
+        }
 
-      if (error) {
-        backendError.value = [error.message]
-        console.error('Login failed:', error.message)
-      } else {
-        const currentUser = await supabase.auth.getUser()
-        console.log(currentUser)
+        if (!data.user) {
+          console.error('No user returned from signup')
+          backendError.value = ['No user returned from signup']
+          return
+        }
 
-        const { email, id, user_metadata } = currentUser.data.user ?? {}
+        const userId = data.user.id
 
-        user.value = {
-          name: user_metadata?.name || '',
-          email: email as string,
-          id: id as string,
-          img: user_metadata?.img || '',
+        // 2️⃣ Insert user into your "user" table
+        const { error: insertError } = await supabase.from('user').insert({
+          id: userId,
+          user_id: userId,
+          name,
+          email,
+          img: defaultImg,
           description: '',
           location: '',
           tel: '',
-          user_id: id as string,
+        })
+
+        if (insertError) {
+          console.error('Insert into table failed:', insertError.message)
+          backendError.value = [insertError.message]
+          return
+        }
+
+        // 3️⃣ Set your local store (user state)
+        user.value = {
+          id: userId,
+          user_id: userId,
+          name,
+          email,
+          img: defaultImg,
+          description: '',
+          location: '',
+          tel: '',
           created_at: '',
         }
 
-        console.log('Login success:', data.session)
+        console.log('Signup success:', data)
+
+        // 4️⃣ Redirect to home (or wherever you want)
         router.push('/')
+      } catch (err: any) {
+        console.error('Unexpected error during signup:', err)
+        backendError.value = [err.message || 'Unknown error']
       }
     }
     const signIn = async (email: string, password: string, router: Router) => {

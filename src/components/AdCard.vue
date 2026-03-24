@@ -197,7 +197,7 @@ const justifyComputed = computed(() => {
               </div>
               <!-- :h_size="isPhone ? '120px' : '200px'"
                 :size="isPhone ? '180px' : '300px'" -->
-              <div v-else class="w-full flex justify-center items-center bg-amber-400">
+              <div v-else class="w-full flex justify-center items-center bg-amber-400 rounded-b-sm">
                 <p class="text-md font-semibold text-white">For free</p>
               </div>
             </div>
